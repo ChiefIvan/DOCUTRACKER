@@ -1,13 +1,14 @@
 <script>
-  import axios from "axios";
+  import { serverResponse } from "../../stores";
 
-  async function logout() {
-    try {
-      await axios.post("http://127.0.0.1:5000/index");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  }
+  const logoutAPI = "http://127.0.0.1:5000/logout";
+
+  const hanleLogout = () => {
+    fetch(logoutAPI)
+      .then((response) => response.json())
+      .then((data) => ($serverResponse = data))
+      .catch((error) => console.error("Error:", error));
+  };
 </script>
 
-<button on:click={logout}> Logout </button>
+<button on:click={hanleLogout}> Logout </button>

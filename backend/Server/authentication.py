@@ -4,6 +4,10 @@ from .models import User
 from flask_login import login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from .static.Validation import Validated
+from .static.smt import Email
+from .static.system_credetials import EMAIL, PASSWORD
+from threading import Timer
+import json
 
 auth = Blueprint("auth", __name__)
 
@@ -73,7 +77,45 @@ def signup() -> dict:
     return jsonify({})
 
 
-# @auth.route("/logout", methods=["POST"])
-# def logout():
-#     print(current_user.is_authenticated)
-#     return jsonify({})
+@auth.route("/logout", methods=["GET"])
+def logout():
+    return jsonify({"success": "You requested in the logout bruhh!"})
+
+
+@auth.route("/resetpassword", methods=["POST"])
+def reset_password():
+    user_existance_error: str = "Account Doesn't Exist"
+    change_duration_message: str = "You can only change your password once every 7 days"
+
+    reset_user_credentials: dict = request.json
+    reset_user_credentials |= {"name": None,
+                               "password": None, "confirm_password": None}
+    validated: bool | dict = Validated(reset_user_credentials).valid()
+    user_existance: bool = User.query.filter_by(
+        email=reset_user_credentials["email"]).first()
+    if isinstance(validated, dict):
+        return jsonify(validated)
+
+    if not user_existance:
+        return jsonify({"error": user_existance_error})
+
+    with open("C:\\Users\\User\\Documents\\My Project\\DOCUTRACKER\\backend\\Server\\static\\data.json", "r+") as file:
+        data = json.load(file)
+        if data["password_change"] == 0:
+            return jsonify({"error": change_duration_message})
+
+        password_changes = Email(to_email=user_existance.email, subject='hello',
+                                 body='this is a message', password=PASSWORD, from_email=EMAIL).send_email()
+        if password_changes:
+            data["password_change"] = 0
+            file.seek(0)
+            json.dump(data, file)
+            print(data["password_change"])
+
+    # print(changes)
+
+    # def time():
+    #     changes = changes + 1
+    # Timer(7 * 86, 400, time).start()
+
+    return jsonify({})

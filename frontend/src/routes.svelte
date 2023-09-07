@@ -7,6 +7,7 @@
   import ServerMessages from "./components/entries/serverMessages.svelte";
   import PageNotFound from "./components/pageNotFound.svelte";
   import PageTransition from "./components/pageTransition.svelte";
+  import ForgotPassword from "./components/forgotPassword.svelte";
 </script>
 
 <ServerMessages />
@@ -17,6 +18,7 @@
     <Route path="/login" component={Login} />
   </PageTransition>
   <Route path="/home" component={Home} />
+  <Route path="/Authentication/ResetPassword" component={ForgotPassword} />
   <Route path="/">
     <h1>Hallo</h1>
   </Route>

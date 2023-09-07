@@ -31,14 +31,15 @@ class Validation :
         pattern = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$")
         
         for key, value in self.entries.items() :
-            if key == "password" :
-                if len(value) < 8 :
-                    return {"error": length_error}
+            if value != None:
+                if key == "password" :
+                    if len(value) < 8 :
+                        return {"error": length_error}
                 
-                if not pattern.match(value) :
-                    return {"error": combination_error}
+                    if not pattern.match(value) :
+                        return {"error": combination_error}
         
-        if self.entries["confirm_password"] != None :
+        if self.entries["confirm_password"] != None and self.entries["password"] != None:
             if self.entries["password"] != self.entries["confirm_password"] :
                 return {"error": unequal_password_error}
                 

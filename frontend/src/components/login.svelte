@@ -62,7 +62,7 @@
         <input id="remember" type="checkbox" />
         <label class="remmember" for="remember">Remember me</label>
       </div>
-      <a href="/signup/Password">forgot password?</a>
+      <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
     <button>Sign in</button>
   </Form>

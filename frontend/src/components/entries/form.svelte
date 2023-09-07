@@ -37,7 +37,7 @@
       }
     } catch {
       $serverResponse = {
-        error: "Error submitting data, please try again later.",
+        error: "Server is down, please try again later.",
       };
     }
 
