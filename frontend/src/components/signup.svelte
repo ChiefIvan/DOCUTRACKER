@@ -12,6 +12,7 @@
   let email = "";
   let password = "";
   let cnfrmPassword = "";
+  let passwordErroColor = "";
   let api = "http://127.0.0.1:5000/signup";
 
   onMount(() => {
@@ -34,6 +35,17 @@
     $pageTransitionValue1 = 150;
     $pageTransitionValue2 = -150;
   };
+
+  $: {
+    if (cnfrmPassword.length != 0) {
+      console.log("hello");
+      if (password !== cnfrmPassword) {
+        passwordErroColor = "crimson";
+      } else {
+        passwordErroColor = "";
+      }
+    }
+  }
 </script>
 
 <section>
@@ -54,6 +66,7 @@
       inputType={"text"}
       inputAutocomplete={"off"}
       inputValue={userName}
+      miniModal={"Your Username must be greater than 4 charecters"}
       on:input={(e) => (userName = e.target.value)}
     />
     <Input
@@ -61,6 +74,7 @@
       inputType={"email"}
       inputAutocomplete={"on"}
       inputValue={email}
+      miniModal={"Please include the @ symbol!"}
       on:input={(e) => (email = e.target.value)}
     />
     <Input
@@ -68,6 +82,8 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={password}
+      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
+      errorColor={passwordErroColor}
       on:input={(e) => (password = e.target.value)}
     />
     <Input
@@ -75,6 +91,8 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={cnfrmPassword}
+      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
+      errorColor={passwordErroColor}
       on:input={(e) => (cnfrmPassword = e.target.value)}
     />
     <div class="container">

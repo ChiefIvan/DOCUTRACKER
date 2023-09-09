@@ -44,7 +44,7 @@ def login() -> dict:
 @auth.route("/signup", methods=["POST"])
 def signup() -> dict:
     database_insertion_error: str = "Sorry, something went wrong. Please try again."
-    success_message: str = "Account created successfully."
+    success_message: str = "Account created succesfully, a verification link has been sent to your email"
     duplicate_error_message: str = "Account already exist!"
 
     if request.method == "POST":
@@ -79,7 +79,7 @@ def signup() -> dict:
 
 @auth.route("/logout", methods=["GET"])
 def logout():
-    return jsonify({"success": "You requested in the logout bruhh!"})
+    return jsonify({"success": "Logged out succesfully"})
 
 
 @auth.route("/resetpassword", methods=["POST"])

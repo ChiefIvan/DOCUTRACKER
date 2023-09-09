@@ -1,6 +1,7 @@
 <script>
   import { entryState, resetInput, serverResponse } from "../../stores";
   import { createEventDispatcher } from "svelte";
+  import { navigate } from "svelte-routing";
 
   export let userName = "";
   export let email = "";
@@ -39,6 +40,10 @@
       $serverResponse = {
         error: "Server is down, please try again later.",
       };
+    }
+
+    if (String(Object.keys($serverResponse)) != "error") {
+      navigate("/login");
     }
 
     dispatch("resetInput", "");

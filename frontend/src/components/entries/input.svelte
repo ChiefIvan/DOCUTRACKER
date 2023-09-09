@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   import { afterUpdate } from "svelte";
   import { entryState, resetInput } from "../../stores";
 
@@ -6,26 +8,31 @@
   export let inputType = "";
   export let inputAutocomplete = "";
   export let inputValue = "";
+  export let miniModal = "";
+  export let errorColor = "";
 
   let activeFocus = false;
   let inputState = false;
+  let activeWarning = false;
+  let showModal = false;
 
   afterUpdate(() => {
     if ($entryState) {
       if (inputValue.length === 0) {
         inputState = false;
-        // return;
       }
     }
   });
 
-  const handleOnfocus = (e) => {
+  const handleOnfocus = (/** @type {any} */ e) => {
     inputState = true;
     activeFocus = true;
     $entryState = false;
   };
 
-  const handleOfffocus = (event) => {
+  const handleOfffocus = (
+    /** @type {{ target: { value: any; }; }} */ event
+  ) => {
     activeFocus = false;
 
     if (event.target.value) {
@@ -36,17 +43,34 @@
   };
 </script>
 
-<div>
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-mouse-events-have-key-events -->
+<div
+  on:mouseover={() => (activeWarning = true)}
+  on:mouseleave={() => (activeWarning = false)}
+>
+  {#if activeWarning}
+    {#if showModal}
+      <section>
+        {miniModal}
+      </section>
+    {/if}
+    <p
+      on:mouseover={() => (showModal = true)}
+      on:mouseout={() => (showModal = false)}
+    >
+      !
+    </p>
+  {/if}
   <label
+    style={errorColor && `color: ${errorColor}`}
     class:active-slide={inputState}
     class:focus-active={activeFocus}
     for={inputName}>{inputName}</label
   >
   <input
     required
-    title={inputType === "password"
-      ? "Your password must atleast 7 characters long!"
-      : "Please fiil out this field"}
+    style={errorColor && `border-bottom: 1px solid ${errorColor}`}
     id={inputName}
     class:focus-active={activeFocus}
     type={inputType}
@@ -70,39 +94,89 @@
     display: flex;
     align-items: center;
     position: relative;
-  }
 
-  label {
-    font-size: 1.2rem;
-    user-select: none;
-    transition: var(--transition) 250ms;
-    padding: 1.1rem;
-    color: gray;
-    cursor: text;
+    & section {
+      position: absolute;
+      bottom: 1rem;
+      right: -3.6rem;
 
-    position: absolute;
-    z-index: -1;
-  }
+      background-color: gray;
+      color: white;
+      width: 10rem;
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 0.8rem;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+      clip-path: polygon(
+        100% 0,
+        100% 87%,
+        61% 88%,
+        52% 100%,
+        41% 88%,
+        0 87%,
+        0 0
+      );
+    }
 
-  label.active-slide {
-    font-size: 0.7rem;
-    padding: 0 1rem;
-    transform: translateY(-1.4rem);
-  }
+    & p {
+      position: absolute;
+      top: 0;
+      right: 0.5rem;
+      z-index: 2;
 
-  label.focus-active {
-    color: var(--contrastcolor);
-  }
+      width: 1.5rem;
+      height: 1.5rem;
+      background-color: crimson;
+      color: white;
+      border-radius: 1rem;
+      text-align: center;
+      font-family: none;
+      font-weight: bolder;
+      cursor: pointer;
+      font-size: 1.3rem;
+    }
 
-  input {
-    height: 2rem;
-    width: 25rem;
-    padding: 0 1rem;
-    transition: var(--transition) 300ms;
-    border: 1px solid transparent;
-    border-bottom: 1px solid var(--entry-color);
-    outline: none;
-    background: transparent;
+    & p:hover section {
+      display: block;
+    }
+
+    & label {
+      font-size: 1.2rem;
+      user-select: none;
+      transition: var(--transition) 250ms;
+      padding: 1.1rem;
+      color: gray;
+      cursor: text;
+
+      position: absolute;
+      z-index: -1;
+    }
+
+    & label.active-slide {
+      font-size: 0.7rem;
+      padding: 0 1rem;
+      transform: translateY(-1.4rem);
+    }
+
+    & label.focus-active {
+      color: var(--contrastcolor);
+    }
+
+    & input {
+      height: 2rem;
+      width: 25rem;
+      padding: 0 1rem;
+      transition: var(--transition) 300ms;
+      border: 1px solid transparent;
+      border-bottom: 1px solid var(--entry-color);
+      outline: none;
+      background: transparent;
+    }
+
+    & input.focus-active {
+      border-bottom: 1px solid var(--contrastcolor);
+    }
   }
 
   div:hover input {
@@ -111,9 +185,5 @@
 
   div:hover label {
     color: orange;
-  }
-
-  input.focus-active {
-    border-bottom: 1px solid var(--contrastcolor);
   }
 </style>

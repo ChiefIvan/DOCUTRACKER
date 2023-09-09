@@ -48,6 +48,7 @@
       inputType={"email"}
       inputAutocomplete={"on"}
       inputValue={email}
+      miniModal={"Please include the @ symbol!"}
       on:input={(e) => (email = e.target.value)}
     />
     <Input
@@ -55,6 +56,7 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={password}
+      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
       on:input={(e) => (password = e.target.value)}
     />
     <div class="container">
@@ -64,7 +66,7 @@
       </div>
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
-    <button>Sign in</button>
+    <button>Login</button>
   </Form>
 </section>
 
