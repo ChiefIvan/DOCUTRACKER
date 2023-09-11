@@ -2,11 +2,16 @@
   // @ts-nocheck
   import { Link } from "svelte-routing";
   import { onMount, onDestroy } from "svelte";
-  import { pageTransitionValue1, pageTransitionValue2 } from "../stores";
+  import {
+    pageTransitionValue1,
+    pageTransitionValue2,
+    loaderState,
+  } from "../stores";
 
   import Input from "./entries/input.svelte";
   import Form from "./entries/form.svelte";
-  import banner from "../lib/banner.png";
+  import banner from "../lib/signup_banner.png";
+  import BarLoader from "./assets/barLoader.svelte";
 
   let userName = "";
   let email = "";
@@ -14,6 +19,8 @@
   let cnfrmPassword = "";
   let passwordErroColor = "";
   let api = "http://127.0.0.1:5000/signup";
+  const passwordLabel =
+    "Your password must be greater than 7 characters and have atleat 1 uppercase, 1 lowercase and a number!";
 
   onMount(() => {
     document.body.className = "body-class";
@@ -38,7 +45,6 @@
 
   $: {
     if (cnfrmPassword.length != 0) {
-      console.log("hello");
       if (password !== cnfrmPassword) {
         passwordErroColor = "crimson";
       } else {
@@ -47,6 +53,10 @@
     }
   }
 </script>
+
+{#if $loaderState}
+  <BarLoader />
+{/if}
 
 <section>
   <img src={banner} alt="login banner" />
@@ -66,7 +76,7 @@
       inputType={"text"}
       inputAutocomplete={"off"}
       inputValue={userName}
-      miniModal={"Your Username must be greater than 4 charecters"}
+      miniModal={"Your Username must be greater than 3 charecters"}
       on:input={(e) => (userName = e.target.value)}
     />
     <Input
@@ -82,7 +92,7 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={password}
-      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
+      miniModal={passwordLabel}
       errorColor={passwordErroColor}
       on:input={(e) => (password = e.target.value)}
     />
@@ -91,7 +101,7 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={cnfrmPassword}
-      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
+      miniModal={passwordLabel}
       errorColor={passwordErroColor}
       on:input={(e) => (cnfrmPassword = e.target.value)}
     />

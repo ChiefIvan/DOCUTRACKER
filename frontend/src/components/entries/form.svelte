@@ -1,5 +1,10 @@
 <script>
-  import { entryState, resetInput, serverResponse } from "../../stores";
+  import {
+    entryState,
+    resetInput,
+    serverResponse,
+    loaderState,
+  } from "../../stores";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
 
@@ -12,6 +17,7 @@
   const dispatch = createEventDispatcher();
 
   async function handleSubmit() {
+    $loaderState = true;
     $entryState = true;
     $resetInput.blur();
 
@@ -42,14 +48,16 @@
       };
     }
 
-    if (String(Object.keys($serverResponse)) != "error") {
+    if (String(Object.keys($serverResponse)) !== "error") {
       navigate("/login");
     }
+
+    $loaderState = false;
 
     dispatch("resetInput", "");
     setTimeout(() => {
       $serverResponse = {};
-    }, 5000);
+    }, 8000);
   }
 </script>
 

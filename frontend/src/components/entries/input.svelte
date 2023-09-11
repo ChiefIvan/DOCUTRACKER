@@ -49,18 +49,20 @@
   on:mouseover={() => (activeWarning = true)}
   on:mouseleave={() => (activeWarning = false)}
 >
-  {#if activeWarning}
-    {#if showModal}
-      <section>
-        {miniModal}
-      </section>
+  {#if miniModal.length !== 0}
+    {#if activeWarning}
+      {#if showModal}
+        <section>
+          {miniModal}
+        </section>
+      {/if}
+      <p
+        on:mouseover={() => (showModal = true)}
+        on:mouseout={() => (showModal = false)}
+      >
+        !
+      </p>
     {/if}
-    <p
-      on:mouseover={() => (showModal = true)}
-      on:mouseout={() => (showModal = false)}
-    >
-      !
-    </p>
   {/if}
   <label
     style={errorColor && `color: ${errorColor}`}
@@ -135,6 +137,8 @@
       font-weight: bolder;
       cursor: pointer;
       font-size: 1.3rem;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     & p:hover section {

@@ -3,10 +3,15 @@
 
   import { Link } from "svelte-routing";
   import { onMount, onDestroy } from "svelte";
-  import { pageTransitionValue1, pageTransitionValue2 } from "../stores";
+  import {
+    pageTransitionValue1,
+    pageTransitionValue2,
+    loaderState,
+  } from "../stores";
 
   import Input from "./entries/input.svelte";
   import Form from "./entries/form.svelte";
+  import BarLoader from "./assets/barLoader.svelte";
 
   let email = "";
   let password = "";
@@ -32,9 +37,13 @@
   };
 </script>
 
+{#if $loaderState}
+  <BarLoader />
+{/if}
+
 <section>
   <header>
-    <h1>Wecome back</h1>
+    <h1>Welcome back</h1>
     <p>
       Don't have an account?
       <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -48,7 +57,6 @@
       inputType={"email"}
       inputAutocomplete={"on"}
       inputValue={email}
-      miniModal={"Please include the @ symbol!"}
       on:input={(e) => (email = e.target.value)}
     />
     <Input
@@ -56,7 +64,6 @@
       inputType={"password"}
       inputAutocomplete={"off"}
       inputValue={password}
-      miniModal={"Your password must be greater than 7 characters and have atleat 1 Uppercase, 1 lowercase and a number!"}
       on:input={(e) => (password = e.target.value)}
     />
     <div class="container">

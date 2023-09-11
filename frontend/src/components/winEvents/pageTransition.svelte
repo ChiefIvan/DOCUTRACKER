@@ -5,7 +5,7 @@
     pageTransitionValue1,
     pageTransitionValue2,
     pageLocation,
-  } from "../stores";
+  } from "../../stores";
 
   const pageTransitionDuration = 150;
   const location = useLocation();

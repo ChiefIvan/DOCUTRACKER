@@ -1,0 +1,62 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Poppins:wght@200;300&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font: 1rem "Poppins", helvetica;
+  margin: 0;
+  padding: 0;
+}
+
+*::selection {
+  color: white;
+  background-color: red;
+}
+
+body {
+  height: 100vh;
+
+  & main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    height: inherit;
+    row-gap: 2rem;
+
+    & img {
+      max-width: 15rem;
+    }
+
+    & section {
+      & h1 {
+        font-size: 3rem;
+        font-weight: bold;
+      }
+
+      & h3 {
+        font-size: 1.3rem;
+      }
+
+      & h1,
+      h3 {
+        color: green;
+      }
+    }
+  }
+
+  & noscript {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+
+    & span {
+      font-size: 2rem;
+      font-weight: bolder;
+      color: crimson;
+    }
+  }
+}
