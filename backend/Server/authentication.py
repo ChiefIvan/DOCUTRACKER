@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request, render_template
-from flask_login import login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 from time import sleep
@@ -7,19 +6,20 @@ from . import db, mail, server
 from .models import User
 from .static.predef_function.Validation import Validated
 from .static.predef_function.smt import Smt
+from datetime import timedelta
 
 auth = Blueprint("auth", __name__)
 
 
 @auth.route("/login", methods=["POST"])
 def login() -> dict:
-    sleep(2)
     user_existance_error: str = "Account Doesn't Exist"
     Login_message: str = "Logged in succesfully"
     incorrect_password_error: str = "Incorrect password, please try again!"
     verification_error: str = "Please verify your account first"
 
     if request.method == "POST":
+        sleep(2)
         login_user_credentials: dict = request.json
         user_existance: bool = User.query.filter_by(
             email=login_user_credentials["email"]).first()
@@ -33,8 +33,10 @@ def login() -> dict:
         if not check_password_hash(user_existance.password, login_user_credentials["password"]):
             return jsonify({"error": incorrect_password_error})
 
-        login_user(user_existance, remember=True)
-        return jsonify({"success": Login_message})
+        token = Smt(server=server, mail=None, access="views.content",
+                    data=user_existance.id).authentication()
+
+        return jsonify({"success": Login_message, "remembered": token})
 
     return jsonify({})
 
@@ -59,8 +61,8 @@ def signup() -> dict:
         if user_existance:
             return jsonify({"error": duplicate_error_message})
 
-        user_verification = Smt(server=server, mail=mail,
-                                email=signup_user_credentials["email"]).send()
+        user_verification = Smt(access="auth.confirm_email", server=server, mail=mail,
+                                data=signup_user_credentials["email"]).send()
 
         if not user_verification:
             return jsonify({"error": user_verification_message})
@@ -112,15 +114,15 @@ def confirm_email(token):
         email = confirm_serializer.loads(
             token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
     except Exception:
-        return render_template("confirmation_template.html", content="The confirmation link is expired!")
+        return render_template("confirmation_template.html", content={"content": "The confirmation link is expired! ❌", "color": "crimson"})
 
     user = User.query.filter_by(email=email).first()
 
     if user.confirmed:
-        return render_template("confirmation_template.html", content="Email already confirmed")
+        return render_template("confirmation_template.html", content={"content": "Email already confirmed ✅", "color": "green"})
 
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
-        return render_template("confirmation_template.html", content="Email confirmed")
+        return render_template("confirmation_template.html", content={"content": "Email confirmed ✅", "color": "green"})

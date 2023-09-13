@@ -13,6 +13,7 @@
   export let password = "";
   export let cnfrmPassword = "";
   export let api = "";
+  export let navigateUser = "";
 
   const dispatch = createEventDispatcher();
 
@@ -37,10 +38,18 @@
         body: JSON.stringify(userCredentials),
       });
 
-      $serverResponse = await request.json();
-
       if (request.ok) {
-        console.log("Data submitted successfully!");
+        let response = await request.json();
+
+        if (response.error) {
+          $serverResponse = { error: response.error };
+        } else {
+          $serverResponse = { success: response.success };
+        }
+
+        if (response.remembered) {
+          localStorage.setItem("remembered", response.remembered);
+        }
       }
     } catch {
       $serverResponse = {
@@ -49,7 +58,7 @@
     }
 
     if (String(Object.keys($serverResponse)) !== "error") {
-      navigate("/login");
+      navigate(navigateUser);
     }
 
     $loaderState = false;

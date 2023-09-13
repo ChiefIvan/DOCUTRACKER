@@ -1,12 +1,9 @@
-from flask import Blueprint, jsonify
-from flask_login import current_user
+from flask import Blueprint, jsonify, redirect
 
 
 views = Blueprint("views", __name__)
 
 
 @views.route("/index", methods=["GET", "POST"])
-# @login_required
 def content():
-    print(current_user.is_authenticated)
-    return jsonify({})
+    return redirect("http://localhost:5173/home")

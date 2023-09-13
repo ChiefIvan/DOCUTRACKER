@@ -1,11 +1,10 @@
 from flask import Flask
 from os import path
 from flask_cors import CORS
-from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-from .static.predef_function.system_credentials import EMAIL, PASSWORD, SECRET_KEY, SALT
-# from gevent.pywsgi import WSGIServer
+from .static.predef_function.system_credentials import EMAIL, PASSWORD, SECRET_KEY, SALT, CORS_LINK
+from gevent.pywsgi import WSGIServer
 # from geventwebsocket.handler import WebSocketHandler
 
 server = Flask(__name__)
@@ -14,12 +13,13 @@ mail = Mail()
 
 
 class Flaskserver:
-    CORS(server, resources={r"/*": {"origins": "http://localhost:5173"}})
+    CORS(server, resources={r"/*": {"origins": CORS_LINK}})
     DB_NAME = "database.db"
 
     def __init__(self):
         self.server = server
-        # self.http_server = WSGIServer(('localhost', 5000), self.server, handler_class=WebSocketHandler)
+        self.http_server = WSGIServer(('localhost', 5000), self.server)
+        # handler_class=WebSocketHandler
         self.server.config["SECRET_KEY"] = SECRET_KEY
         self.server.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{self.DB_NAME}"
         self.server.config["MAIL_SERVER"] = 'smtp-mail.outlook.com'
@@ -45,14 +45,6 @@ class Flaskserver:
             if not path.exists(self.DB_NAME):
                 db.create_all()
 
-        login_manager = LoginManager()
-        login_manager.login_view = "auth.login"  # type: ignore
-        login_manager.init_app(self.server)
-
-        @login_manager.user_loader
-        def load_user(id):
-            return User.query.get(id)  # type: ignore
-
     def server_run(self):
-        # return self.http_server
-        return self.server
+        return self.http_server
+        # return self.server

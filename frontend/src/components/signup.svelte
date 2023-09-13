@@ -18,6 +18,7 @@
   let password = "";
   let cnfrmPassword = "";
   let passwordErroColor = "";
+  let navigateUser = "/login";
   let api = "http://127.0.0.1:5000/signup";
   const passwordLabel =
     "Your password must be greater than 7 characters and have atleat 1 uppercase, 1 lowercase and a number!";
@@ -66,6 +67,7 @@
     {password}
     {cnfrmPassword}
     {api}
+    {navigateUser}
     on:resetInput={handleReset}
   >
     <header>
