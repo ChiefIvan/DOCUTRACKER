@@ -5,5 +5,6 @@ export const pageTransitionValue2 = writable(0);
 export const entryState = writable(false);
 export const loaderState = writable(false);
 export const serverResponse = writable({});
+export const userContent = writable({});
 export const pageLocation = writable("");
 export const resetInput = writable();

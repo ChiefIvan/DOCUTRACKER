@@ -15,7 +15,7 @@
 
   let email = "";
   let password = "";
-  let navigateUser = "";
+  // let navigateUser = "";
   let api = "http://127.0.0.1:5000/login";
 
   const handleReset = (e) => {
@@ -27,7 +27,7 @@
     document.body.className = "body-class";
     document.title = "Docutracker | Login";
 
-    navigateUser = localStorage.getItem("remembered") || "";
+    // navigateUser = localStorage.getItem("remembered") || "";
 
     // const isLoggedIn = "http://127.0.0.1:5000/index";
     // fetch(isLoggedIn)

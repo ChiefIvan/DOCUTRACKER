@@ -13,7 +13,6 @@
   export let password = "";
   export let cnfrmPassword = "";
   export let api = "";
-  export let navigateUser = "";
 
   const dispatch = createEventDispatcher();
 
@@ -58,7 +57,7 @@
     }
 
     if (String(Object.keys($serverResponse)) !== "error") {
-      navigate(navigateUser);
+      navigate("/login");
     }
 
     $loaderState = false;

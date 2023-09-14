@@ -17,7 +17,8 @@
   let email = "";
   let password = "";
   let cnfrmPassword = "";
-  let passwordErroColor = "";
+  let passwordErrorColor = "";
+  let userNameErrorColor = "";
   let navigateUser = "/login";
   let api = "http://127.0.0.1:5000/signup";
   const passwordLabel =
@@ -45,12 +46,26 @@
   };
 
   $: {
+    if (userName.length != 0) {
+      if (userName.length < 4) {
+        userNameErrorColor = "crimson";
+      } else {
+        userNameErrorColor = "";
+      }
+    } else {
+      userNameErrorColor = "";
+    }
+  }
+
+  $: {
     if (cnfrmPassword.length != 0) {
       if (password !== cnfrmPassword) {
-        passwordErroColor = "crimson";
+        passwordErrorColor = "crimson";
       } else {
-        passwordErroColor = "";
+        passwordErrorColor = "";
       }
+    } else {
+      passwordErrorColor = "";
     }
   }
 </script>
@@ -79,6 +94,7 @@
       inputAutocomplete={"off"}
       inputValue={userName}
       miniModal={"Your Username must be greater than 3 charecters"}
+      errorColor={userNameErrorColor}
       on:input={(e) => (userName = e.target.value)}
     />
     <Input
@@ -95,7 +111,7 @@
       inputAutocomplete={"off"}
       inputValue={password}
       miniModal={passwordLabel}
-      errorColor={passwordErroColor}
+      errorColor={passwordErrorColor}
       on:input={(e) => (password = e.target.value)}
     />
     <Input
@@ -104,7 +120,7 @@
       inputAutocomplete={"off"}
       inputValue={cnfrmPassword}
       miniModal={passwordLabel}
-      errorColor={passwordErroColor}
+      errorColor={passwordErrorColor}
       on:input={(e) => (cnfrmPassword = e.target.value)}
     />
     <div class="container">

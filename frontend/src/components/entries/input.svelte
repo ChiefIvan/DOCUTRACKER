@@ -72,7 +72,7 @@
   >
   <input
     required
-    style={errorColor && `border-bottom: 1px solid ${errorColor}`}
+    style={errorColor.length !== 0 && `border-bottom: 1px solid ${errorColor}`}
     id={inputName}
     class:focus-active={activeFocus}
     type={inputType}
@@ -146,7 +146,7 @@
     }
 
     & label {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       user-select: none;
       transition: var(--transition) 250ms;
       padding: 1.1rem;

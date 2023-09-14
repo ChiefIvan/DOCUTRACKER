@@ -1,4 +1,3 @@
-import "./app.css";
 import Route from "./routes.svelte";
 
 const route = new Route({
