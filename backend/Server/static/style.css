@@ -34,15 +34,15 @@ body {
       & h1 {
         font-size: 3rem;
         font-weight: bold;
-        color: green;
       }
 
       & h3 {
         font-size: 1.3rem;
       }
 
-      & h3 {
-        color: black;
+      & h1,
+      h3 {
+        color: green;
       }
     }
   }

@@ -1,12 +1,14 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import (Blueprint, jsonify, request, render_template, redirect)
+from flask_jwt_extended import create_access_token, get_jwt, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 from time import sleep
-from . import db, mail, server
-from .models import User
+from datetime import datetime, timezone
+
+from . import (db, mail, server)
+from .models import User, Tokens,  Tokenblocklist
 from .static.predef_function.Validation import Validated
-from .static.predef_function.smt import Smt
-from datetime import timedelta
+from .static.predef_function.Smt import Smt
 
 auth = Blueprint("auth", __name__)
 
@@ -20,8 +22,9 @@ def login() -> dict:
 
     if request.method == "POST":
         sleep(2)
+
         login_user_credentials: dict = request.json
-        user_existance: bool = User.query.filter_by(
+        user_existance = User.query.filter_by(
             email=login_user_credentials["email"]).first()
 
         if not user_existance:
@@ -33,10 +36,31 @@ def login() -> dict:
         if not check_password_hash(user_existance.password, login_user_credentials["password"]):
             return jsonify({"error": incorrect_password_error})
 
-        token = Smt(server=server, mail=None, access="views.content",
-                    data=user_existance.id).authentication()
+        if verify_jwt_in_request(optional=True):
+            valid_token = Tokens.query.filter_by(
+                user_id=user_existance.id).first()
 
-        return jsonify({"success": Login_message, "remembered": token})
+            if valid_token:
+                db.session.delete(valid_token)
+                db.session.commit()
+
+                jti = get_jwt()["jti"]
+                now = datetime.now(timezone.utc)
+                db.session.add(Tokenblocklist(jti=jti, created_at=now))
+                db.session.commit()
+
+        access_token = create_access_token(
+            identity=user_existance)
+
+        user_token = Tokens(
+            data=access_token,
+            user_id=user_existance.id
+        )
+
+        db.session.add(user_token)
+        db.session.commit()
+
+        return jsonify({"success": Login_message, "remembered": access_token})
 
     return jsonify({})
 
@@ -61,7 +85,7 @@ def signup() -> dict:
         if user_existance:
             return jsonify({"error": duplicate_error_message})
 
-        user_verification = Smt(access="auth.confirm_email", server=server, mail=mail,
+        user_verification = Smt(server=server, mail=mail, access="auth.confirm_email",
                                 data=signup_user_credentials["email"]).send()
 
         if not user_verification:
@@ -73,7 +97,7 @@ def signup() -> dict:
                 email=signup_user_credentials["email"],
                 confirmed=False,
                 password=generate_password_hash(
-                    signup_user_credentials["password"], method="scrypt")
+                    signup_user_credentials["password"], method="pbkdf2:sha256")
             )
 
             db.session.add(users)
@@ -88,7 +112,11 @@ def signup() -> dict:
 
 @auth.route("/logout", methods=["GET"])
 def logout():
-    return jsonify({"success": "Logged out succesfully"})
+    jti = get_jwt()["jti"]
+    now = datetime.now(timezone.utc)
+    db.session.add(Tokenblocklist(jti=jti, created_at=now))
+    db.session.commit()
+    return jsonify({})
 
 
 @auth.route("/resetpassword", methods=["POST"])
@@ -106,7 +134,7 @@ def reset_password():
     return jsonify({})
 
 
-@auth.route('/<token>', methods=['GET'])
+@auth.route('/verification/<token>', methods=['GET'])
 def confirm_email(token):
     try:
         confirm_serializer = URLSafeTimedSerializer(
@@ -114,15 +142,30 @@ def confirm_email(token):
         email = confirm_serializer.loads(
             token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
     except Exception:
-        return render_template("confirmation_template.html", content={"content": "The confirmation link is expired! ❌", "color": "crimson"})
+        return render_template("confirmation_template.html",
+                               content={
+                                   "content": "The confirmation link is expired, or invalid token! ❌",
+                                   "color": "crimson"
+                               })
+
+    if not isinstance(email, str):
+        return redirect(f"http://127.0.0.1:5000/index/{token}")
 
     user = User.query.filter_by(email=email).first()
 
     if user.confirmed:
-        return render_template("confirmation_template.html", content={"content": "Email already confirmed ✅", "color": "green"})
+        return render_template("confirmation_template.html",
+                               content={
+                                   "content": "Email already confirmed ✅",
+                                   "color": "green"
+                               })
 
     else:
         user.confirmed = True
         db.session.add(user)
         db.session.commit()
-        return render_template("confirmation_template.html", content={"content": "Email confirmed ✅", "color": "green"})
+        return render_template("confirmation_template.html",
+                               content={
+                                   "content": "Email confirmed ✅",
+                                   "color": "green"
+                               })

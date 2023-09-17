@@ -89,7 +89,6 @@
   :root {
     --transition: all ease-in-out;
     --entry-color: lightgray;
-    --contrastcolor: blue;
   }
 
   div {
@@ -146,7 +145,7 @@
     }
 
     & label {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       user-select: none;
       transition: var(--transition) 250ms;
       padding: 1.1rem;
@@ -164,7 +163,7 @@
     }
 
     & label.focus-active {
-      color: var(--contrastcolor);
+      color: var(--brdr-actv);
     }
 
     & input {
@@ -179,7 +178,7 @@
     }
 
     & input.focus-active {
-      border-bottom: 1px solid var(--contrastcolor);
+      border-bottom: 1px solid var(--brdr-actv);
     }
   }
 

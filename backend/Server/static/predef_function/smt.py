@@ -23,7 +23,7 @@ class Smt:
             template = render_template(
                 "email_content.html", confirm_url=confirm_url)
             msg = Message(
-                recipients=[self.data], subject="Account Verification", html=template)
+                recipients=[self.data], subject="Confirm Your Email Address for DOCUTRACKER", html=template)
             self.mail.send(msg)
         except Exception:
             return False

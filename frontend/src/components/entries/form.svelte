@@ -13,6 +13,7 @@
   export let password = "";
   export let cnfrmPassword = "";
   export let api = "";
+  // export let navigateUser = "";
 
   const dispatch = createEventDispatcher();
 

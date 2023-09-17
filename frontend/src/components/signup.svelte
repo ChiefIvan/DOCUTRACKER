@@ -12,13 +12,19 @@
   import Form from "./entries/form.svelte";
   import banner from "../lib/signup_banner.png";
   import BarLoader from "./assets/barLoader.svelte";
+  import CaptchaCheckbox from "./entries/captchaCheckbox.svelte";
 
   let userName = "";
   let email = "";
   let password = "";
   let cnfrmPassword = "";
+  let captcha = false;
   let passwordErrorColor = "";
   let userNameErrorColor = "";
+  let emailErrorColor = "";
+  let regexEmail = /@/;
+  let buttonDisabled = true;
+  let captchaDisabled = true;
   let navigateUser = "/login";
   let api = "http://127.0.0.1:5000/signup";
   const passwordLabel =
@@ -38,6 +44,11 @@
     email = e.detail;
     password = e.detail;
     cnfrmPassword = e.detail;
+    captcha = false;
+  };
+
+  const handleCaptcha = (e) => {
+    captcha = e.detail;
   };
 
   const handleTransition = () => {
@@ -46,27 +57,15 @@
   };
 
   $: {
-    if (userName.length != 0) {
-      if (userName.length < 4) {
-        userNameErrorColor = "crimson";
-      } else {
-        userNameErrorColor = "";
-      }
-    } else {
-      userNameErrorColor = "";
-    }
-  }
-
-  $: {
-    if (cnfrmPassword.length != 0) {
-      if (password !== cnfrmPassword) {
-        passwordErrorColor = "crimson";
-      } else {
-        passwordErrorColor = "";
-      }
-    } else {
-      passwordErrorColor = "";
-    }
+    userNameErrorColor =
+      userName.length && userName.length < 4 ? "crimson" : "";
+    emailErrorColor = email.length && !regexEmail.test(email) ? "crimson" : "";
+    passwordErrorColor =
+      cnfrmPassword.length && password !== cnfrmPassword ? "crimson" : "";
+    captchaDisabled = [userName, email, password, cnfrmPassword].some(
+      (value) => value.length === 0
+    );
+    buttonDisabled = !captcha && true;
   }
 </script>
 
@@ -93,7 +92,7 @@
       inputType={"text"}
       inputAutocomplete={"off"}
       inputValue={userName}
-      miniModal={"Your Username must be greater than 3 charecters"}
+      miniModal={"Your Username must be greater than 3 charecters!"}
       errorColor={userNameErrorColor}
       on:input={(e) => (userName = e.target.value)}
     />
@@ -102,7 +101,8 @@
       inputType={"email"}
       inputAutocomplete={"on"}
       inputValue={email}
-      miniModal={"Please include the @ symbol!"}
+      miniModal={"Your email name must be greater than 3 characters, before the @ symbol!"}
+      errorColor={emailErrorColor}
       on:input={(e) => (email = e.target.value)}
     />
     <Input
@@ -124,13 +124,20 @@
       on:input={(e) => (cnfrmPassword = e.target.value)}
     />
     <div class="container">
-      <div class="checkbox">
-        <input id="remember" type="checkbox" />
-        <label class="remmember" for="remember">Remember me</label>
+      <div style="display: flex;" class="checkbox">
+        <CaptchaCheckbox
+          captchaValue={captcha}
+          checkboxDisabled={captchaDisabled}
+          on:captcha={handleCaptcha}
+        />
       </div>
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
-    <button>Submit</button>
+    <button
+      title={buttonDisabled ? "Please fill all entries first" : ""}
+      class:btn-disabled={buttonDisabled}
+      disabled={buttonDisabled}>Submit</button
+    >
     <p>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -157,7 +164,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    column-gap: 5rem;
+    column-gap: 2rem;
 
     & img {
       max-width: 30rem;
@@ -205,6 +212,16 @@
     & button:hover {
       opacity: var(--opacity);
       box-shadow: 5px 5px 25px gray;
+    }
+
+    & .btn-disabled {
+      background-color: gray;
+    }
+
+    & .btn-disabled:hover {
+      box-shadow: none;
+      opacity: 1;
+      cursor: not-allowed;
     }
 
     & p {

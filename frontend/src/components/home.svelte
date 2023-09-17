@@ -9,6 +9,7 @@
     <h1>Currently logged in as:</h1>
     <h2>{$userContent["email"]}</h2>
     <p>ID: {$userContent["id"]}, Username: {$userContent["user_name"]}</p>
+    <p>Token: {$userContent["token"]}</p>
   {/if}
 </main>
 
