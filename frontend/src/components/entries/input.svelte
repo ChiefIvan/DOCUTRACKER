@@ -10,6 +10,7 @@
   export let inputValue = "";
   export let miniModal = "";
   export let errorColor = "";
+  export let inputZ = "";
 
   let activeFocus = false;
   let inputState = false;
@@ -65,7 +66,7 @@
     {/if}
   {/if}
   <label
-    style={errorColor && `color: ${errorColor}`}
+    style={`color: ${errorColor}; z-index: ${inputZ}`}
     class:active-slide={inputState}
     class:focus-active={activeFocus}
     for={inputName}>{inputName}</label
@@ -95,6 +96,7 @@
     display: flex;
     align-items: center;
     position: relative;
+    cursor: text;
 
     & section {
       position: absolute;

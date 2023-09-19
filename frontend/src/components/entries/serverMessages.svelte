@@ -1,6 +1,7 @@
 <script>
   import { afterUpdate } from "svelte";
   import { serverResponse } from "../../stores";
+  import { fade } from "svelte/transition";
 
   let key = "";
 
@@ -10,7 +11,7 @@
 </script>
 
 {#if key === "error" || key === "success"}
-  <div class="server-message">
+  <div class="server-message" transition:fade={{ delay: 0, duration: 50 }}>
     <p
       style={key === "error"
         ? "background-color: crimson"

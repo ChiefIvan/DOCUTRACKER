@@ -1,14 +1,92 @@
 <script>
+  // @ts-nocheck
+
   import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
+  import { serverResponse, resetInput } from "../../stores";
+
+  import Input from "./input.svelte";
+
   let dispatch = createEventDispatcher();
+  let bytesIO = {};
+  let id = "";
+  let byteValue = "";
+  let userCaptGenVal = "";
 
   export let captchaValue = false;
   export let checkboxDisabled = true;
+  const captchaAPI = "http://127.0.0.1:5000/captcha";
 
-  const handleCaptcha = () => {
-    dispatch("captcha", captchaValue);
-  };
+  async function handleGETCaptcha() {
+    // dispatch("captcha", captchaValue);
+
+    await fetch(captchaAPI, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => (bytesIO = data.captcha))
+      .catch((error) => console.error("Error:", error));
+
+    id = bytesIO[1];
+    byteValue = bytesIO[0];
+
+    localStorage.setItem("captchaId", id);
+  }
+
+  async function handlePOSTCaptcha() {
+    $resetInput.blur();
+
+    let userCaptCredentials = {
+      captValue: userCaptGenVal,
+      captchaId: localStorage.getItem("captchaId") || "",
+    };
+
+    try {
+      const captAPIres = await fetch(captchaAPI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userCaptCredentials),
+      });
+
+      if (captAPIres.ok) {
+        let response = await captAPIres.json();
+        console.log(response);
+      }
+    } catch {
+      $serverResponse = {
+        error: "Server is down, please try again later.",
+      };
+    }
+
+    byteValue = "";
+    userCaptGenVal = "";
+  }
 </script>
+
+{#if byteValue.length !== 0}
+  <div class="capt-img-wrapper" transition:fade={{ delay: 100, duration: 400 }}>
+    <form on:submit|preventDefault={handlePOSTCaptcha}>
+      <h4>Docu Captcha</h4>
+      <img src={`data:image/jpeg;base64,${byteValue}`} alt="" />
+      <Input
+        inputName={"Captcha"}
+        inputType={"text"}
+        inputAutocomplete={"off"}
+        inputValue={userCaptGenVal}
+        inputZ={"2"}
+        on:input={(e) => (userCaptGenVal = e.target.value)}
+      />
+      <div class="btn-wrapper">
+        <button>Submit</button>
+      </div>
+    </form>
+  </div>
+{/if}
 
 <div
   class:container-disabled={checkboxDisabled}
@@ -20,7 +98,7 @@
         id="remember"
         type="checkbox"
         bind:checked={captchaValue}
-        on:change={handleCaptcha}
+        on:change={handleGETCaptcha}
         disabled={checkboxDisabled}
       />
       <svg>
@@ -41,6 +119,42 @@
 </div>
 
 <style>
+  div.capt-img-wrapper {
+    z-index: 1;
+    position: fixed;
+    inset: 0;
+    cursor: default;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & form {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-direction: column;
+      row-gap: 1rem;
+
+      background-color: white;
+      padding: 1.5rem;
+      box-shadow: 5px 5px 25px gray;
+      border-radius: 1rem;
+
+      & h4 {
+        font-family: Arial;
+        font-size: 2.5rem;
+        font-weight: bold;
+      }
+
+      & div.btn-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+
   div {
     display: flex;
     column-gap: 0.5rem;

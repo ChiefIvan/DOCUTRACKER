@@ -11,11 +11,17 @@ class User(db.Model):
     notes = db.relationship("Tokens")
 
 
+class Captcha(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    identifier = db.Column(db.String(120), nullable=False)
+    value = db.Column(db.String(4), nullable=False)
+
+
 class Tokens(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.String(1000), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
+
 
 class Tokenblocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)

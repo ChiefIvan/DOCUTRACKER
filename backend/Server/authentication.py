@@ -1,16 +1,23 @@
 from flask import (Blueprint, jsonify, request, render_template, redirect)
 from flask_jwt_extended import create_access_token, get_jwt, verify_jwt_in_request
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 from time import sleep
 from datetime import datetime, timezone
+from captcha.image import ImageCaptcha
+from io import BytesIO
+from base64 import b64encode
+from string import ascii_letters, digits
+from random import choice
+from uuid import uuid4
 
 from . import (db, mail, server)
-from .models import User, Tokens,  Tokenblocklist
+from .models import User, Tokens, Tokenblocklist, Captcha
 from .static.predef_function.Validation import Validated
 from .static.predef_function.Smt import Smt
 
-auth = Blueprint("auth", __name__)
+auth: Blueprint = Blueprint("auth", __name__)
 
 
 @auth.route("/login", methods=["POST"])
@@ -21,10 +28,9 @@ def login() -> dict:
     verification_error: str = "Please verify your account first"
 
     if request.method == "POST":
-        sleep(2)
 
         login_user_credentials: dict = request.json
-        user_existance = User.query.filter_by(
+        user_existance: User = User.query.filter_by(
             email=login_user_credentials["email"]).first()
 
         if not user_existance:
@@ -49,10 +55,10 @@ def login() -> dict:
                 db.session.add(Tokenblocklist(jti=jti, created_at=now))
                 db.session.commit()
 
-        access_token = create_access_token(
+        access_token: str = create_access_token(
             identity=user_existance)
 
-        user_token = Tokens(
+        user_token: Tokens = Tokens(
             data=access_token,
             user_id=user_existance.id
         )
@@ -75,7 +81,7 @@ def signup() -> dict:
     if request.method == "POST":
         sleep(2)
         signup_user_credentials: dict = request.json
-        user_existance: bool = User.query.filter_by(
+        user_existance: User = User.query.filter_by(
             email=signup_user_credentials["email"]).first()
         validated: bool | dict = Validated(signup_user_credentials).valid()
 
@@ -85,14 +91,14 @@ def signup() -> dict:
         if user_existance:
             return jsonify({"error": duplicate_error_message})
 
-        user_verification = Smt(server=server, mail=mail, access="auth.confirm_email",
-                                data=signup_user_credentials["email"]).send()
+        user_verification: bool = Smt(server=server, mail=mail, access="auth.confirm_email",
+                                      data=signup_user_credentials["email"]).send()
 
         if not user_verification:
             return jsonify({"error": user_verification_message})
 
         try:
-            users = User(
+            users: User = User(
                 user_name=signup_user_credentials["name"],
                 email=signup_user_credentials["email"],
                 confirmed=False,
@@ -106,6 +112,55 @@ def signup() -> dict:
             return jsonify({"success": success_message})
         except Exception:
             return jsonify({"error": database_insertion_error})
+
+    return jsonify({})
+
+
+@auth.route("/captcha", methods=["GET", "POST"])
+def captcha_verification():
+    if request.method == "GET":
+        text: str = ""
+        identifier = str(uuid4())
+
+        for _ in range(4):
+            text += choice(ascii_letters + digits)
+
+        captcha: ImageCaptcha = ImageCaptcha(
+            width=400, height=220, font_sizes=(40, 70, 100))
+        data: BytesIO = captcha.generate(text)
+        base64_data: str = b64encode(data.read()).decode("ascii")
+
+        storing_captcha: Captcha = Captcha(
+            identifier=identifier,
+            value=text
+        )
+
+        db.session.add(storing_captcha)
+        db.session.commit()
+
+        return jsonify({
+            "captcha": [base64_data, identifier],
+            "Content-Type": "image/jpeg"
+        })
+
+    if request.method == "POST":
+        user_capt_data: dict = request.json
+        capt_id: str = user_capt_data["captchaId"]
+        stored_captcha: Captcha = Captcha.query.filter_by(
+            identifier=capt_id).first()
+
+        if capt_id != stored_captcha.identifier:
+            print("Captcha Verification failed!")
+            return jsonify({})
+
+        if user_capt_data["captValue"] != stored_captcha.value:
+            print("Captcha Verification failed!")
+            return jsonify({})
+
+        print("Captcha Verified Successfully!")
+
+        db.session.delete(stored_captcha)
+        db.session.commit()
 
     return jsonify({})
 
@@ -136,36 +191,37 @@ def reset_password():
 
 @auth.route('/verification/<token>', methods=['GET'])
 def confirm_email(token):
-    try:
-        confirm_serializer = URLSafeTimedSerializer(
-            server.config['SECRET_KEY'])
-        email = confirm_serializer.loads(
-            token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
-    except Exception:
-        return render_template("confirmation_template.html",
-                               content={
-                                   "content": "The confirmation link is expired, or invalid token! ❌",
-                                   "color": "crimson"
-                               })
+    if request.method == "GET":
+        try:
+            confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
+                server.config['SECRET_KEY'])
+            email: str = confirm_serializer.loads(
+                token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
+        except Exception:
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "The confirmation link is expired, or invalid token! ❌",
+                                       "color": "crimson"
+                                   })
 
-    if not isinstance(email, str):
-        return redirect(f"http://127.0.0.1:5000/index/{token}")
+        if not isinstance(email, str):
+            return redirect(f"http://127.0.0.1:5000/index/{token}")
 
-    user = User.query.filter_by(email=email).first()
+        user: User = User.query.filter_by(email=email).first()
 
-    if user.confirmed:
-        return render_template("confirmation_template.html",
-                               content={
-                                   "content": "Email already confirmed ✅",
-                                   "color": "green"
-                               })
+        if user.confirmed:
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "Email already confirmed ✅",
+                                       "color": "green"
+                                   })
 
-    else:
-        user.confirmed = True
-        db.session.add(user)
-        db.session.commit()
-        return render_template("confirmation_template.html",
-                               content={
-                                   "content": "Email confirmed ✅",
-                                   "color": "green"
-                               })
+        else:
+            user.confirmed = True
+            db.session.add(user)
+            db.session.commit()
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "Email confirmed ✅",
+                                       "color": "green"
+                                   })

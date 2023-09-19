@@ -1,8 +1,5 @@
 from typing import Final
 
-EMAIL: Final[str] = ""
-PASSWORD: Final[str] = ""
-SECRET_KEY = ""
-SALT = ""
-JWT_KEYS = ""
-CORS_LINK = ""
+EMAIL: Final[str] = "talonflame991@gmail.com"
+PASSWORD: Final[str] = "IvanDawang01112002"
+CORS_LINK = "http://localhost:5173"

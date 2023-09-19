@@ -6,7 +6,7 @@
   import Home from "./components/home.svelte";
   import ServerMessages from "./components/entries/serverMessages.svelte";
   import PageNotFound from "./components/pageNotFound.svelte";
-  import PageTransition from "./components/winEvents/pageTransition.svelte";
+  import PageTransition from "./components/winEvents/pageTransFly.svelte";
   import ForgotPassword from "./components/forgotPassword.svelte";
 </script>
 

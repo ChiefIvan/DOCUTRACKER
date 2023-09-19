@@ -12,7 +12,7 @@
   import Form from "./entries/form.svelte";
   import banner from "../lib/signup_banner.png";
   import BarLoader from "./assets/barLoader.svelte";
-  import CaptchaCheckbox from "./entries/captchaCheckbox.svelte";
+  import CaptchaCheckbox from "./entries/captcha.svelte";
 
   let userName = "";
   let email = "";
@@ -51,9 +51,11 @@
     captcha = e.detail;
   };
 
-  const handleTransition = () => {
+  const handleTransition = (e) => {
     $pageTransitionValue1 = 150;
     $pageTransitionValue2 = -150;
+
+    console.log(e.target.innerText);
   };
 
   $: {
@@ -124,7 +126,7 @@
       on:input={(e) => (cnfrmPassword = e.target.value)}
     />
     <div class="container">
-      <div style="display: flex;" class="checkbox">
+      <div>
         <CaptchaCheckbox
           captchaValue={captcha}
           checkboxDisabled={captchaDisabled}
@@ -186,12 +188,6 @@
       justify-content: space-between;
       width: 100%;
       margin: 1.2rem 0;
-
-      & div.checkbox,
-      input,
-      label.remmember {
-        cursor: pointer;
-      }
 
       & a:hover {
         text-decoration: underline;
