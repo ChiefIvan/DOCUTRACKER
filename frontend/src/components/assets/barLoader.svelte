@@ -2,7 +2,7 @@
   import { fade } from "svelte/transition";
 </script>
 
-<div transition:fade={{ delay: 100, duration: 200 }}>
+<div transition:fade={{ delay: 200, duration: 250 }}>
   <div class="loader" />
 </div>
 
@@ -12,7 +12,7 @@
     inset: 0;
 
     transition: ease-in-out 500ms;
-    opacity: 0.7;
+    opacity: 0.6;
     background-color: white;
     z-index: 4;
   }

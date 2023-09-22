@@ -1,24 +1,36 @@
 <script>
   // @ts-nocheck
 
-  import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
-  import { serverResponse, resetInput } from "../../stores";
+  import {
+    serverResponse,
+    resetInput,
+    captchaVerification,
+    captchaAttemps,
+  } from "../../stores";
 
   import Input from "./input.svelte";
 
-  let dispatch = createEventDispatcher();
   let bytesIO = {};
   let id = "";
   let byteValue = "";
   let userCaptGenVal = "";
 
-  export let captchaValue = false;
   export let checkboxDisabled = true;
+
   const captchaAPI = "http://127.0.0.1:5000/captcha";
 
-  async function handleGETCaptcha() {
-    // dispatch("captcha", captchaValue);
+  async function handleGETCaptcha(e) {
+    $captchaAttemps--;
+
+    if ($captchaAttemps < 0) {
+      $serverResponse = {
+        error: "Captcha Verification Failed!, Please Try Again.",
+      };
+      
+      $captchaAttemps = 3;
+      return;
+    }
 
     await fetch(captchaAPI, {
       method: "GET",
@@ -28,7 +40,12 @@
     })
       .then((response) => response.json())
       .then((data) => (bytesIO = data.captcha))
-      .catch((error) => console.error("Error:", error));
+      .catch(
+        () =>
+          ($serverResponse = {
+            error: "Server is down, please try again later.",
+          })
+      );
 
     id = bytesIO[1];
     byteValue = bytesIO[0];
@@ -54,8 +71,15 @@
       });
 
       if (captAPIres.ok) {
-        let response = await captAPIres.json();
-        console.log(response);
+        const data = await captAPIres.json();
+        if (Object.keys(data) == "success") {
+          $captchaVerification = data["success"];
+          checkboxDisabled = $captchaVerification && !checkboxDisabled;
+        } else {
+          setTimeout(() => {
+            handleGETCaptcha();
+          }, 500);
+        }
       }
     } catch {
       $serverResponse = {
@@ -71,7 +95,6 @@
 {#if byteValue.length !== 0}
   <div class="capt-img-wrapper" transition:fade={{ delay: 100, duration: 400 }}>
     <form on:submit|preventDefault={handlePOSTCaptcha}>
-      <h4>Docu Captcha</h4>
       <img src={`data:image/jpeg;base64,${byteValue}`} alt="" />
       <Input
         inputName={"Captcha"}
@@ -97,15 +120,21 @@
       <input
         id="remember"
         type="checkbox"
-        bind:checked={captchaValue}
+        checked={$captchaVerification}
+        class:got-checked={$captchaVerification}
         on:change={handleGETCaptcha}
         disabled={checkboxDisabled}
+        bind:this={$resetInput}
       />
-      <svg>
+      <svg class:got-checked={$captchaVerification}>
         <use xlink:href="#checkbox-30" class="checkbox" />
       </svg>
     </span>
-    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <svg
+      class:got-checked={$captchaVerification}
+      xmlns="http://www.w3.org/2000/svg"
+      style="display:none"
+    >
       <symbol id="checkbox-30" viewBox="0 0 22 22">
         <path
           fill="none"
@@ -141,12 +170,6 @@
       box-shadow: 5px 5px 25px gray;
       border-radius: 1rem;
 
-      & h4 {
-        font-family: Arial;
-        font-size: 2.5rem;
-        font-weight: bold;
-      }
-
       & div.btn-wrapper {
         width: 100%;
         display: flex;
@@ -162,6 +185,7 @@
     & label {
       cursor: pointer;
       transition: all calc(var(--dur) / 3) ease-in-out;
+      color: gray;
     }
 
     & .checkbox-wrapper {
@@ -207,11 +231,15 @@
         background-color: var(--bg);
         border-radius: calc(var(--size, 1) * 4px);
         border: calc(var(--newBrdr, var(--size, 1)) * 1px) solid;
-        color: var(--newBrdrClr, var(--brdr));
+        color: var(--brdr);
         outline: none;
         margin: 0;
         padding: 0;
         transition: all calc(var(--dur) / 3) linear;
+      }
+
+      & input.got-checked {
+        color: var(--newBrdrClr);
       }
 
       & input:hover,
@@ -229,7 +257,7 @@
       position: absolute;
     }
 
-    & .checkbox-wrapper span input:checked + svg {
+    & .checkbox-wrapper span input:checked + svg.got-checked {
       --dashArray: 16 93;
       --dashOffset: 109;
     }
@@ -250,6 +278,6 @@
 
   div.container-disabled:hover label {
     cursor: not-allowed;
-    color: black;
+    color: gray;
   }
 </style>

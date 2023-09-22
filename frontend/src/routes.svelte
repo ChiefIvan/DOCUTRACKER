@@ -1,5 +1,6 @@
 <script>
   import { Router, Route } from "svelte-routing";
+  import { serverResponse } from "./stores";
 
   import Signup from "./components/signup.svelte";
   import Login from "./components/login.svelte";
@@ -8,6 +9,15 @@
   import PageNotFound from "./components/pageNotFound.svelte";
   import PageTransition from "./components/winEvents/pageTransFly.svelte";
   import ForgotPassword from "./components/forgotPassword.svelte";
+  import { beforeUpdate } from "svelte";
+
+  beforeUpdate(() => {
+    if (String(Object.keys($serverResponse)).length !== 0) {
+      setTimeout(() => {
+        $serverResponse = {};
+      }, 8000);
+    }
+  });
 </script>
 
 <ServerMessages />

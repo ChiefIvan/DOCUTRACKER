@@ -6,6 +6,7 @@
     pageTransitionValue1,
     pageTransitionValue2,
     loaderState,
+    captchaVerification,
   } from "../stores";
 
   import Input from "./entries/input.svelte";
@@ -18,11 +19,8 @@
   let email = "";
   let password = "";
   let cnfrmPassword = "";
-  let captcha = false;
   let passwordErrorColor = "";
-  let userNameErrorColor = "";
-  let emailErrorColor = "";
-  let regexEmail = /@/;
+
   let buttonDisabled = true;
   let captchaDisabled = true;
   let navigateUser = "/login";
@@ -33,6 +31,9 @@
   onMount(() => {
     document.body.className = "body-class";
     document.title = "Docutracker | Signup";
+    $pageTransitionValue1 = 150;
+    $pageTransitionValue2 = -150;
+    $captchaVerification = false;
   });
 
   onDestroy(() => {
@@ -44,30 +45,19 @@
     email = e.detail;
     password = e.detail;
     cnfrmPassword = e.detail;
-    captcha = false;
-  };
-
-  const handleCaptcha = (e) => {
-    captcha = e.detail;
   };
 
   const handleTransition = (e) => {
-    $pageTransitionValue1 = 150;
-    $pageTransitionValue2 = -150;
-
     console.log(e.target.innerText);
   };
 
   $: {
-    userNameErrorColor =
-      userName.length && userName.length < 4 ? "crimson" : "";
-    emailErrorColor = email.length && !regexEmail.test(email) ? "crimson" : "";
     passwordErrorColor =
       cnfrmPassword.length && password !== cnfrmPassword ? "crimson" : "";
     captchaDisabled = [userName, email, password, cnfrmPassword].some(
       (value) => value.length === 0
     );
-    buttonDisabled = !captcha && true;
+    buttonDisabled = !$captchaVerification && true;
   }
 </script>
 
@@ -95,7 +85,6 @@
       inputAutocomplete={"off"}
       inputValue={userName}
       miniModal={"Your Username must be greater than 3 charecters!"}
-      errorColor={userNameErrorColor}
       on:input={(e) => (userName = e.target.value)}
     />
     <Input
@@ -104,7 +93,6 @@
       inputAutocomplete={"on"}
       inputValue={email}
       miniModal={"Your email name must be greater than 3 characters, before the @ symbol!"}
-      errorColor={emailErrorColor}
       on:input={(e) => (email = e.target.value)}
     />
     <Input
@@ -127,11 +115,7 @@
     />
     <div class="container">
       <div>
-        <CaptchaCheckbox
-          captchaValue={captcha}
-          checkboxDisabled={captchaDisabled}
-          on:captcha={handleCaptcha}
-        />
+        <CaptchaCheckbox checkboxDisabled={captchaDisabled} />
       </div>
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
@@ -141,11 +125,7 @@
       disabled={buttonDisabled}>Submit</button
     >
     <p>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      Already have an account? <Link to="/login"
-        ><span on:click={handleTransition}>Login</span></Link
-      >
+      Already have an account? <Link to="/login"><span>Login</span></Link>
     </p>
   </Form>
 </section>
@@ -160,6 +140,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
   }
 
   section {

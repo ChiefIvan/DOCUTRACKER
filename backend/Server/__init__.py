@@ -9,8 +9,7 @@ from uuid import uuid4
 from datetime import timedelta
 # from gevent.pywsgi import WSGIServer
 
-from .static.predef_function.server_credentials import (
-    EMAIL, PASSWORD, CORS_LINK)
+from .static.predef_function.server_credentials import EMAIL, PASSWORD, CORS_LINK
 
 
 server = Flask(__name__)

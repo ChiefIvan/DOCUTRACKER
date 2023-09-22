@@ -11,7 +11,7 @@
 </script>
 
 {#if key === "error" || key === "success"}
-  <div class="server-message" transition:fade={{ delay: 0, duration: 50 }}>
+  <div class="server-message">
     <p
       style={key === "error"
         ? "background-color: crimson"

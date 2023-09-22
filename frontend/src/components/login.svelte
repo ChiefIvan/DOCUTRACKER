@@ -1,12 +1,13 @@
 <script>
   // @ts-nocheck
 
-  import { Link } from "svelte-routing";
+  import { Link, navigate } from "svelte-routing";
   import { onMount, onDestroy } from "svelte";
   import {
     pageTransitionValue1,
     pageTransitionValue2,
     loaderState,
+    serverResponse,
   } from "../stores";
 
   import Input from "./entries/input.svelte";
@@ -16,34 +17,54 @@
   let email = "";
   let password = "";
   // let navigateUser = "";
-  let api = "http://127.0.0.1:5000/login";
+  const api = "http://127.0.0.1:5000/login";
+  const resendAPI = "http://127.0.0.1:5000/resend";
 
   const handleReset = (e) => {
     email = e.detail;
     password = e.detail;
   };
 
+  async function handleResend() {
+    let userEmail = localStorage.getItem("userEmail") || "";
+
+    if (userEmail.length === 0) {
+      $serverResponse = {
+        error: "Please Sign Up First!",
+      };
+      navigate("/signup");
+      return;
+    }
+
+    try {
+      const sendEmail = await fetch(resendAPI, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userEmail: userEmail }),
+      });
+
+      if (sendEmail.ok) {
+        $serverResponse = await sendEmail.json();
+      }
+    } catch {
+      $serverResponse = {
+        error: "Server is down, please try again later.",
+      };
+    }
+  }
+
   onMount(() => {
     document.body.className = "body-class";
     document.title = "Docutracker | Login";
-
-    // navigateUser = localStorage.getItem("remembered") || "";
-
-    // const isLoggedIn = "http://127.0.0.1:5000/index";
-    // fetch(isLoggedIn)
-    //   .then((response) => response.json())
-    //   .then((data) => console.log(data))
-    //   .catch((error) => console.error("Error:", error));
+    $pageTransitionValue1 = -150;
+    $pageTransitionValue2 = 150;
   });
 
   onDestroy(() => {
     document.body.className = "";
   });
-
-  const handleTransition = () => {
-    $pageTransitionValue1 = -150;
-    $pageTransitionValue2 = 150;
-  };
 </script>
 
 {#if $loaderState}
@@ -55,9 +76,7 @@
     <h1>Welcome back</h1>
     <p>
       Don't have an account?
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <Link to="/signup"><span on:click={handleTransition}>Signup</span></Link>
+      <Link to="/signup"><span>Signup</span></Link>
     </p>
   </header>
   <Form {email} {password} {api} on:resetInput={handleReset}>
@@ -83,6 +102,12 @@
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
     <button>Login</button>
+    <p>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      Didn't Receive the Verification?
+      <span on:click={handleResend}>Resend</span>
+    </p>
   </Form>
 </section>
 
@@ -91,6 +116,18 @@
     border-radius: 1rem;
     padding: 4rem;
     box-shadow: 10px 10px 50px lightgray;
+
+    & span {
+      text-decoration: none;
+      color: orange;
+      transition: all ease-in-out 200ms;
+      cursor: pointer;
+    }
+
+    & span:hover {
+      opacity: var(--opacity);
+      text-decoration: underline;
+    }
 
     & header {
       margin-bottom: 1rem;

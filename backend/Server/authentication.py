@@ -71,36 +71,62 @@ def login() -> dict:
     return jsonify({})
 
 
-@auth.route("/signup", methods=["POST"])
-def signup() -> dict:
-    database_insertion_error: str = "Sorry, something went wrong. Please try again."
-    success_message: str = "Account created succesfully. A verification link has been sent to your email"
-    duplicate_error_message: str = "Email already exist!"
-    user_verification_message: str = "There's an error while sending the email, please try again"
+@auth.route("/resend", methods=["POST"])
+def email_verification():
+    unknown_email_message: str = "Please Sign Up First!"
+    email_existance_error: str = "Account Doesn't Exist"
+    email_confirmed_message: str = "Email Already Confirmed!"
 
     if request.method == "POST":
-        sleep(2)
+        user_email: dict = request.json
+        user_email = user_email["userEmail"]
+        if not user_email:
+            return jsonify({"error": unknown_email_message})
+
+        email_exist: User = User.query.filter_by(email=user_email).first()
+        if not email_exist:
+            return jsonify({"error": email_existance_error})
+
+        if email_exist.confirmed:
+            return jsonify({"success": email_confirmed_message})
+
+        Smt(server=server, mail=mail, access="auth.confirm_email",
+            data=user_email).send()
+
+    return jsonify({})
+
+
+@auth.route("/signup", methods=["POST"])
+def signup() -> dict:
+    database_insertion_error: str = "Sorry, something went wrong!. Please try again."
+    success_message: str = "Account created succesfully. A verification link has been sent to your email."
+    duplicate_error_message: str = "Email already exist!"
+    captcha_validity_message: str = "Please verify that you are not a robot first!"
+
+    if request.method == "POST":
         signup_user_credentials: dict = request.json
-        user_existance: User = User.query.filter_by(
-            email=signup_user_credentials["email"]).first()
+
+        if not signup_user_credentials["captVerification"]:
+            return jsonify({"error": captcha_validity_message})
+
+        signup_user_credentials |= {"captVerification": None}
+        user_email: str = signup_user_credentials["email"]
+
         validated: bool | dict = Validated(signup_user_credentials).valid()
 
         if isinstance(validated, dict):
             return jsonify(validated)
 
+        user_existance: User = User.query.filter_by(
+            email=user_email).first()
+
         if user_existance:
             return jsonify({"error": duplicate_error_message})
-
-        user_verification: bool = Smt(server=server, mail=mail, access="auth.confirm_email",
-                                      data=signup_user_credentials["email"]).send()
-
-        if not user_verification:
-            return jsonify({"error": user_verification_message})
 
         try:
             users: User = User(
                 user_name=signup_user_credentials["name"],
-                email=signup_user_credentials["email"],
+                email=user_email,
                 confirmed=False,
                 password=generate_password_hash(
                     signup_user_credentials["password"], method="pbkdf2:sha256")
@@ -109,6 +135,8 @@ def signup() -> dict:
             db.session.add(users)
             db.session.commit()
 
+            Smt(server=server, mail=mail, access="auth.confirm_email",
+                data=user_email).send()
             return jsonify({"success": success_message})
         except Exception:
             return jsonify({"error": database_insertion_error})
@@ -126,7 +154,7 @@ def captcha_verification():
             text += choice(ascii_letters + digits)
 
         captcha: ImageCaptcha = ImageCaptcha(
-            width=400, height=220, font_sizes=(40, 70, 100))
+            width=400, height=220, font_sizes=(60, 80, 100))
         data: BytesIO = captcha.generate(text)
         base64_data: str = b64encode(data.read()).decode("ascii")
 
@@ -149,18 +177,23 @@ def captcha_verification():
         stored_captcha: Captcha = Captcha.query.filter_by(
             identifier=capt_id).first()
 
+        if not stored_captcha:
+            return jsonify({"error": False})
+
         if capt_id != stored_captcha.identifier:
-            print("Captcha Verification failed!")
-            return jsonify({})
+            db.session.delete(stored_captcha)
+            db.session.commit()
+            return jsonify({"error": False})
 
         if user_capt_data["captValue"] != stored_captcha.value:
-            print("Captcha Verification failed!")
-            return jsonify({})
-
-        print("Captcha Verified Successfully!")
+            db.session.delete(stored_captcha)
+            db.session.commit()
+            return jsonify({"error": False})
 
         db.session.delete(stored_captcha)
         db.session.commit()
+
+        return jsonify({"success": True})
 
     return jsonify({})
 

@@ -7,7 +7,7 @@
     pageLocation,
   } from "../../stores";
 
-  const pageTransitionDuration = 150;
+  const pageTransitionDuration = 200;
   const location = useLocation();
 
   $: $pageLocation = $location.pathname;

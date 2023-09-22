@@ -3,6 +3,7 @@
 
   import { afterUpdate } from "svelte";
   import { entryState, resetInput } from "../../stores";
+  import { fade } from "svelte/transition";
 
   export let inputName = "";
   export let inputType = "";
@@ -53,13 +54,14 @@
   {#if miniModal.length !== 0}
     {#if activeWarning}
       {#if showModal}
-        <section>
+        <section transition:fade={{ delay: 100, duration: 80 }}>
           {miniModal}
         </section>
       {/if}
       <p
         on:mouseover={() => (showModal = true)}
         on:mouseout={() => (showModal = false)}
+        transition:fade={{ delay: 100, duration: 80 }}
       >
         !
       </p>
