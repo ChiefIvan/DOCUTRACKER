@@ -12,6 +12,7 @@
   export let miniModal = "";
   export let errorColor = "";
   export let inputZ = "";
+  export let inputSize = "";
 
   let activeFocus = false;
   let inputState = false;
@@ -50,6 +51,7 @@
 <div
   on:mouseover={() => (activeWarning = true)}
   on:mouseleave={() => (activeWarning = false)}
+  style={`width: ${inputSize};`}
 >
   {#if miniModal.length !== 0}
     {#if activeWarning}
@@ -75,7 +77,9 @@
   >
   <input
     required
-    style={errorColor.length !== 0 && `border-bottom: 1px solid ${errorColor}`}
+    style={`border-bottom: 1px solid ${
+      errorColor.length !== 0 && errorColor
+    }; width: ${inputSize.length !== 0 && inputSize};`}
     id={inputName}
     class:focus-active={activeFocus}
     type={inputType}
@@ -102,7 +106,7 @@
 
     & section {
       position: absolute;
-      bottom: 1rem;
+      bottom: 0.5rem;
       right: -3.6rem;
 
       background-color: gray;
@@ -110,7 +114,7 @@
       width: 10rem;
       font-size: 0.8rem;
       text-align: center;
-      padding: 0.8rem;
+      padding: 0.5rem;
       padding-bottom: 1.5rem;
       margin-bottom: 1.5rem;
       clip-path: polygon(
@@ -130,8 +134,8 @@
       right: 0.5rem;
       z-index: 2;
 
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 1.3rem;
+      height: 1.3rem;
       background-color: crimson;
       color: white;
       border-radius: 1rem;
@@ -139,7 +143,7 @@
       font-family: none;
       font-weight: bolder;
       cursor: pointer;
-      font-size: 1.3rem;
+      font-size: 1.1rem;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -149,7 +153,7 @@
     }
 
     & label {
-      font-size: 1.2rem;
+      font-size: 1.05rem;
       user-select: none;
       transition: var(--transition) 250ms;
       padding: 1.1rem;
@@ -161,9 +165,9 @@
     }
 
     & label.active-slide {
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       padding: 0 1rem;
-      transform: translateY(-1.4rem);
+      transform: translateY(-1.2rem);
     }
 
     & label.focus-active {
@@ -171,8 +175,8 @@
     }
 
     & input {
-      height: 2rem;
-      width: 25rem;
+      height: 1.6rem;
+      width: 23rem;
       padding: 0 1rem;
       transition: var(--transition) 300ms;
       border: 1px solid transparent;

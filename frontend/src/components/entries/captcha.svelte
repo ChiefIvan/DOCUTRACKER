@@ -20,14 +20,14 @@
 
   const captchaAPI = "http://127.0.0.1:5000/captcha";
 
-  async function handleGETCaptcha(e) {
+  async function handleGETCaptcha() {
     $captchaAttemps--;
 
     if ($captchaAttemps < 0) {
       $serverResponse = {
         error: "Captcha Verification Failed!, Please Try Again.",
       };
-      
+
       $captchaAttemps = 3;
       return;
     }
@@ -74,11 +74,11 @@
         const data = await captAPIres.json();
         if (Object.keys(data) == "success") {
           $captchaVerification = data["success"];
-          checkboxDisabled = $captchaVerification && !checkboxDisabled;
+          checkboxDisabled = $captchaVerification && true;
         } else {
           setTimeout(() => {
             handleGETCaptcha();
-          }, 500);
+          }, 1000);
         }
       }
     } catch {
@@ -102,6 +102,7 @@
         inputAutocomplete={"off"}
         inputValue={userCaptGenVal}
         inputZ={"2"}
+        inputSize={"100%"}
         on:input={(e) => (userCaptGenVal = e.target.value)}
       />
       <div class="btn-wrapper">
@@ -166,7 +167,7 @@
       row-gap: 1rem;
 
       background-color: white;
-      padding: 1.5rem;
+      padding: 0.5rem;
       box-shadow: 5px 5px 25px gray;
       border-radius: 1rem;
 
@@ -191,7 +192,7 @@
     & .checkbox-wrapper {
       & span {
         display: inline-block;
-        width: calc(var(--size, 1) * 22px);
+        min-width: calc(var(--size, 1) * 20px);
         position: relative;
 
         & svg {
@@ -244,7 +245,7 @@
 
       & input:hover,
       input:checked {
-        --newBrdr: calc(var(--size, 1) * 2);
+        --newBrdr: var(--size, 1);
       }
 
       & input:checked {
@@ -273,7 +274,6 @@
 
   div.container-disabled:hover input {
     cursor: not-allowed;
-    color: var(--brdr);
   }
 
   div.container-disabled:hover label {

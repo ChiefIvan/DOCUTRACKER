@@ -14,7 +14,7 @@ class User(db.Model):
 class Captcha(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     identifier = db.Column(db.String(120), nullable=False)
-    value = db.Column(db.String(4), nullable=False)
+    value = db.Column(db.String(5), nullable=False)
 
 
 class Tokens(db.Model):

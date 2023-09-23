@@ -144,17 +144,36 @@ def signup() -> dict:
     return jsonify({})
 
 
+@auth.route("/email_confirmation", methonds=["POST"])
+def email_confirmation() -> dict:
+    if request.method == "POST":
+        user_email = request.json
+        user_confirmed: User = User.query.filter_by(email=user_email).first()
+
+        if not user_confirmed:
+            return jsonify({})
+
+        confirmed: bool | int = user_confirmed.confirmed
+
+        if not confirmed:
+            return jsonify({})
+
+        return jsonify({})
+
+    return jsonify({})
+
+
 @auth.route("/captcha", methods=["GET", "POST"])
 def captcha_verification():
     if request.method == "GET":
         text: str = ""
         identifier = str(uuid4())
 
-        for _ in range(4):
+        for _ in range(5):
             text += choice(ascii_letters + digits)
 
         captcha: ImageCaptcha = ImageCaptcha(
-            width=400, height=220, font_sizes=(60, 80, 100))
+            width=400, height=220, font_sizes=(40, 60, 80, 100))
         data: BytesIO = captcha.generate(text)
         base64_data: str = b64encode(data.read()).decode("ascii")
 

@@ -17,8 +17,10 @@
   let email = "";
   let password = "";
   // let navigateUser = "";
+  
   const api = "http://127.0.0.1:5000/login";
   const resendAPI = "http://127.0.0.1:5000/resend";
+  const confirmation = "http://127.0.0.1:5000/email_confirmation";
 
   const handleReset = (e) => {
     email = e.detail;
@@ -60,6 +62,16 @@
     document.title = "Docutracker | Login";
     $pageTransitionValue1 = -150;
     $pageTransitionValue2 = 150;
+
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail || userEmail.length !== 0 || userEmail !== undefined) {
+      fetch(confirmation, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${userEmail}`,
+        },
+      }).then((response) => console.log(response));
+    }
   });
 
   onDestroy(() => {
@@ -114,7 +126,7 @@
 <style>
   section {
     border-radius: 1rem;
-    padding: 4rem;
+    padding: 3rem;
     box-shadow: 10px 10px 50px lightgray;
 
     & span {
@@ -165,6 +177,7 @@
       input,
       label.remmember {
         cursor: pointer;
+        color: gray;
       }
 
       & a:hover {
@@ -174,7 +187,7 @@
 
     & button {
       width: 100%;
-      height: 2.5rem;
+      height: 2rem;
       border: none;
       color: white;
       background-color: orange;

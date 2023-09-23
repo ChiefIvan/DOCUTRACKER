@@ -38,6 +38,7 @@
 
   onDestroy(() => {
     document.body.className = "";
+    localStorage.setItem("captchaId", "");
   });
 
   const handleReset = (e) => {
@@ -147,10 +148,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    column-gap: 2rem;
+    column-gap: 1.5rem;
 
     & img {
-      max-width: 30rem;
+      max-width: 25rem;
     }
 
     & header {
@@ -177,7 +178,7 @@
 
     & button {
       width: 8rem;
-      height: 2.5rem;
+      height: 2rem;
       border: none;
       color: white;
       background-color: orange;
