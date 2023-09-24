@@ -14,6 +14,7 @@
   import banner from "../lib/signup_banner.png";
   import BarLoader from "./assets/barLoader.svelte";
   import CaptchaCheckbox from "./entries/captcha.svelte";
+  import Button from "./entries/button.svelte";
 
   let userName = "";
   let email = "";
@@ -120,11 +121,13 @@
       </div>
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
-    <button
-      title={buttonDisabled ? "Please fill all entries first" : ""}
-      class:btn-disabled={buttonDisabled}
-      disabled={buttonDisabled}>Submit</button
-    >
+    <Button
+      btnName={"Submit"}
+      btnSignupSize={true}
+      btnDisabled={buttonDisabled}
+      btnTitle={"Please Fill All Entries First!"}
+    />
+
     <p>
       Already have an account? <Link to="/login"><span>Login</span></Link>
     </p>
@@ -174,32 +177,6 @@
       & a:hover {
         text-decoration: underline;
       }
-    }
-
-    & button {
-      width: 8rem;
-      height: 2rem;
-      border: none;
-      color: white;
-      background-color: orange;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: all ease-in-out 300ms;
-    }
-
-    & button:hover {
-      opacity: var(--opacity);
-      box-shadow: 5px 5px 25px gray;
-    }
-
-    & .btn-disabled {
-      background-color: gray;
-    }
-
-    & .btn-disabled:hover {
-      box-shadow: none;
-      opacity: 1;
-      cursor: not-allowed;
     }
 
     & p {

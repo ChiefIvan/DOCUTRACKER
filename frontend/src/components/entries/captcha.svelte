@@ -10,6 +10,7 @@
   } from "../../stores";
 
   import Input from "./input.svelte";
+  import Button from "./button.svelte";
 
   let bytesIO = {};
   let id = "";
@@ -106,7 +107,7 @@
         on:input={(e) => (userCaptGenVal = e.target.value)}
       />
       <div class="btn-wrapper">
-        <button>Submit</button>
+        <Button btnName={"Verify"} btnSignupSize={true} />
       </div>
     </form>
   </div>

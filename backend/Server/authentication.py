@@ -14,37 +14,37 @@ from uuid import uuid4
 
 from . import (db, mail, server)
 from .models import User, Tokens, Tokenblocklist, Captcha
-from .static.predef_function.Validation import Validated
-from .static.predef_function.Smt import Smt
+from .static.predef_function.user_validation import UserValidation
+from .static.predef_function.smt import Smt
 
 auth: Blueprint = Blueprint("auth", __name__)
 
 
 @auth.route("/login", methods=["POST"])
 def login() -> dict:
-    user_existance_error: str = "Account Doesn't Exist"
-    Login_message: str = "Logged in succesfully"
-    incorrect_password_error: str = "Incorrect password, please try again!"
+    user_error: str = "Account Doesn't Exist"
     verification_error: str = "Please verify your account first"
+    password_error: str = "Incorrect Password, Please try again!"
+    success_response: str = "Logged in Succesfully"
 
     if request.method == "POST":
 
-        login_user_credentials: dict = request.json
-        user_existance: User = User.query.filter_by(
-            email=login_user_credentials["email"]).first()
+        user_credentials: dict = request.json
+        user: User = User.query.filter_by(
+            email=user_credentials["email"]).first()
 
-        if not user_existance:
-            return jsonify({"error": user_existance_error})
+        if not user:
+            return jsonify({"error": user_error})
 
-        if not user_existance.confirmed:
+        if not user.confirmed:
             return jsonify({"error": verification_error})
 
-        if not check_password_hash(user_existance.password, login_user_credentials["password"]):
-            return jsonify({"error": incorrect_password_error})
+        if not check_password_hash(user.password, user_credentials["password"]):
+            return jsonify({"error": password_error})
 
         if verify_jwt_in_request(optional=True):
             valid_token = Tokens.query.filter_by(
-                user_id=user_existance.id).first()
+                user_id=user.id).first()
 
             if valid_token:
                 db.session.delete(valid_token)
@@ -56,39 +56,41 @@ def login() -> dict:
                 db.session.commit()
 
         access_token: str = create_access_token(
-            identity=user_existance)
+            identity=user)
 
         user_token: Tokens = Tokens(
             data=access_token,
-            user_id=user_existance.id
+            user_id=user.id
         )
 
         db.session.add(user_token)
         db.session.commit()
 
-        return jsonify({"success": Login_message, "remembered": access_token})
+        return jsonify({"success": success_response, "remembered": access_token})
 
     return jsonify({})
 
 
 @auth.route("/resend", methods=["POST"])
-def email_verification():
-    unknown_email_message: str = "Please Sign Up First!"
-    email_existance_error: str = "Account Doesn't Exist"
-    email_confirmed_message: str = "Email Already Confirmed!"
+def email_verification() -> dict:
+    email_error: str = "Please Sign Up First!"
+    email_existance_error: str = "Account doesn't Exist"
+    success_response: str = "Email Already Confirmed!"
 
     if request.method == "POST":
         user_email: dict = request.json
-        user_email = user_email["userEmail"]
-        if not user_email:
-            return jsonify({"error": unknown_email_message})
+        user_email: str = user_email["userEmail"]
 
-        email_exist: User = User.query.filter_by(email=user_email).first()
-        if not email_exist:
+        if not user_email:
+            return jsonify({"error": email_error})
+
+        stored_email: User = User.query.filter_by(email=user_email).first()
+
+        if not stored_email:
             return jsonify({"error": email_existance_error})
 
-        if email_exist.confirmed:
-            return jsonify({"success": email_confirmed_message})
+        if stored_email.confirmed:
+            return jsonify({"success": success_response})
 
         Smt(server=server, mail=mail, access="auth.confirm_email",
             data=user_email).send()
@@ -98,62 +100,63 @@ def email_verification():
 
 @auth.route("/signup", methods=["POST"])
 def signup() -> dict:
-    database_insertion_error: str = "Sorry, something went wrong!. Please try again."
-    success_message: str = "Account created succesfully. A verification link has been sent to your email."
-    duplicate_error_message: str = "Email already exist!"
-    captcha_validity_message: str = "Please verify that you are not a robot first!"
+    captcha_validity_error: str = "Please Verify that you are not a Robot first!"
+    duplicate_email_error: str = "Email Already Exist!, Please try another one."
+    insertion_error: str = "Sorry, something went wrong!. Please try again."
+    success_message: str = "Account Created Succesfully. A Verification Link has been sent to your Email."
 
     if request.method == "POST":
-        signup_user_credentials: dict = request.json
+        user_credentials: dict = request.json
 
-        if not signup_user_credentials["captVerification"]:
-            return jsonify({"error": captcha_validity_message})
+        if not user_credentials["captVerification"]:
+            return jsonify({"error": captcha_validity_error})
 
-        signup_user_credentials |= {"captVerification": None}
-        user_email: str = signup_user_credentials["email"]
+        user_credentials |= {"captVerification": None}
+        user_email: str = user_credentials["email"]
 
-        validated: bool | dict = Validated(signup_user_credentials).valid()
+        validation_response: bool | dict = UserValidation(
+            user_credentials).validate_user()
 
-        if isinstance(validated, dict):
-            return jsonify(validated)
+        if isinstance(validation_response, dict):
+            return jsonify(validation_response)
 
-        user_existance: User = User.query.filter_by(
+        user: User = User.query.filter_by(
             email=user_email).first()
 
-        if user_existance:
-            return jsonify({"error": duplicate_error_message})
+        if user:
+            return jsonify({"error": duplicate_email_error})
 
         try:
-            users: User = User(
-                user_name=signup_user_credentials["name"],
+            new_user: User = User(
+                user_name=user_credentials["name"],
                 email=user_email,
                 confirmed=False,
                 password=generate_password_hash(
-                    signup_user_credentials["password"], method="pbkdf2:sha256")
+                    user_credentials["password"], method="pbkdf2:sha256")
             )
 
-            db.session.add(users)
+            db.session.add(new_user)
             db.session.commit()
 
             Smt(server=server, mail=mail, access="auth.confirm_email",
                 data=user_email).send()
             return jsonify({"success": success_message})
         except Exception:
-            return jsonify({"error": database_insertion_error})
+            return jsonify({"error": insertion_error})
 
     return jsonify({})
 
 
-@auth.route("/email_confirmation", methonds=["POST"])
+@auth.route("/email_confirmation", methods=["POST"])
 def email_confirmation() -> dict:
     if request.method == "POST":
-        user_email = request.json
-        user_confirmed: User = User.query.filter_by(email=user_email).first()
+        user_email: dict = request.json
+        user: User = User.query.filter_by(email=user_email).first()
 
-        if not user_confirmed:
+        if not user:
             return jsonify({})
 
-        confirmed: bool | int = user_confirmed.confirmed
+        confirmed: bool | int = user.confirmed
 
         if not confirmed:
             return jsonify({})
@@ -175,36 +178,36 @@ def captcha_verification():
         captcha: ImageCaptcha = ImageCaptcha(
             width=400, height=220, font_sizes=(40, 60, 80, 100))
         data: BytesIO = captcha.generate(text)
-        base64_data: str = b64encode(data.read()).decode("ascii")
+        base64_image_data: str = b64encode(data.read()).decode("ascii")
 
-        storing_captcha: Captcha = Captcha(
+        new_captcha: Captcha = Captcha(
             identifier=identifier,
             value=text
         )
 
-        db.session.add(storing_captcha)
+        db.session.add(new_captcha)
         db.session.commit()
 
         return jsonify({
-            "captcha": [base64_data, identifier],
+            "captcha": [base64_image_data, identifier],
             "Content-Type": "image/jpeg"
         })
 
     if request.method == "POST":
-        user_capt_data: dict = request.json
-        capt_id: str = user_capt_data["captchaId"]
+        captcha_data: dict = request.json
+        captcha_id: str = captcha_data["captchaId"]
         stored_captcha: Captcha = Captcha.query.filter_by(
-            identifier=capt_id).first()
+            identifier=captcha_id).first()
 
         if not stored_captcha:
             return jsonify({"error": False})
 
-        if capt_id != stored_captcha.identifier:
+        if captcha_id != stored_captcha.identifier:
             db.session.delete(stored_captcha)
             db.session.commit()
             return jsonify({"error": False})
 
-        if user_capt_data["captValue"] != stored_captcha.value:
+        if captcha_data["captValue"] != stored_captcha.value:
             db.session.delete(stored_captcha)
             db.session.commit()
             return jsonify({"error": False})
@@ -247,7 +250,7 @@ def confirm_email(token):
         try:
             confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
                 server.config['SECRET_KEY'])
-            email: str = confirm_serializer.loads(
+            token_url: str = confirm_serializer.loads(
                 token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
         except Exception:
             return render_template("confirmation_template.html",
@@ -256,10 +259,10 @@ def confirm_email(token):
                                        "color": "crimson"
                                    })
 
-        if not isinstance(email, str):
+        if not isinstance(token_url, str):
             return redirect(f"http://127.0.0.1:5000/index/{token}")
 
-        user: User = User.query.filter_by(email=email).first()
+        user: User = User.query.filter_by(email=token_url).first()
 
         if user.confirmed:
             return render_template("confirmation_template.html",

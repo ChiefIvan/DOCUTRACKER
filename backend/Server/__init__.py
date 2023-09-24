@@ -12,10 +12,10 @@ from datetime import timedelta
 from .static.predef_function.server_credentials import EMAIL, PASSWORD, CORS_LINK
 
 
-server = Flask(__name__)
-db = SQLAlchemy()
-mail = Mail()
-jwt = JWTManager()
+server: Flask = Flask(__name__)
+db: SQLAlchemy = SQLAlchemy()
+mail: Mail = Mail()
+jwt: JWTManager = JWTManager()
 
 
 class Flaskserver:

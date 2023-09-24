@@ -13,11 +13,12 @@
   import Input from "./entries/input.svelte";
   import Form from "./entries/form.svelte";
   import BarLoader from "./assets/barLoader.svelte";
+  import Button from "./entries/button.svelte";
 
   let email = "";
   let password = "";
   // let navigateUser = "";
-  
+
   const api = "http://127.0.0.1:5000/login";
   const resendAPI = "http://127.0.0.1:5000/resend";
   const confirmation = "http://127.0.0.1:5000/email_confirmation";
@@ -63,15 +64,15 @@
     $pageTransitionValue1 = -150;
     $pageTransitionValue2 = 150;
 
-    const userEmail = localStorage.getItem("userEmail");
-    if (userEmail || userEmail.length !== 0 || userEmail !== undefined) {
-      fetch(confirmation, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${userEmail}`,
-        },
-      }).then((response) => console.log(response));
-    }
+    // const userEmail = localStorage.getItem("userEmail");
+    // if (userEmail || userEmail.length !== 0 || userEmail !== undefined) {
+    //   fetch(confirmation, {
+    //     method: "POST",
+    //     headers: {
+    //       Authorization: `Bearer ${userEmail}`,
+    //     },
+    //   }).then((response) => console.log(response.json()));
+    // }
   });
 
   onDestroy(() => {
@@ -113,7 +114,7 @@
       </div>
       <a href="/Authentication/ResetPassword">forgot password?</a>
     </div>
-    <button>Login</button>
+    <Button btnName={"Login"} btnLoginSize={true} />
     <p>
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -183,22 +184,6 @@
       & a:hover {
         text-decoration: underline;
       }
-    }
-
-    & button {
-      width: 100%;
-      height: 2rem;
-      border: none;
-      color: white;
-      background-color: orange;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: all ease-in-out 300ms;
-    }
-
-    & button:hover {
-      opacity: var(--opacity);
-      box-shadow: 5px 5px 25px gray;
     }
   }
 </style>

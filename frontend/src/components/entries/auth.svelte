@@ -1,37 +1,33 @@
 <script>
   import { userContent, serverResponse } from "../../stores";
-  import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
 
-  const authAPI = "http://127.0.0.1:5000/index";
-  onMount(() => {
-    let user_token = localStorage.getItem("remembered") || "";
+  export let apiAddress = "";
+  export let authData = "";
+  export let authMethod = "";
+  export let errorMessage = "";
 
-    if (user_token.length != 0) {
-      fetch(authAPI, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${user_token}`,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Logout request failed");
-          }
+  let headers =
+    authData !== "POST"
+      ? { Authorization: `Bearer ${authData}` }
+      : { "Content-Type": "application/json" };
 
-          return response.json();
-        })
+  fetch(apiAddress, {
+    method: authMethod,
+    headers: headers,
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Logout request failed");
+      }
 
-        .then((data) => ($userContent = data))
-        .catch((error) => {
-          console.error("Error:", error);
-          $serverResponse = { error: "Invalid Token! Please login again" };
-          navigate("/login");
-        });
+      return response.json();
+    })
 
-      return;
-    }
-
-    navigate("/login");
-  });
+    .then((data) => ($userContent = data))
+    .catch((error) => {
+      console.error("Error:", error);
+      $serverResponse = { error: errorMessage };
+      navigate("/login");
+    });
 </script>

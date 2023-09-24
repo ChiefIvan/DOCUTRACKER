@@ -27,17 +27,17 @@ body {
     row-gap: 2rem;
 
     & img {
-      max-width: 15rem;
+      max-width: 16rem;
     }
 
     & section {
       & h1 {
-        font-size: 3rem;
+        font-size: 2rem;
         font-weight: bold;
       }
 
       & h3 {
-        font-size: 1.3rem;
+        font-size: 1rem;
       }
 
       & h1,

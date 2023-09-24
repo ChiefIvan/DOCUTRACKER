@@ -30,10 +30,16 @@
     align-items: center;
     flex-direction: column;
 
+    & div {
+      & img {
+        max-width: 25rem;
+      }
+    }
+
     & h1 {
       font-family: Arial, Helvetica, sans-serif;
       font-weight: bolder;
-      font-size: 8rem;
+      font-size: 5rem;
     }
 
     & h3 {

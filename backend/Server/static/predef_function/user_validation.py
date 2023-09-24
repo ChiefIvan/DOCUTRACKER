@@ -1,45 +1,45 @@
-import re
+from re import compile
 
 
-class Validation:
+class Methods:
     def __init__(self, entries: dict):
         self.entries = entries
 
     def empty_validation(self) -> bool | dict:
-        invalid_length_error: str = "Your firstname must be greater than 3 characters"
+        length_error: str = "Your Firstname must be greater than 3 Characters"
 
         EMPTY_ERROR_MESSAGES: dict = {
-            "name": "Username entry is empty!",
-            "email": "Email entry is empty!",
-            "password": "Password entry is empty!",
+            "name": "Username Entry is Empty!",
+            "email": "Email Entry is Empty!",
+            "password": "Password Entry is Empty!",
         }
 
         for key, value in self.entries.items():
             if value != None:
                 if len(value) == 0:
-                    return {"error": EMPTY_ERROR_MESSAGES.get(key, "Password confirmation is empty!")}
+                    return {"error": EMPTY_ERROR_MESSAGES.get(key, "Password Confirmation is Empty!")}
 
         if self.entries["name"] != None:
             if len(self.entries["name"]) < 4:
-                return {"error": invalid_length_error}
+                return {"error": length_error}
 
         return True
 
     def email_validation(self) -> bool | dict:
-        invalid_email: str = "Your email format is invalid."
-        pattern = re.compile(
+        email_format_error: str = "Your Email Format is Invalid."
+        pattern = compile(
             r'^[a-zA-Z0-9._%+-]{5,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
 
         if not pattern.match(self.entries["email"]):
-            return {"error": invalid_email}
+            return {"error": email_format_error}
 
         return True
 
     def password_validation(self) -> bool | dict:
-        length_error: str = "Your password must be greater than 7 characters!"
-        combination_error: str = "Your password have atleast 1 Uppercase, 1 Lowercase and a number"
-        unequal_password_error: str = "Your password and confirmation password must be the same!"
-        pattern = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$")
+        length_error: str = "Your Password must be greater than 7 Characters!"
+        combination_error: str = "Your Password have atleast 1 Uppercase, 1 Lowercase and a Number"
+        password_error: str = "Your Password and Confirmation Password must be the same!"
+        pattern = compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$")
 
         for key, value in self.entries.items():
             if value != None:
@@ -52,12 +52,12 @@ class Validation:
 
         if self.entries["confirm_password"] != None and self.entries["password"] != None:
             if self.entries["password"] != self.entries["confirm_password"]:
-                return {"error": unequal_password_error}
+                return {"error": password_error}
 
         return True
 
 
-class Validated(Validation):
+class UserValidation(Methods):
     def __init__(self, entries: dict):
         super().__init__(entries)
 
@@ -67,9 +67,9 @@ class Validated(Validation):
             self.password_validation
         )
 
-    def valid(self) -> bool | dict:
-        for validity in self.VALID:
-            if isinstance(response := validity(), dict):
+    def validate_user(self) -> bool | dict:
+        for methods in self.VALID:
+            if isinstance(response := methods(), dict):
                 return response
 
         return True
