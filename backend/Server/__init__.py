@@ -19,7 +19,7 @@ jwt: JWTManager = JWTManager()
 
 
 class Flaskserver:
-    CORS(server, resources={r"/*": {"origins": CORS_LINK}})
+    CORS(server, resources={r"/*": {"origin": CORS_LINK}})
 
     def __init__(self):
 

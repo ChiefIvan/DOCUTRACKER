@@ -1,10 +1,9 @@
-from flask import (Blueprint, jsonify, request, render_template, redirect)
+from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for
 from flask_jwt_extended import create_access_token, get_jwt, verify_jwt_in_request
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
-from time import sleep
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from captcha.image import ImageCaptcha
 from io import BytesIO
 from base64 import b64encode
@@ -12,9 +11,9 @@ from string import ascii_letters, digits
 from random import choice
 from uuid import uuid4
 
-from . import (db, mail, server)
+from . import db, mail, server
 from .models import User, Tokens, Tokenblocklist, Captcha
-from .static.predef_function.user_validation import UserValidation
+from .static.predef_function.user_validation import UserValidation, PasswordValidator
 from .static.predef_function.smt import Smt
 
 auth: Blueprint = Blueprint("auth", __name__)
@@ -22,12 +21,12 @@ auth: Blueprint = Blueprint("auth", __name__)
 
 @auth.route("/login", methods=["POST"])
 def login() -> dict:
-    user_error: str = "Account Doesn't Exist"
-    verification_error: str = "Please verify your account first"
-    password_error: str = "Incorrect Password, Please try again!"
-    success_response: str = "Logged in Succesfully"
-
     if request.method == "POST":
+
+        user_error: str = "Account Doesn't Exist!"
+        verification_error: str = "Please verify your account first!"
+        password_error: str = "Incorrect Password, Please try again!"
+        success_response: str = "Logged in Succesfully"
 
         user_credentials: dict = request.json
         user: User = User.query.filter_by(
@@ -73,39 +72,45 @@ def login() -> dict:
 
 @auth.route("/resend", methods=["POST"])
 def email_verification() -> dict:
-    email_error: str = "Please Sign Up First!"
-    email_existance_error: str = "Account doesn't Exist"
-    success_response: str = "Email Already Confirmed!"
-
     if request.method == "POST":
+
+        email_error: str = "Please Sign Up First!"
+        email_existance_error: str = "Account doesn't Exist"
+        success_response: str = "Email Already Confirmed!"
+
         user_email: dict = request.json
         user_email: str = user_email["userEmail"]
 
         if not user_email:
             return jsonify({"error": email_error})
 
-        stored_email: User = User.query.filter_by(email=user_email).first()
+        user: User = User.query.filter_by(email=user_email).first()
 
-        if not stored_email:
+        if not user:
             return jsonify({"error": email_existance_error})
 
-        if stored_email.confirmed:
+        if user.confirmed:
             return jsonify({"success": success_response})
 
-        Smt(server=server, mail=mail, access="auth.confirm_email",
-            data=user_email).send()
+        smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
+                       data=user_email).send()
+
+        if isinstance(smt, dict):
+            return jsonify(smt)
+
+        return jsonify({"response": True})
 
     return jsonify({})
 
 
 @auth.route("/signup", methods=["POST"])
 def signup() -> dict:
-    captcha_validity_error: str = "Please Verify that you are not a Robot first!"
-    duplicate_email_error: str = "Email Already Exist!, Please try another one."
-    insertion_error: str = "Sorry, something went wrong!. Please try again."
-    success_message: str = "Account Created Succesfully. A Verification Link has been sent to your Email."
-
     if request.method == "POST":
+        captcha_validity_error: str = "Please Verify that you are not a Robot first!"
+        duplicate_email_error: str = "Email Already Exist!, Please try another one."
+        insertion_error: str = "Sorry, something went wrong!. Please try again."
+        success_message: str = "Account Created Succesfully. A Verification Link has been sent to your Email."
+
         user_credentials: dict = request.json
 
         if not user_credentials["captVerification"]:
@@ -131,6 +136,7 @@ def signup() -> dict:
                 user_name=user_credentials["name"],
                 email=user_email,
                 confirmed=False,
+                last_password_reset_request=None,
                 password=generate_password_hash(
                     user_credentials["password"], method="pbkdf2:sha256")
             )
@@ -138,8 +144,12 @@ def signup() -> dict:
             db.session.add(new_user)
             db.session.commit()
 
-            Smt(server=server, mail=mail, access="auth.confirm_email",
-                data=user_email).send()
+            smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
+                           data=user_email).send()
+
+            if isinstance(smt, dict):
+                return jsonify(smt)
+
             return jsonify({"success": success_message})
         except Exception:
             return jsonify({"error": insertion_error})
@@ -147,21 +157,22 @@ def signup() -> dict:
     return jsonify({})
 
 
-@auth.route("/email_confirmation", methods=["POST"])
-def email_confirmation() -> dict:
+@auth.route("/confirmed_check", methods=["POST"])
+def check() -> dict:
     if request.method == "POST":
         user_email: dict = request.json
+        user_email: str = user_email["userEmail"]
         user: User = User.query.filter_by(email=user_email).first()
 
         if not user:
-            return jsonify({})
+            return jsonify({"response": True})
 
         confirmed: bool | int = user.confirmed
 
         if not confirmed:
-            return jsonify({})
+            return jsonify({"response": False})
 
-        return jsonify({})
+        return jsonify({"response": True})
 
     return jsonify({})
 
@@ -229,22 +240,83 @@ def logout():
     return jsonify({})
 
 
-@auth.route("/resetpassword", methods=["POST"])
-def reset_password():
-    user_existance_error: str = "Account Doesn't Exist"
-    change_duration_message: str = "You can only change your password once every 7 days"
+@auth.route("/reset", methods=["POST"])
+def pswd_reset_req() -> dict:
+    if request.method == "POST":
+        user_error: str = "Account Doesn't Exist!"
+        duration_mgs: str = "You can only change your password once every 7 days"
+        request_msg: str = "A Reset Link has been sent to your Email."
 
-    reset_user_credentials: dict = request.json
-    user_existance: bool = User.query.filter_by(
-        email=reset_user_credentials["email"]).first()
+        user_credentials: dict = request.json
+        user: User = User.query.filter_by(
+            email=user_credentials["email"]).first()
 
-    if not user_existance:
-        return jsonify({"error": user_existance_error})
+        if not user:
+            return jsonify({"error": user_error})
+
+        if user.last_password_reset_request and \
+                user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
+            return jsonify({"error": duration_mgs})
+
+        smt: Smt = Smt(server=server, mail=mail, access="auth.pswd_reset_confirm",
+                       data=user.email).request()
+
+        if isinstance(smt, dict):
+            return jsonify(smt)
+
+        user.last_password_reset_request = datetime.utcnow()
+        db.session.commit()
+
+        return jsonify({"success": request_msg})
 
     return jsonify({})
 
 
-@auth.route('/verification/<token>', methods=['GET'])
+@auth.route("/confirm_reset/<token>", methods=["GET", "POST"])
+def pswd_reset_confirm(token):
+    try:
+        confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
+            server.config['SECRET_KEY'])
+        token_url: str = confirm_serializer.loads(
+            token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=15000)
+    except Exception:
+        return render_template("confirmation_template.html",
+                               content={
+                                   "content": "The confirmation link has expired, or invalid token! ❌",
+                                   "color": "crimson"
+                               })
+
+    if request.method == "POST":
+        new_password: str = request.form.get("password")
+        cnfrm_password: str = request.form.get("cnfrm-password")
+
+        user_passwords: str = {"password": new_password,
+                               "confirm_password": cnfrm_password}
+        validity: bool | dict = PasswordValidator(user_passwords).validate()
+
+        if isinstance(validity, dict):
+            flash(validity, category="error")
+            return redirect(url_for("auth.pswd_reset_confirm", token=token))
+
+        user: User = User.query.filter_by(email=token_url).first()
+        print(user)
+
+        if user:
+            user.password = generate_password_hash(
+                new_password, method="pbkdf2:sha256")
+            db.session.commit()
+
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "You change your password succesfully",
+                                       "color": "green"
+                                   })
+
+        flash("No user assciated with the token", category="error")
+    return render_template("reset_form.html")
+
+
+@auth.route("/verification/<token>", methods=['GET'])
 def confirm_email(token):
     if request.method == "GET":
         try:
@@ -255,12 +327,9 @@ def confirm_email(token):
         except Exception:
             return render_template("confirmation_template.html",
                                    content={
-                                       "content": "The confirmation link is expired, or invalid token! ❌",
+                                       "content": "The confirmation link has expired, or invalid token! ❌",
                                        "color": "crimson"
                                    })
-
-        if not isinstance(token_url, str):
-            return redirect(f"http://127.0.0.1:5000/index/{token}")
 
         user: User = User.query.filter_by(email=token_url).first()
 

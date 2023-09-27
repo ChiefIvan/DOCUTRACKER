@@ -24,14 +24,14 @@
 
 <style>
   div {
-    transition: 500ms;
+    transition: ease-in-out var(--dur);
     position: fixed;
     top: 0;
     z-index: 1;
 
     width: 100%;
     text-align: center;
-    color: white;
+    color: var(--bg);
 
     & p {
       padding: 0.3rem;

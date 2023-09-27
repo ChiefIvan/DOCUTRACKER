@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOCUTRACKER | Reset Password</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <main>
+      <form method="POST" autocomplete="off">
+        <h1>Forgot Password?</h1>
+        <p>
+          Please keep in mind that you only <br />
+          have 1 chance to change your <br />
+          password every 7 days!
+        </p>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+        />
+        <input
+          type="password"
+          name="cnfrm-password"
+          id="cnfrm-password"
+          placeholder="Confirm Password"
+        />
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {%for category, message in messages %} {%if category ==
+        "error"%}
+        <div>
+          <p>{{ message }}</p>
+        </div>
+        {%endif%} {% endfor %} {% endif %} {% endwith %}
+        <div>
+          <button>Change</button>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

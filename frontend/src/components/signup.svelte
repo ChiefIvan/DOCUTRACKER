@@ -7,6 +7,7 @@
     pageTransitionValue2,
     loaderState,
     captchaVerification,
+    backendAddress,
   } from "../stores";
 
   import Input from "./entries/input.svelte";
@@ -24,10 +25,11 @@
 
   let buttonDisabled = true;
   let captchaDisabled = true;
-  let navigateUser = "/login";
-  let api = "http://127.0.0.1:5000/signup";
+  let api = `${backendAddress}signup`;
   const passwordLabel =
     "Your password must be greater than 7 characters and have atleat 1 uppercase, 1 lowercase and a number!";
+  const warnMessage =
+    "If you can't see your Email, try checking out Spam Messages!";
 
   onMount(() => {
     document.body.className = "body-class";
@@ -55,7 +57,7 @@
 
   $: {
     passwordErrorColor =
-      cnfrmPassword.length && password !== cnfrmPassword ? "crimson" : "";
+      cnfrmPassword.length && password !== cnfrmPassword ? true : false;
     captchaDisabled = [userName, email, password, cnfrmPassword].some(
       (value) => value.length === 0
     );
@@ -75,7 +77,7 @@
     {password}
     {cnfrmPassword}
     {api}
-    {navigateUser}
+    {warnMessage}
     on:resetInput={handleReset}
   >
     <header>
@@ -119,7 +121,7 @@
       <div>
         <CaptchaCheckbox checkboxDisabled={captchaDisabled} />
       </div>
-      <a href="/Authentication/ResetPassword">forgot password?</a>
+      <a href="/auth/u/reset">forgot password?</a>
     </div>
     <Button
       btnName={"Submit"}
@@ -129,15 +131,13 @@
     />
 
     <p>
-      Already have an account? <Link to="/login"><span>Login</span></Link>
+      Already have an account? <Link to="/auth/u/login"><span>Login</span></Link
+      >
     </p>
   </Form>
 </section>
 
 <style>
-  :root {
-    --opacity: 0.6;
-  }
 
   :global(.body-class) {
     height: 100vh;

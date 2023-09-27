@@ -7,22 +7,29 @@
     resetInput,
     captchaVerification,
     captchaAttemps,
-    backendAddress,
+    fetchData,
   } from "../../stores";
 
   import Input from "./input.svelte";
   import Button from "./button.svelte";
+  import Auth from "./auth.svelte";
 
   let bytesIO = {};
   let id = "";
   let byteValue = "";
   let userCaptGenVal = "";
+  let authBind;
+  let isUpdated = false;
+
+  afterUpdate(() => {
+    isUpdated = true;
+  });
 
   export let checkboxDisabled = true;
 
-  const captchaAPI = `${backendAddress}captcha`;
+  const captchaAPI = "http://127.0.0.1:5000/captcha";
 
-  async function handleGETCaptcha() {
+  function handleGETCaptcha() {
     $captchaAttemps--;
 
     if ($captchaAttemps < 0) {
@@ -34,26 +41,20 @@
       return;
     }
 
-    await fetch(captchaAPI, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => (bytesIO = data.captcha))
-      .catch(
-        () =>
-          ($serverResponse = {
-            error: "Server is down, please try again later.",
-          })
-      );
+    authBind.endPoint(
+      captchaAPI,
+      "GET",
+      "Server is down, please try again later.",
+      { "Content-Type": "application/json" }
+    );
+  }
 
+  const handleData = (e) => {
+    bytesIO = e.detail;
+    
     id = bytesIO[1];
     byteValue = bytesIO[0];
-
-    localStorage.setItem("captchaId", id);
-  }
+  };
 
   async function handlePOSTCaptcha() {
     $resetInput.blur();
@@ -93,6 +94,8 @@
     userCaptGenVal = "";
   }
 </script>
+
+<Auth bind:this={authBind} on:authData={handleData} />
 
 {#if byteValue.length !== 0}
   <div class="capt-img-wrapper" transition:fade={{ delay: 100, duration: 400 }}>
@@ -170,7 +173,7 @@
 
       background-color: white;
       padding: 0.5rem;
-      box-shadow: 5px 5px 25px var(--main-col-1);
+      box-shadow: 5px 5px 25px gray;
       border-radius: 1rem;
 
       & div.btn-wrapper {
@@ -188,7 +191,7 @@
     & label {
       cursor: pointer;
       transition: all calc(var(--dur) / 3) ease-in-out;
-      color: var(--main-col-1);
+      color: gray;
     }
 
     & .checkbox-wrapper {
@@ -280,6 +283,6 @@
 
   div.container-disabled:hover label {
     cursor: not-allowed;
-    color: var(--main-col-1);
+    color: gray;
   }
 </style>

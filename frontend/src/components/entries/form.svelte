@@ -15,45 +15,20 @@
   export let password = "";
   export let cnfrmPassword = "";
   export let api = "";
-  export let navigateUser = "";
+  export let warnMessage = "";
 
   const dispatch = createEventDispatcher();
 
   async function handleSubmit() {
-    $loaderState = true;
-    $entryState = true;
-    $captchaAttemps = 3;
-    $resetInput.blur();
+    updateStatesBeforeSubmit();
 
-    const userCredentials = {
-      name: userName,
-      email: email,
-      password: password,
-      confirm_password: cnfrmPassword,
-      captVerification: $captchaVerification,
-    };
+    const userCredentials = getUserCredentials();
 
     try {
-      const request = await fetch(api, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userCredentials),
-      });
+      const request = await sendRequest(userCredentials);
 
       if (request.ok) {
-        let response = await request.json();
-
-        if (response.error) {
-          $serverResponse = { error: response.error };
-        } else {
-          $serverResponse = { success: response.success };
-        }
-
-        if (response.remembered) {
-          localStorage.setItem("remembered", response.remembered);
-        }
+        handleSuccessfulRequest(request);
       }
     } catch {
       $serverResponse = {
@@ -61,10 +36,65 @@
       };
     }
 
-    if (String(Object.keys($serverResponse)) !== "error") {
-      navigate("/login");
+    updateStatesAfterSubmit();
+  }
+
+  function updateStatesBeforeSubmit() {
+    $loaderState = true;
+    $entryState = true;
+    $captchaAttemps = 3;
+    $resetInput.blur();
+  }
+
+  function getUserCredentials() {
+    return {
+      name: userName,
+      email: email,
+      password: password,
+      confirm_password: cnfrmPassword,
+      captVerification: $captchaVerification,
+    };
+  }
+
+  async function sendRequest(userCredentials) {
+    return await fetch(api, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userCredentials),
+    });
+  }
+
+  async function handleSuccessfulRequest(request) {
+    let response = await request.json();
+
+    if (response.error) {
+      $serverResponse = { error: response.error };
+      return;
+    } else {
+      handleSuccessResponse(response);
     }
 
+    if (response.remembered) {
+      localStorage.setItem("remembered", response.remembered);
+    }
+  }
+
+  function handleSuccessResponse(response) {
+    $serverResponse = { success: response.success };
+    navigate("/auth/u/login");
+
+    if (warnMessage.length === 0) {
+      return;
+    }
+
+    setTimeout(() => {
+      alert(warnMessage);
+    }, 1000);
+  }
+
+  function updateStatesAfterSubmit() {
     $loaderState = false;
     $captchaVerification = false;
     localStorage.setItem("userEmail", email.length != 0 ? email : "");

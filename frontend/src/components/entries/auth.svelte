@@ -1,33 +1,62 @@
 <script>
-  import { userContent, serverResponse } from "../../stores";
+  import { fetchData, serverResponse } from "../../stores";
   import { navigate } from "svelte-routing";
+  import { createEventDispatcher } from "svelte";
 
-  export let apiAddress = "";
-  export let authData = "";
-  export let authMethod = "";
-  export let errorMessage = "";
+  const dispatch = createEventDispatcher();
 
-  let headers =
-    authData !== "POST"
-      ? { Authorization: `Bearer ${authData}` }
-      : { "Content-Type": "application/json" };
-
-  fetch(apiAddress, {
-    method: authMethod,
-    headers: headers,
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Logout request failed");
-      }
-
-      return response.json();
+  /**
+   * @param {RequestInfo | URL} apiAddress
+   * @param {any} errorMessage
+   * @param {any} authHeader
+   */
+  export async function getEndPoint(apiAddress, errorMessage, authHeader) {
+    await fetch(apiAddress, {
+      method: "GET",
+      headers: authHeader,
     })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server Unreachable");
+        }
 
-    .then((data) => ($userContent = data))
-    .catch((error) => {
-      console.error("Error:", error);
-      $serverResponse = { error: errorMessage };
-      navigate("/login");
-    });
+        return response.json();
+      })
+
+      .then((data) => (($fetchData = data), dispatch("authData", data)))
+      .catch((error) => {
+        console.error("Error:", error);
+        $serverResponse = { error: errorMessage };
+        navigate("/auth/u/login");
+      });
+  }
+
+  /**
+   * @param {RequestInfo | URL} apiAddress
+   * @param {any} errorMessage
+   * @param {any} authBody
+   */
+  export async function postEndPoint(apiAddress, errorMessage, authBody = {}) {
+    await fetch(apiAddress, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: authBody,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Server Unreachable");
+        }
+
+        return response.json();
+      })
+
+      .then((data) => ($fetchData = data))
+      .catch((error) => {
+        console.error("Error:", error);
+        $serverResponse = { error: errorMessage };
+        navigate("/auth/u/login");
+      });
+  }
 </script>

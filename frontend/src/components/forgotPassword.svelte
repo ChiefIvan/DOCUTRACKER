@@ -1,20 +1,22 @@
 <script>
   // @ts-nocheck
 
+  import { backendAddress } from "../stores";
+
   import Form from "./entries/form.svelte";
   import Input from "./entries/input.svelte";
 
   let email = "";
   let password = "";
   let cnfrmPassword = "";
-  let api = "http://127.0.0.1:5000/resetpassword";
+  let api = `${backendAddress}reset`;
 
   const handleReset = (e) => {
     email = e.detail;
   };
 </script>
 
-<Form {email} {password} {cnfrmPassword} {api} on:resetInput={handleReset}>
+<Form {email} {api} on:resetInput={handleReset}>
   <Input
     inputName={"Email"}
     inputType={"email"}

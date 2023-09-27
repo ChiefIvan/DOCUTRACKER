@@ -2,26 +2,55 @@
   // @ts-nocheck
 
   import { Link, navigate } from "svelte-routing";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, beforeUpdate } from "svelte";
   import {
     pageTransitionValue1,
     pageTransitionValue2,
     loaderState,
     serverResponse,
+    backendAddress,
+    fetchData,
   } from "../stores";
 
   import Input from "./entries/input.svelte";
   import Form from "./entries/form.svelte";
   import BarLoader from "./assets/barLoader.svelte";
   import Button from "./entries/button.svelte";
+  import Auth from "./entries/auth.svelte";
 
   let email = "";
+  let userEmail = localStorage.getItem("userEmail") || "";
   let password = "";
-  // let navigateUser = "";
+  let disableResend = false;
+  let timeLeft = 0;
+  let authBind;
 
-  const api = "http://127.0.0.1:5000/login";
-  const resendAPI = "http://127.0.0.1:5000/resend";
-  const confirmation = "http://127.0.0.1:5000/email_confirmation";
+  const method = "POST";
+  const errorMessage = "Server is down, please try again later.";
+  const body = JSON.stringify({ userEmail: userEmail });
+  const api = `${backendAddress}login`;
+  const resendAPI = `${backendAddress}resend`;
+  const confirmation = `${backendAddress}confirmed_check`;
+
+  const storedResendTime = localStorage.getItem("resendTime");
+  if (storedResendTime) {
+    const elapsedTime = Date.now() - storedResendTime;
+    const delay = 60000;
+
+    if (elapsedTime < delay) {
+      disableResend = true;
+      timeLeft = Math.ceil((delay - elapsedTime) / 1000);
+
+      const countdown = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft -= 1;
+        } else {
+          clearInterval(countdown);
+          disableResend = false;
+        }
+      }, 1000);
+    }
+  }
 
   const handleReset = (e) => {
     email = e.detail;
@@ -29,31 +58,50 @@
   };
 
   async function handleResend() {
-    let userEmail = localStorage.getItem("userEmail") || "";
+    if (disableResend) return;
 
     if (userEmail.length === 0) {
       $serverResponse = {
         error: "Please Sign Up First!",
       };
-      navigate("/signup");
+
+      navigate("/auth/u/signup");
       return;
     }
 
+    disableResend = true;
+
     try {
       const sendEmail = await fetch(resendAPI, {
-        method: "POST",
+        method: method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userEmail: userEmail }),
+        body: body,
       });
 
       if (sendEmail.ok) {
         $serverResponse = await sendEmail.json();
+        if ($serverResponse.response) {
+          localStorage.setItem("resendTime", Date.now());
+          disableResend = true;
+          timeLeft = 60;
+
+          const countdown = setInterval(() => {
+            if (timeLeft > 0) {
+              timeLeft -= 1;
+            } else {
+              clearInterval(countdown);
+              disableResend = false;
+            }
+          }, 1000);
+        } else {
+          disableResend = false;
+        }
       }
     } catch {
       $serverResponse = {
-        error: "Server is down, please try again later.",
+        error: errorMessage,
       };
     }
   }
@@ -63,22 +111,15 @@
     document.title = "Docutracker | Login";
     $pageTransitionValue1 = -150;
     $pageTransitionValue2 = 150;
-
-    // const userEmail = localStorage.getItem("userEmail");
-    // if (userEmail || userEmail.length !== 0 || userEmail !== undefined) {
-    //   fetch(confirmation, {
-    //     method: "POST",
-    //     headers: {
-    //       Authorization: `Bearer ${userEmail}`,
-    //     },
-    //   }).then((response) => console.log(response.json()));
-    // }
+    authBind.postEndPoint(confirmation, errorMessage, body);
   });
 
   onDestroy(() => {
     document.body.className = "";
   });
 </script>
+
+<Auth bind:this={authBind} />
 
 {#if $loaderState}
   <BarLoader />
@@ -89,7 +130,7 @@
     <h1>Welcome back</h1>
     <p>
       Don't have an account?
-      <Link to="/signup"><span>Signup</span></Link>
+      <Link to="/auth/u/signup"><span>Signup</span></Link>
     </p>
   </header>
   <Form {email} {password} {api} on:resetInput={handleReset}>
@@ -112,15 +153,19 @@
         <input id="remember" type="checkbox" />
         <label class="remmember" for="remember">Remember me</label>
       </div>
-      <a href="/Authentication/ResetPassword">forgot password?</a>
+      <a href="/auth/u/reset">forgot password?</a>
     </div>
-    <Button btnName={"Login"} btnLoginSize={true} />
-    <p>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      Didn't Receive the Verification?
-      <span on:click={handleResend}>Resend</span>
-    </p>
+    <Button btnName={"Login"} btnLoginSize={true} btnTitle={"Login"} />
+    {#if !$fetchData.response}
+      <p>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        Didn't Receive the Verification?
+        <span on:click={handleResend} class:disabled={disableResend}
+          >Resend {timeLeft ? `again in (${timeLeft}s)` : "Again"}</span
+        >
+      </p>
+    {/if}
   </Form>
 </section>
 
@@ -128,11 +173,11 @@
   section {
     border-radius: 1rem;
     padding: 3rem;
-    box-shadow: 10px 10px 50px lightgray;
+    box-shadow: 10px 10px 50px var(--main-col-2);
 
     & span {
       text-decoration: none;
-      color: orange;
+      color: var(--brdr-hovr);
       transition: all ease-in-out 200ms;
       cursor: pointer;
     }
@@ -140,6 +185,11 @@
     & span:hover {
       opacity: var(--opacity);
       text-decoration: underline;
+    }
+
+    & span.disabled {
+      pointer-events: none;
+      opacity: 0.6;
     }
 
     & header {
@@ -150,7 +200,7 @@
 
         & span {
           text-decoration: none;
-          color: orange;
+          color: var(--brdr-hovr);
           transition: all ease-in-out 200ms;
         }
 
@@ -178,7 +228,7 @@
       input,
       label.remmember {
         cursor: pointer;
-        color: gray;
+        color: var(--main-col-1);
       }
 
       & a:hover {

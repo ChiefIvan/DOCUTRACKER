@@ -4,29 +4,27 @@
   import {
     pageTransitionValue1,
     pageTransitionValue2,
-    pageLocation,
+    location,
   } from "../../stores";
 
   const pageTransitionDuration = 200;
-  const location = useLocation();
+  const userLocation = useLocation();
 
-  $: $pageLocation = $location.pathname;
+  $: $location = $userLocation.pathname;
 </script>
 
-{#if $location.pathname === "/signup" || $location.pathname === "/login"}
-  {#key $location.pathname}
-    <main
-      in:fly={{
-        x: $pageTransitionValue1,
-        duration: pageTransitionDuration,
-        delay: pageTransitionDuration + 100,
-      }}
-      out:fly={{ x: $pageTransitionValue2, duration: pageTransitionDuration }}
-    >
-      <slot />
-    </main>
-  {/key}
-{/if}
+{#key $userLocation.pathname}
+  <main
+    in:fly={{
+      x: $pageTransitionValue1,
+      duration: pageTransitionDuration,
+      delay: pageTransitionDuration + 100,
+    }}
+    out:fly={{ x: $pageTransitionValue2, duration: pageTransitionDuration }}
+  >
+    <slot />
+  </main>
+{/key}
 
 <style>
   main {

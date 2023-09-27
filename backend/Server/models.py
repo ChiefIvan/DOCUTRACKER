@@ -1,4 +1,3 @@
-from flask_login import UserMixin
 from . import db
 
 
@@ -7,6 +6,7 @@ class User(db.Model):
     user_name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
+    last_password_reset_request = db.Column(db.DateTime, default=None)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     tokens = db.relationship("Tokens")
 

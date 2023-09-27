@@ -1,11 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Poppins:wght@200;300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&family=Poppins:wght@200;300;400;700&display=swap");
 
 :root {
+  /* Color Palete */
   --bg: #fff;
   --brdr: #d1d6ee;
   --brdr-actv: blue;
   --brdr-hovr: orange;
-  --dur: calc((var(--size, 2) / 2) * 0.6s);
+  --tran-color: transparent;
+  --for-col: crimson;
+  --main-col-1: gray;
+  --main-col-2: lightgray;
+  --opacity: 0.6;
+
+  /* Delays */
+  --dur: 500ms;
+}
+
+::-ms-reveal {
+  display: none;
 }
 
 *,
@@ -18,8 +30,8 @@
 }
 
 *::selection {
-  color: white;
-  background-color: red;
+  color: var(--bg);
+  background-color: var(--for-col);
 }
 
 a {
@@ -35,6 +47,11 @@ noscript {
   & span {
     font-size: 2rem;
     font-weight: bolder;
-    color: crimson;
+    color: var(--for-col);
   }
+}
+
+input::-ms-clear,
+input::-ms-reveal {
+  display: none;
 }

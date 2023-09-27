@@ -10,9 +10,9 @@
   export let inputAutocomplete = "";
   export let inputValue = "";
   export let miniModal = "";
-  export let errorColor = "";
   export let inputZ = "";
   export let inputSize = "";
+  export let errorColor = false;
 
   let activeFocus = false;
   let inputState = false;
@@ -73,6 +73,7 @@
     style={`color: ${errorColor}; z-index: ${inputZ}`}
     class:active-slide={inputState}
     class:focus-active={activeFocus}
+    class:error-active={errorColor}
     for={inputName}>{inputName}</label
   >
   <input
@@ -81,6 +82,7 @@
       errorColor.length !== 0 && errorColor
     }; width: ${inputSize.length !== 0 && inputSize};`}
     id={inputName}
+    class:error-active={errorColor}
     class:focus-active={activeFocus}
     type={inputType}
     autocomplete={inputAutocomplete}
@@ -93,11 +95,6 @@
 </div>
 
 <style>
-  :root {
-    --transition: all ease-in-out;
-    --entry-color: lightgray;
-  }
-
   div {
     display: flex;
     align-items: center;
@@ -109,8 +106,8 @@
       bottom: 0.5rem;
       right: -3.6rem;
 
-      background-color: gray;
-      color: white;
+      background-color: var(--main-col-1);
+      color: var(--bg);
       width: 10rem;
       font-size: 0.8rem;
       text-align: center;
@@ -136,8 +133,8 @@
 
       width: 1.3rem;
       height: 1.3rem;
-      background-color: crimson;
-      color: white;
+      background-color: var(--for-color);
+      color: var(--bg);
       border-radius: 1rem;
       text-align: center;
       font-family: none;
@@ -155,9 +152,9 @@
     & label {
       font-size: 1.05rem;
       user-select: none;
-      transition: var(--transition) 250ms;
+      transition: ease-in-out calc(var(--dur) / 2);
       padding: 1.1rem;
-      color: gray;
+      color: var(--main-col-1);
       cursor: text;
 
       position: absolute;
@@ -167,34 +164,42 @@
     & label.active-slide {
       font-size: 0.6rem;
       padding: 0 1rem;
-      transform: translateY(-1.2rem);
+      transform: translateY(-1.22rem);
     }
 
     & label.focus-active {
       color: var(--brdr-actv);
     }
 
+    & label.error-active {
+      color: var(--for-col);
+    }
+
     & input {
       height: 1.6rem;
-      width: 23rem;
+      width: 25rem;
       padding: 0 1rem;
-      transition: var(--transition) 300ms;
-      border: 1px solid transparent;
-      border-bottom: 1px solid var(--entry-color);
+      transition: ease-in-out calc(var(--dur) / 2);
+      border: 1px solid var(--tran-color);
+      border-bottom: 1px solid var(--main-col-2);
       outline: none;
-      background: transparent;
+      background: var(--tran-color);
     }
 
     & input.focus-active {
       border-bottom: 1px solid var(--brdr-actv);
     }
+
+    & input.error-active {
+      border-bottom: 1px solid var(--for-col);
+    }
   }
 
   div:hover input {
-    border-bottom: 1px solid orange;
+    border-bottom: 1px solid var(--brdr-hovr);
   }
 
   div:hover label {
-    color: orange;
+    color: var(--brdr-hovr);
   }
 </style>

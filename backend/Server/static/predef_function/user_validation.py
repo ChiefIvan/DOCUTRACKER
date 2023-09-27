@@ -1,14 +1,13 @@
 from re import compile
 
 
-class Methods:
+class EntryValidator:
     def __init__(self, entries: dict):
         self.entries = entries
 
-    def empty_validation(self) -> bool | dict:
+    def validate(self) -> bool | dict:
         length_error: str = "Your Firstname must be greater than 3 Characters"
-
-        EMPTY_ERROR_MESSAGES: dict = {
+        error_responses: dict = {
             "name": "Username Entry is Empty!",
             "email": "Email Entry is Empty!",
             "password": "Password Entry is Empty!",
@@ -17,7 +16,7 @@ class Methods:
         for key, value in self.entries.items():
             if value != None:
                 if len(value) == 0:
-                    return {"error": EMPTY_ERROR_MESSAGES.get(key, "Password Confirmation is Empty!")}
+                    return {"error": error_responses.get(key, "Password Confirmation is Empty!")}
 
         if self.entries["name"] != None:
             if len(self.entries["name"]) < 4:
@@ -25,7 +24,12 @@ class Methods:
 
         return True
 
-    def email_validation(self) -> bool | dict:
+
+class EmailValidator:
+    def __init__(self, entries: dict):
+        self.entries = entries
+
+    def validate(self) -> bool | dict:
         email_format_error: str = "Your Email Format is Invalid."
         pattern = compile(
             r'^[a-zA-Z0-9._%+-]{5,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
@@ -35,7 +39,12 @@ class Methods:
 
         return True
 
-    def password_validation(self) -> bool | dict:
+
+class PasswordValidator:
+    def __init__(self, entries: dict):
+        self.entries = entries
+
+    def validate(self) -> bool | dict:
         length_error: str = "Your Password must be greater than 7 Characters!"
         combination_error: str = "Your Password have atleast 1 Uppercase, 1 Lowercase and a Number"
         password_error: str = "Your Password and Confirmation Password must be the same!"
@@ -57,19 +66,18 @@ class Methods:
         return True
 
 
-class UserValidation(Methods):
+class UserValidation:
     def __init__(self, entries: dict):
-        super().__init__(entries)
-
-        self.VALID = (
-            self.empty_validation,
-            self.email_validation,
-            self.password_validation
-        )
+        self.validators = [
+            EntryValidator(entries),
+            EmailValidator(entries),
+            PasswordValidator(entries)
+        ]
 
     def validate_user(self) -> bool | dict:
-        for methods in self.VALID:
-            if isinstance(response := methods(), dict):
+        for validator in self.validators:
+            response = validator.validate()
+            if isinstance(response, dict):
                 return response
 
         return True
