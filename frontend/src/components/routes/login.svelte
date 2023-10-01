@@ -10,20 +10,20 @@
     serverResponse,
     backendAddress,
     fetchData,
-  } from "../stores";
+  } from "../../stores";
 
-  import Input from "./entries/input.svelte";
-  import Form from "./entries/form.svelte";
-  import BarLoader from "./assets/barLoader.svelte";
-  import Button from "./entries/button.svelte";
-  import Auth from "./entries/auth.svelte";
+  import Input from "../entries/input.svelte";
+  import Form from "../entries/form.svelte";
+  import BarLoader from "../assets/barLoader.svelte";
+  import Button from "../entries/button.svelte";
+  import Auth from "../entries/auth.svelte";
 
   let email = "";
   let userEmail = localStorage.getItem("userEmail") || "";
   let password = "";
   let disableResend = false;
   let timeLeft = 0;
-  let authBind;
+  // let authBind;
 
   const method = "POST";
   const errorMessage = "Server is down, please try again later.";
@@ -31,6 +31,7 @@
   const api = `${backendAddress}login`;
   const resendAPI = `${backendAddress}resend`;
   const confirmation = `${backendAddress}confirmed_check`;
+  const navigateUser = "/home";
 
   const storedResendTime = localStorage.getItem("resendTime");
   if (storedResendTime) {
@@ -108,10 +109,10 @@
 
   onMount(() => {
     document.body.className = "body-class";
-    document.title = "Docutracker | Login";
+    document.title = "DOCUTRACKER | Login";
     $pageTransitionValue1 = -150;
     $pageTransitionValue2 = 150;
-    authBind.postEndPoint(confirmation, errorMessage, body);
+    // authBind.postEndPoint(confirmation, errorMessage, body);
   });
 
   onDestroy(() => {
@@ -119,7 +120,7 @@
   });
 </script>
 
-<Auth bind:this={authBind} />
+<!-- <Auth bind:this={authBind} /> -->
 
 {#if $loaderState}
   <BarLoader />
@@ -133,7 +134,7 @@
       <Link to="/auth/u/signup"><span>Signup</span></Link>
     </p>
   </header>
-  <Form {email} {password} {api} on:resetInput={handleReset}>
+  <Form {email} {password} {api} {navigateUser} on:resetInput={handleReset}>
     <Input
       inputName={"Email"}
       inputType={"email"}
@@ -156,16 +157,16 @@
       <a href="/auth/u/reset">forgot password?</a>
     </div>
     <Button btnName={"Login"} btnLoginSize={true} btnTitle={"Login"} />
-    {#if !$fetchData.response}
-      <p>
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        Didn't Receive the Verification?
-        <span on:click={handleResend} class:disabled={disableResend}
-          >Resend {timeLeft ? `again in (${timeLeft}s)` : "Again"}</span
-        >
-      </p>
-    {/if}
+    <!-- {#if !$fetchData.response} -->
+    <p>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      Didn't Receive the Verification?
+      <span on:click={handleResend} class:disabled={disableResend}
+        >Resend {timeLeft ? `again in (${timeLeft}s)` : "Again"}</span
+      >
+    </p>
+    <!-- {/if} -->
   </Form>
 </section>
 

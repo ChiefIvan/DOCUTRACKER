@@ -16,6 +16,7 @@
   export let cnfrmPassword = "";
   export let api = "";
   export let warnMessage = "";
+  export let navigateUser = "";
 
   const dispatch = createEventDispatcher();
 
@@ -83,7 +84,7 @@
 
   function handleSuccessResponse(response) {
     $serverResponse = { success: response.success };
-    navigate("/auth/u/login");
+    navigate(navigateUser);
 
     if (warnMessage.length === 0) {
       return;

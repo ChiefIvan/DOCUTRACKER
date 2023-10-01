@@ -133,7 +133,7 @@
 
       width: 1.3rem;
       height: 1.3rem;
-      background-color: var(--for-color);
+      background-color: var(--for-col);
       color: var(--bg);
       border-radius: 1rem;
       text-align: center;

@@ -10,7 +10,11 @@
   --for-col: crimson;
   --main-col-1: gray;
   --main-col-2: lightgray;
+  --main-col-3: #333;
   --opacity: 0.6;
+
+  /* Sizes */
+  --size-1: 1.8rem;
 
   /* Delays */
   --dur: 500ms;

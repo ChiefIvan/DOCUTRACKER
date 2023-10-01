@@ -23,18 +23,20 @@
           name="password"
           id="password"
           placeholder="Password"
+          required
         />
         <input
           type="password"
           name="cnfrm-password"
           id="cnfrm-password"
           placeholder="Confirm Password"
+          required
         />
         {% with messages = get_flashed_messages(with_categories=true) %} {% if
         messages %} {%for category, message in messages %} {%if category ==
         "error"%}
         <div>
-          <p>{{ message }}</p>
+          <p>{{ message["error"] }}</p>
         </div>
         {%endif%} {% endfor %} {% endif %} {% endwith %}
         <div>

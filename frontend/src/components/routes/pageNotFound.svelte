@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import pageError from "../lib/pagenotfound_banner.png";
+  import pageError from "../../lib/pagenotfound_banner.png";
 
   onMount(() => {
     document.title = "404 | Page not found";

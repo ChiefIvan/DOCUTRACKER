@@ -8,14 +8,14 @@
     loaderState,
     captchaVerification,
     backendAddress,
-  } from "../stores";
+  } from "../../stores";
 
-  import Input from "./entries/input.svelte";
-  import Form from "./entries/form.svelte";
-  import banner from "../lib/signup_banner.png";
-  import BarLoader from "./assets/barLoader.svelte";
-  import CaptchaCheckbox from "./entries/captcha.svelte";
-  import Button from "./entries/button.svelte";
+  import Input from "../entries/input.svelte";
+  import Form from "../entries/form.svelte";
+  import banner from "../../lib/signup_banner.png";
+  import BarLoader from "../assets/barLoader.svelte";
+  import CaptchaCheckbox from "../entries/captcha.svelte";
+  import Button from "../entries/button.svelte";
 
   let userName = "";
   let email = "";
@@ -30,10 +30,11 @@
     "Your password must be greater than 7 characters and have atleat 1 uppercase, 1 lowercase and a number!";
   const warnMessage =
     "If you can't see your Email, try checking out Spam Messages!";
+  const navigateUser = "/auth/u/login";
 
   onMount(() => {
     document.body.className = "body-class";
-    document.title = "Docutracker | Signup";
+    document.title = "DOCUTRACKER | Signup";
     $pageTransitionValue1 = 150;
     $pageTransitionValue2 = -150;
     $captchaVerification = false;
@@ -78,6 +79,7 @@
     {cnfrmPassword}
     {api}
     {warnMessage}
+    {navigateUser}
     on:resetInput={handleReset}
   >
     <header>
@@ -138,7 +140,6 @@
 </section>
 
 <style>
-
   :global(.body-class) {
     height: 100vh;
     display: flex;

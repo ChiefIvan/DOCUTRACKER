@@ -4,13 +4,13 @@
     <title>Email Confirmation</title>
   </head>
   <body>
-    <h2>Welcome!</h2>
+    <h2>Welcome, {{ data[1] }}!</h2>
     <p>
       Thank you for using DOCUTRACKER!. Please click the button below to confirm
       your email address:
     </p>
     <p>
-      <a href="{{ confirm_url }}">
+      <a href="{{ data[0] }}">
         <button
           style="
             width: 8rem;

@@ -12,7 +12,7 @@ from random import choice
 from uuid import uuid4
 
 from . import db, mail, server
-from .models import User, Tokens, Tokenblocklist, Captcha
+from .models import User, Captcha
 from .static.predef_function.user_validation import UserValidation, PasswordValidator
 from .static.predef_function.smt import Smt
 
@@ -41,29 +41,8 @@ def login() -> dict:
         if not check_password_hash(user.password, user_credentials["password"]):
             return jsonify({"error": password_error})
 
-        if verify_jwt_in_request(optional=True):
-            valid_token = Tokens.query.filter_by(
-                user_id=user.id).first()
-
-            if valid_token:
-                db.session.delete(valid_token)
-                db.session.commit()
-
-                jti = get_jwt()["jti"]
-                now = datetime.now(timezone.utc)
-                db.session.add(Tokenblocklist(jti=jti, created_at=now))
-                db.session.commit()
-
         access_token: str = create_access_token(
             identity=user)
-
-        user_token: Tokens = Tokens(
-            data=access_token,
-            user_id=user.id
-        )
-
-        db.session.add(user_token)
-        db.session.commit()
 
         return jsonify({"success": success_response, "remembered": access_token})
 
@@ -93,7 +72,7 @@ def email_verification() -> dict:
             return jsonify({"success": success_response})
 
         smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
-                       data=user_email).send()
+                       data=user_email, username=user.user_name).send()
 
         if isinstance(smt, dict):
             return jsonify(smt)
@@ -131,6 +110,12 @@ def signup() -> dict:
         if user:
             return jsonify({"error": duplicate_email_error})
 
+        smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
+                       data=user_email, username=user_credentials["name"]).send()
+
+        if isinstance(smt, dict):
+            return jsonify(smt)
+
         try:
             new_user: User = User(
                 user_name=user_credentials["name"],
@@ -143,12 +128,6 @@ def signup() -> dict:
 
             db.session.add(new_user)
             db.session.commit()
-
-            smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
-                           data=user_email).send()
-
-            if isinstance(smt, dict):
-                return jsonify(smt)
 
             return jsonify({"success": success_message})
         except Exception:
@@ -231,13 +210,13 @@ def captcha_verification():
     return jsonify({})
 
 
-@auth.route("/logout", methods=["GET"])
-def logout():
-    jti = get_jwt()["jti"]
-    now = datetime.now(timezone.utc)
-    db.session.add(Tokenblocklist(jti=jti, created_at=now))
-    db.session.commit()
-    return jsonify({})
+# @auth.route("/logout", methods=["GET"])
+# def logout():
+#     jti = get_jwt()["jti"]
+#     now = datetime.now(timezone.utc)
+#     db.session.add(Tokenblocklist(jti=jti, created_at=now))
+#     db.session.commit()
+#     return jsonify({})
 
 
 @auth.route("/reset", methods=["POST"])
@@ -254,12 +233,12 @@ def pswd_reset_req() -> dict:
         if not user:
             return jsonify({"error": user_error})
 
-        if user.last_password_reset_request and \
-                user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
-            return jsonify({"error": duration_mgs})
+        # if user.last_password_reset_request and \
+        #         user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
+        #     return jsonify({"error": duration_mgs})
 
         smt: Smt = Smt(server=server, mail=mail, access="auth.pswd_reset_confirm",
-                       data=user.email).request()
+                       data=user.email, username=user.user_name).request()
 
         if isinstance(smt, dict):
             return jsonify(smt)
@@ -289,7 +268,6 @@ def pswd_reset_confirm(token):
     if request.method == "POST":
         new_password: str = request.form.get("password")
         cnfrm_password: str = request.form.get("cnfrm-password")
-
         user_passwords: str = {"password": new_password,
                                "confirm_password": cnfrm_password}
         validity: bool | dict = PasswordValidator(user_passwords).validate()
@@ -299,7 +277,6 @@ def pswd_reset_confirm(token):
             return redirect(url_for("auth.pswd_reset_confirm", token=token))
 
         user: User = User.query.filter_by(email=token_url).first()
-        print(user)
 
         if user:
             user.password = generate_password_hash(
@@ -308,7 +285,7 @@ def pswd_reset_confirm(token):
 
             return render_template("confirmation_template.html",
                                    content={
-                                       "content": "You change your password succesfully",
+                                       "content": "You change your password succesfully ✅",
                                        "color": "green"
                                    })
 

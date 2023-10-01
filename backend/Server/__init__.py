@@ -19,7 +19,10 @@ jwt: JWTManager = JWTManager()
 
 
 class Flaskserver:
-    CORS(server, resources={r"/*": {"origin": CORS_LINK}})
+    CORS(
+        server,
+        resources={r"/*": {"origins": CORS_LINK}}
+    )
 
     def __init__(self):
 
@@ -44,7 +47,7 @@ class Flaskserver:
         mail.init_app(self.server)
         jwt.init_app(self.server)
 
-        from .models import User, Tokenblocklist
+        from .models import User, Captcha, Revoked
         from .authentication import auth
         from .views import views
 
@@ -55,7 +58,7 @@ class Flaskserver:
             with self.server.app_context():
                 with db.engine.connect() as connection:
                     inspector = inspect(connection)
-                    if "user" and "captcha" and "tokens" and "Tokenblocklist" not in inspector.get_table_names():
+                    if "user" and "captcha" and "revoked" not in inspector.get_table_names():
                         db.create_all()
 
         except Exception:
@@ -69,18 +72,6 @@ class Flaskserver:
         def user_lookup_callback(_jwt_header, jwt_data):
             identity = jwt_data["sub"]
             return User.query.get(int(identity))
-
-        @jwt.token_in_blocklist_loader
-        def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
-            # .get method is used instead of square bracket notation
-            jti = jwt_payload.get("jti")
-            if jti is None:
-                # Handle case here where jti is not included in payload - logic will depend on your app
-                raise ValueError("No jti claim found in token payload")
-
-            token = db.session.query(
-                Tokenblocklist.id).filter_by(jti=jti).scalar()
-            return token is not None
 
     def server_run(self):
         # return self.http_server

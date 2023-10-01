@@ -2,7 +2,7 @@
 
 :root {
   --size1: 0.5rem;
-  --size2: 4.5rem;
+  --size2: 3.5rem;
   --color1: lightgray;
   --color2: orange;
   --color3: crimson;
@@ -15,7 +15,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  font: 1rem "Poppins", helvetica;
+  font: 0.9rem "Poppins", helvetica;
   margin: 0;
   padding: 0;
 }
@@ -84,7 +84,7 @@ body {
         text-align: end;
 
         & p {
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           color: var(--color3);
           text-align: end;
         }

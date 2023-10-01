@@ -10,7 +10,7 @@
    * @param {any} errorMessage
    * @param {any} authHeader
    */
-  export async function getEndPoint(apiAddress, errorMessage, authHeader) {
+  export async function getEndPoint(apiAddress, errorMessage = "", authHeader) {
     await fetch(apiAddress, {
       method: "GET",
       headers: authHeader,
@@ -26,7 +26,9 @@
       .then((data) => (($fetchData = data), dispatch("authData", data)))
       .catch((error) => {
         console.error("Error:", error);
-        $serverResponse = { error: errorMessage };
+        if (errorMessage.length !== 0) {
+          $serverResponse = { error: errorMessage };
+        }
         navigate("/auth/u/login");
       });
   }
@@ -36,7 +38,11 @@
    * @param {any} errorMessage
    * @param {any} authBody
    */
-  export async function postEndPoint(apiAddress, errorMessage, authBody = {}) {
+  export async function postEndPoint(
+    apiAddress,
+    errorMessage = "",
+    authBody = {}
+  ) {
     await fetch(apiAddress, {
       method: "POST",
       headers: {
@@ -55,7 +61,9 @@
       .then((data) => ($fetchData = data))
       .catch((error) => {
         console.error("Error:", error);
-        $serverResponse = { error: errorMessage };
+        if (errorMessage.length !== 0) {
+          $serverResponse = { error: errorMessage };
+        }
         navigate("/auth/u/login");
       });
   }

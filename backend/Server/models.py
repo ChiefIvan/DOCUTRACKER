@@ -8,7 +8,6 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     last_password_reset_request = db.Column(db.DateTime, default=None)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    tokens = db.relationship("Tokens")
 
 
 class Captcha(db.Model):
@@ -17,13 +16,7 @@ class Captcha(db.Model):
     value = db.Column(db.String(5), nullable=False)
 
 
-class Tokens(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.String(1000), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-
-
-class Tokenblocklist(db.Model):
+class Revoked(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(100), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False)
+    revoked_at = db.Column(db.DateTime, nullable=False)
