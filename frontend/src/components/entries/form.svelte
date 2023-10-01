@@ -73,18 +73,19 @@
     if (response.error) {
       $serverResponse = { error: response.error };
       return;
-    } else {
-      handleSuccessResponse(response);
     }
+
+    handleSuccessResponse();
 
     if (response.remembered) {
       localStorage.setItem("remembered", response.remembered);
     }
   }
 
-  function handleSuccessResponse(response) {
-    $serverResponse = { success: response.success };
-    navigate(navigateUser);
+  function handleSuccessResponse() {
+    navigateUser !== "/home"
+      ? navigate(navigateUser)
+      : (window.location.href = navigateUser);
 
     if (warnMessage.length === 0) {
       return;

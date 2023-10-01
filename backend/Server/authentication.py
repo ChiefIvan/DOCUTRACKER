@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for
-from flask_jwt_extended import create_access_token, get_jwt, verify_jwt_in_request
+from flask_jwt_extended import create_access_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
@@ -26,7 +26,6 @@ def login() -> dict:
         user_error: str = "Account Doesn't Exist!"
         verification_error: str = "Please verify your account first!"
         password_error: str = "Incorrect Password, Please try again!"
-        success_response: str = "Logged in Succesfully"
 
         user_credentials: dict = request.json
         user: User = User.query.filter_by(
@@ -44,7 +43,7 @@ def login() -> dict:
         access_token: str = create_access_token(
             identity=user)
 
-        return jsonify({"success": success_response, "remembered": access_token})
+        return jsonify({"remembered": access_token})
 
     return jsonify({})
 
@@ -209,16 +208,6 @@ def captcha_verification():
 
     return jsonify({})
 
-
-# @auth.route("/logout", methods=["GET"])
-# def logout():
-#     jti = get_jwt()["jti"]
-#     now = datetime.now(timezone.utc)
-#     db.session.add(Tokenblocklist(jti=jti, created_at=now))
-#     db.session.commit()
-#     return jsonify({})
-
-
 @auth.route("/reset", methods=["POST"])
 def pswd_reset_req() -> dict:
     if request.method == "POST":
@@ -233,9 +222,9 @@ def pswd_reset_req() -> dict:
         if not user:
             return jsonify({"error": user_error})
 
-        # if user.last_password_reset_request and \
-        #         user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
-        #     return jsonify({"error": duration_mgs})
+        if user.last_password_reset_request and \
+                user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
+            return jsonify({"error": duration_mgs})
 
         smt: Smt = Smt(server=server, mail=mail, access="auth.pswd_reset_confirm",
                        data=user.email, username=user.user_name).request()

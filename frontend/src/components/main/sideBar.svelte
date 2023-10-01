@@ -1,5 +1,27 @@
+<script>
+  import { backendAddress } from "../../stores";
+
+  import Auth from "../entries/auth.svelte";
+
+  let authBind;
+
+  const logoutAddress = `${backendAddress}/logout`;
+  const errorMessage = "";
+
+  const handleLogout = () => {
+    authBind.getEndPoint(logoutAddress, errorMessage, {
+      Authorization: `Bearer ${localStorage.getItem("remembered") || ""}`,
+    });
+
+    localStorage.setItem("remembered", "")
+  };
+</script>
+
+<Auth bind:this={authBind} />
+
 <section>
   <nav>Hello Sidebar</nav>
+  <button on:click={handleLogout}>Logout</button>
 </section>
 
 <style>

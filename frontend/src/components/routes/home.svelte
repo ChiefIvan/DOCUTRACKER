@@ -1,5 +1,6 @@
 <script>
   import { fetchData, backendAddress } from "../../stores";
+  import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
 
   import Auth from "../entries/auth.svelte";
@@ -7,15 +8,18 @@
   const homeAddress = `${backendAddress}index`;
   const homeErrMsg = "";
 
-  let userId = "";
+  let token = localStorage.getItem("remembered") || "";
   let authBind;
 
   onMount(() => {
-    document.title = "DOCUTRACKER | Home";
-    userId = localStorage.getItem("remembered") || "";
-    authBind.getEndPoint(homeAddress, homeErrMsg, {
-      Authorization: `Bearer ${userId}`,
-    });
+    if (token.length !== 0) {
+      document.title = "DOCUTRACKER | Home";
+      authBind.getEndPoint(homeAddress, homeErrMsg, {
+        Authorization: `Bearer ${token}`,
+      });
+    }
+
+    navigate("auth/u/login");
   });
 </script>
 

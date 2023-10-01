@@ -65,13 +65,19 @@ class Flaskserver:
             print("Please enable you database connection!")
 
         @jwt.user_identity_loader
-        def user_loader(user):
+        def user_loader(user) -> int:
             return user.id
 
         @jwt.user_lookup_loader
-        def user_lookup_callback(_jwt_header, jwt_data):
-            identity = jwt_data["sub"]
+        def user_lookup_callback(_jwt_header, decoded_token):
+            identity = decoded_token["sub"]
             return User.query.get(int(identity))
+
+        @jwt.token_in_blocklist_loader
+        def revoked_tokens(jwt_header, decoded_token) -> bool:
+            jti = decoded_token['jti']
+            revoked_token: Revoked = Revoked.query.filter_by(jti=jti).scalar()
+            return revoked_token is not None
 
     def server_run(self):
         # return self.http_server
