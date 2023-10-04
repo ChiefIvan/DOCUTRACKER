@@ -16,6 +16,7 @@
   import Form from "../entries/form.svelte";
   import BarLoader from "../assets/barLoader.svelte";
   import Button from "../entries/button.svelte";
+  import favicon from "../../lib/transparent-favicon-elegant.png";
   import Auth from "../entries/auth.svelte";
 
   let email = "";
@@ -127,6 +128,7 @@
 {/if}
 
 <section>
+  <img src={favicon} alt="Docutracker's Logo" />
   <header>
     <h1>Welcome back</h1>
     <p>
@@ -173,8 +175,16 @@
 <style>
   section {
     border-radius: 1rem;
-    padding: 3rem;
+    padding: var(--size-3);
     box-shadow: 10px 10px 50px var(--main-col-2);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & img {
+      max-width: var(--size-2);
+    }
 
     & span {
       text-decoration: none;

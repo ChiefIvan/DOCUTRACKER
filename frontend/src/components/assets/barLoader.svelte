@@ -26,29 +26,26 @@
     overflow: hidden;
   }
 
-  .loader:before {
+  .loader::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    width: 0;
+    width: 50%;
     background-color: var(--brdr-actv);
-    animation: progress 1.5s linear infinite;
+    animation: progress 1500ms linear infinite;
   }
 
   @keyframes progress {
     0% {
-      width: 0;
-      left: 0;
+      left: -50%;
     }
-
     50% {
-      width: 60%;
+      width: 50%;
     }
-
     100% {
-      left: 100%;
+      left: 120%;
     }
   }
 </style>

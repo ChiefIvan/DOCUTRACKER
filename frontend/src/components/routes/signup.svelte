@@ -152,10 +152,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    column-gap: 1.5rem;
+    column-gap: var(--size-5);
 
     & img {
-      max-width: 25rem;
+      max-width: var(--size-4);
     }
 
     & header {
@@ -183,7 +183,7 @@
     & p {
       & span {
         text-decoration: none;
-        color: orange;
+        color: var(--brdr-hovr);
         transition: all ease-in-out 200ms;
       }
 

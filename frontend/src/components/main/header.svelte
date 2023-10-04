@@ -18,7 +18,6 @@
     z-index: 1;
 
     background-color: var(--main-col-2);
-    width: 100%;
     padding: calc(var(--size-1) * 0.3);
 
     display: flex;

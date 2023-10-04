@@ -17,6 +17,9 @@
   export let api = "";
   export let warnMessage = "";
   export let navigateUser = "";
+  export let handleResetPassword;
+  export let parentName;
+  export let disableResend = false;
 
   const dispatch = createEventDispatcher();
 
@@ -54,6 +57,7 @@
       password: password,
       confirm_password: cnfrmPassword,
       captVerification: $captchaVerification,
+      disabled: disableResend,
     };
   }
 
@@ -75,14 +79,24 @@
       return;
     }
 
-    handleSuccessResponse();
+    handleSuccessResponse(response);
 
     if (response.remembered) {
       localStorage.setItem("remembered", response.remembered);
     }
   }
 
-  function handleSuccessResponse() {
+  /**
+   * @param {any} response
+   */
+  function handleSuccessResponse(response) {
+    if (response.success) {
+      $serverResponse = { success: response.success };
+      if (parentName === "reset") {
+        handleResetPassword();
+      }
+    }
+
     navigateUser !== "/home"
       ? navigate(navigateUser)
       : (window.location.href = navigateUser);

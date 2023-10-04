@@ -177,7 +177,7 @@
 
     & input {
       height: 1.6rem;
-      width: 25rem;
+      width: var(--size-4);
       padding: 0 1rem;
       transition: ease-in-out calc(var(--dur) / 2);
       border: 1px solid var(--tran-color);

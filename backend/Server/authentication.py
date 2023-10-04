@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for
+from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for, session
 from flask_jwt_extended import create_access_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -84,6 +84,7 @@ def email_verification() -> dict:
 @auth.route("/signup", methods=["POST"])
 def signup() -> dict:
     if request.method == "POST":
+
         captcha_validity_error: str = "Please Verify that you are not a Robot first!"
         duplicate_email_error: str = "Email Already Exist!, Please try another one."
         insertion_error: str = "Sorry, something went wrong!. Please try again."
@@ -94,7 +95,7 @@ def signup() -> dict:
         if not user_credentials["captVerification"]:
             return jsonify({"error": captcha_validity_error})
 
-        user_credentials |= {"captVerification": None}
+        user_credentials |= {"captVerification": None, "disabled": None}
         user_email: str = user_credentials["email"]
 
         validation_response: bool | dict = UserValidation(
@@ -138,6 +139,7 @@ def signup() -> dict:
 @auth.route("/confirmed_check", methods=["POST"])
 def check() -> dict:
     if request.method == "POST":
+
         user_email: dict = request.json
         user_email: str = user_email["userEmail"]
         user: User = User.query.filter_by(email=user_email).first()
@@ -158,6 +160,7 @@ def check() -> dict:
 @auth.route("/captcha", methods=["GET", "POST"])
 def captcha_verification():
     if request.method == "GET":
+
         text: str = ""
         identifier = str(uuid4())
 
@@ -183,6 +186,7 @@ def captcha_verification():
         })
 
     if request.method == "POST":
+
         captcha_data: dict = request.json
         captcha_id: str = captcha_data["captchaId"]
         stored_captcha: Captcha = Captcha.query.filter_by(
@@ -208,14 +212,20 @@ def captcha_verification():
 
     return jsonify({})
 
+
 @auth.route("/reset", methods=["POST"])
 def pswd_reset_req() -> dict:
     if request.method == "POST":
+
         user_error: str = "Account Doesn't Exist!"
         duration_mgs: str = "You can only change your password once every 7 days"
         request_msg: str = "A Reset Link has been sent to your Email."
 
         user_credentials: dict = request.json
+
+        if user_credentials["disabled"]:
+            return jsonify({"error": "Paghulat daw, you madufaka!"})
+
         user: User = User.query.filter_by(
             email=user_credentials["email"]).first()
 
@@ -231,9 +241,6 @@ def pswd_reset_req() -> dict:
 
         if isinstance(smt, dict):
             return jsonify(smt)
-
-        user.last_password_reset_request = datetime.utcnow()
-        db.session.commit()
 
         return jsonify({"success": request_msg})
 
@@ -254,7 +261,17 @@ def pswd_reset_confirm(token):
                                    "color": "crimson"
                                })
 
+    if request.method == "GET":
+
+        if "rendered_template" in session and session["rendered_template"]:
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "You can only open this template once!",
+                                       "color": "crimson"
+                                   })
+
     if request.method == "POST":
+
         new_password: str = request.form.get("password")
         cnfrm_password: str = request.form.get("cnfrm-password")
         user_passwords: str = {"password": new_password,
@@ -268,9 +285,19 @@ def pswd_reset_confirm(token):
         user: User = User.query.filter_by(email=token_url).first()
 
         if user:
+            if check_password_hash(user.password, new_password):
+                flash(
+                    {"error":  "Your new password should not be the same as your old one!"}, category="error")
+                return redirect(url_for("auth.pswd_reset_confirm", token=token))
+
             user.password = generate_password_hash(
                 new_password, method="pbkdf2:sha256")
             db.session.commit()
+
+            user.last_password_reset_request = datetime.utcnow()
+            db.session.commit()
+
+            session["rendered_template"] = True
 
             return render_template("confirmation_template.html",
                                    content={

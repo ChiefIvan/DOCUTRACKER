@@ -25,4 +25,4 @@ def logout() -> dict:
     revoked_token = Revoked(jti=jti, revoked_at=now)
     db.session.add(revoked_token)
     db.session.commit()
-    return redirect("http://localhost:5173/auth/u/login")
+    return jsonify({})

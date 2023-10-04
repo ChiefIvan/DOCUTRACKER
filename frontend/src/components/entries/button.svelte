@@ -10,8 +10,10 @@
   class:change-login-size={btnLoginSize}
   class:change-signup-size={btnSignupSize}
   class:btn-disabled={btnDisabled}
+  type="submit"
   title={btnName !== "Submit" ? btnTitle : btnDisabled ? btnTitle : "Submit"}
   disabled={btnDisabled}
+  on:click
 >
   {btnName}
 </button>

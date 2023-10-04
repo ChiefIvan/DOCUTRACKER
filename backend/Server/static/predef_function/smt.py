@@ -31,12 +31,12 @@ class Smt:
             return {"error": self.send_error}
 
     def request(self) -> None | dict:
-        # try:
-        confirm_url = self.authentication()
-        template = render_template(
-            "request_password.html", data=[confirm_url, self.username])
-        msg: Message = Message(
-            recipients=[self.data], subject="Request a new Password", html=template)
-        self.mail.send(msg)
-        # except Exception:
-        #     return {"error": self.send_error}
+        try:
+            confirm_url = self.authentication()
+            template = render_template(
+                "request_password.html", data=[confirm_url, self.username])
+            msg: Message = Message(
+                recipients=[self.data], subject="Request a new Password", html=template)
+            self.mail.send(msg)
+        except Exception:
+            return {"error": self.send_error}

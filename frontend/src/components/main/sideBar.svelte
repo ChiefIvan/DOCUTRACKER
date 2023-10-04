@@ -4,16 +4,20 @@
   import Auth from "../entries/auth.svelte";
 
   let authBind;
+  const remembered = localStorage.getItem("remembered") || "";
 
   const logoutAddress = `${backendAddress}/logout`;
   const errorMessage = "";
 
   const handleLogout = () => {
-    authBind.getEndPoint(logoutAddress, errorMessage, {
-      Authorization: `Bearer ${localStorage.getItem("remembered") || ""}`,
-    });
+    if (remembered.length !== 0) {
+      authBind.getEndPoint(logoutAddress, errorMessage, {
+        Authorization: `Bearer ${remembered}`,
+      });
+    }
 
-    localStorage.setItem("remembered", "")
+    window.location.href = "/";
+    localStorage.setItem("remembered", "");
   };
 </script>
 
@@ -21,7 +25,9 @@
 
 <section>
   <nav>Hello Sidebar</nav>
-  <button on:click={handleLogout}>Logout</button>
+  <div>
+    <button on:click={handleLogout}>Logout</button>
+  </div>
 </section>
 
 <style>
@@ -32,8 +38,7 @@
     z-index: 2;
 
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
 
     min-width: 15rem;
     height: 100vh;
@@ -43,6 +48,11 @@
     & nav {
       width: calc(15rem * 0.9);
       height: calc(100vh * 0.97);
+      flex: 4;
+    }
+
+    & div {
+      flex: 1;
     }
   }
 </style>

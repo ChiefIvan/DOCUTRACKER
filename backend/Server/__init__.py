@@ -5,23 +5,28 @@ from flask_mail import Mail
 from flask_jwt_extended import JWTManager
 
 from sqlalchemy import inspect
-from uuid import uuid4
+from secrets import token_hex
 from datetime import timedelta
+from dotenv import load_dotenv
+from os import getenv
+from os.path import join, dirname
 # from gevent.pywsgi import WSGIServer
 
-from .static.predef_function.server_credentials import EMAIL, PASSWORD, CORS_LINK
+from .static.predef_function.server_credentials import EMAIL, PASSWORD
 
 
 server: Flask = Flask(__name__)
 db: SQLAlchemy = SQLAlchemy()
 mail: Mail = Mail()
 jwt: JWTManager = JWTManager()
+dotenv_path = join(dirname(__file__), "static", ".env")
+load_dotenv(dotenv_path)
 
 
 class Flaskserver:
     CORS(
         server,
-        resources={r"/*": {"origins": CORS_LINK}}
+        resources={r"/*": {"origins": getenv("CORS_ADDRESS")}}
     )
 
     def __init__(self):
@@ -29,13 +34,13 @@ class Flaskserver:
         self.server = server
         # self.http_server = WSGIServer(('localhost', 5000), self.server)
 
-        self.server.config["SECRET_KEY"] = str(uuid4())
-        self.server.config["JWT_SECRET_KEY"] = str(uuid4())
+        self.server.config["SECRET_KEY"] = token_hex(128)
+        self.server.config["JWT_SECRET_KEY"] = token_hex(128)
         self.server.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
-        self.server.config["SECURITY_PASSWORD_SALT"] = str(uuid4())
-        self.server.config["SQLALCHEMY_DATABASE_URI"] = "mysql://Ban:IvanDawang01112002@localhost/docutracker_db"
+        self.server.config["SECURITY_PASSWORD_SALT"] = token_hex(128)
+        self.server.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URI")
         self.server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        self.server.config["MAIL_SERVER"] = 'smtp-mail.outlook.com'
+        self.server.config["MAIL_SERVER"] = getenv("MAIL_SERVER")
         self.server.config["MAIL_PORT"] = 587
         self.server.config["MAIL_USE_TLS"] = True
         self.server.config["MAIL_USE_SSL"] = False

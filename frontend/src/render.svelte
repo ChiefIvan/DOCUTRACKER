@@ -41,11 +41,12 @@
       <PageTransition>
         <Route path="auth/u/signup" component={Signup} />
         <Route path="auth/u/login" component={Login} />
+        <Route path="auth/u/reset" component={ForgotPassword} />
         <Route path="home" component={Home} />
+        <Route path="" component={PageNotFound} />
       </PageTransition>
     </div>
   </div>
-  <Route path="auth/u/reset" component={ForgotPassword} />
   <Route path="/">
     <button>
       <Link to="auth/u/signup">Signup</Link>
@@ -54,7 +55,6 @@
       <Link to="auth/u/login">Login</Link>
     </button>
   </Route>
-  <Route path="" component={PageNotFound} />
 </Router>
 
 <style>
@@ -64,6 +64,7 @@
     & div.head-wrapper {
       display: flex;
       flex-direction: column;
+      width: 100%;
     }
   }
 </style>
