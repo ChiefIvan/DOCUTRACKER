@@ -103,8 +103,8 @@
         inputType={"text"}
         inputAutocomplete={"off"}
         inputValue={userCaptGenVal}
-        inputZ={"2"}
-        inputSize={"100%"}
+        inputZ={true}
+        inputSize={true}
         on:input={(e) => (userCaptGenVal = e.target.value)}
       />
       <div class="btn-wrapper">

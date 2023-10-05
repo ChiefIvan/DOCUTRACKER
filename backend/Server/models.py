@@ -8,6 +8,13 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     last_password_reset_request = db.Column(db.DateTime, default=None)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    template_access = db.relationship("Template")
+
+
+class Template(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    access = db.Column(db.Boolean, nullable=False, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 
 class Captcha(db.Model):

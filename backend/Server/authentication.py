@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for, session
+from flask import Blueprint, jsonify, request, render_template, redirect, flash, url_for
 from flask_jwt_extended import create_access_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,7 +12,7 @@ from random import choice
 from uuid import uuid4
 
 from . import db, mail, server
-from .models import User, Captcha, Resend, Reset
+from .models import User, Captcha, Resend, Reset, Template
 from .static.predef_function.user_validation import UserValidation, PasswordValidator, Sanitizer
 from .static.predef_function.smt import Smt
 
@@ -277,6 +277,17 @@ def pswd_reset_req() -> dict:
         if isinstance(smt, dict):
             return jsonify(smt)
 
+        access_template: Template = Template.query.filter_by(
+            user_id=user.id).first()
+
+        if not access_template:
+            db.session.add(Template(access=False, user_id=user.id))
+            db.session.commit()
+
+        else:
+            access_template.access = False
+            db.session.commit()
+
         return jsonify({"success": request_msg})
 
     return jsonify({})
@@ -293,25 +304,30 @@ def pswd_reset_confirm(token):
     except Exception:
         return render_template("confirmation_template.html",
                                content={
-                                   "content": "The confirmation link has expired, or invalid token! ❌",
+                                   "title": "DOCUTRACKER | Reset Password",
+                                   "content": "The reset link has expired, or invalid token! ❌",
                                    "color": "crimson"
                                })
 
     reset_token: Reset | None = Reset.query.filter_by(token=token).first()
-    print(token)
+    user: User | None = User.query.filter_by(email=token_url).first()
+    access_template: Template = Template.query.filter_by(
+        user_id=user.id).first()
 
     if not reset_token:
         return render_template("confirmation_template.html",
                                content={
+                                   "title": "DOCUTRACKER | Reset Password",
                                    "content": "You do not have the permission to access this template! ❌",
                                    "color": "crimson"
                                })
 
     if request.method == "GET":
 
-        if "rendered_template" in session and session["rendered_template"]:
+        if access_template.access:
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Reset Password",
                                        "content": "You can only access this template once!",
                                        "color": "crimson"
                                    })
@@ -322,6 +338,7 @@ def pswd_reset_confirm(token):
         cnfrm_password: str = request.form.get("cnfrm-password")
         user_passwords: str = {"password": new_password,
                                "confirm_password": cnfrm_password}
+
         validity: bool | dict = PasswordValidator(user_passwords).validate()
         sanitize: bool | dict = Sanitizer(user_passwords).validate()
 
@@ -332,8 +349,6 @@ def pswd_reset_confirm(token):
         if isinstance(sanitize, dict):
             flash(sanitize, category="error")
             return redirect(url_for("auth.pswd_reset_confirm", token=token))
-
-        user: User | None = User.query.filter_by(email=token_url).first()
 
         if user:
             if check_password_hash(user.password, new_password):
@@ -348,10 +363,12 @@ def pswd_reset_confirm(token):
             user.last_password_reset_request = datetime.utcnow()
             db.session.commit()
 
-            session["rendered_template"] = True
+            access_template.access = True
+            db.session.commit()
 
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Reset Password",
                                        "content": "You change your password succesfully ✅",
                                        "color": "green"
                                    })
@@ -371,6 +388,7 @@ def confirm_email(token):
         except Exception:
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Verification",
                                        "content": "The confirmation link has expired, or invalid token! ❌",
                                        "color": "crimson"
                                    })
@@ -380,6 +398,7 @@ def confirm_email(token):
         if not resend_token:
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Verification",
                                        "content": "You do not have the permission to access this page! ❌",
                                        "color": "crimson"
                                    })
@@ -389,6 +408,7 @@ def confirm_email(token):
         if user.confirmed:
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Verification",
                                        "content": "Email already confirmed ✅",
                                        "color": "green"
                                    })
@@ -399,6 +419,7 @@ def confirm_email(token):
             db.session.commit()
             return render_template("confirmation_template.html",
                                    content={
+                                       "title": "DOCUTRACKER | Verification",
                                        "content": "Email confirmed ✅",
                                        "color": "green"
                                    })

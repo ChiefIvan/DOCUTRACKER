@@ -11,7 +11,7 @@
   export let inputValue = "";
   export let miniModal = "";
   export let inputZ = "";
-  export let inputSize = "";
+  export let inputSize = false;
   export let errorColor = false;
 
   let activeFocus = false;
@@ -51,7 +51,7 @@
 <div
   on:mouseover={() => (activeWarning = true)}
   on:mouseleave={() => (activeWarning = false)}
-  style={`width: ${inputSize};`}
+  class:size={inputSize}
 >
   {#if miniModal.length !== 0}
     {#if activeWarning}
@@ -70,17 +70,14 @@
     {/if}
   {/if}
   <label
-    style={`color: ${errorColor}; z-index: ${inputZ}`}
     class:active-slide={inputState}
     class:focus-active={activeFocus}
     class:error-active={errorColor}
+    class:overlap={inputZ}
     for={inputName}>{inputName}</label
   >
   <input
     required
-    style={`border-bottom: 1px solid ${
-      errorColor.length !== 0 && errorColor
-    }; width: ${inputSize.length !== 0 && inputSize};`}
     id={inputName}
     class:error-active={errorColor}
     class:focus-active={activeFocus}
@@ -175,6 +172,10 @@
       color: var(--for-col);
     }
 
+    & label.overlap {
+      z-index: 2;
+    }
+
     & input {
       height: 1.6rem;
       width: var(--size-4);
@@ -193,6 +194,10 @@
     & input.error-active {
       border-bottom: 1px solid var(--for-col);
     }
+  }
+
+  div.size {
+    width: 100%;
   }
 
   div:hover input {
