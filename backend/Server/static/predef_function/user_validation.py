@@ -1,4 +1,5 @@
 from re import compile
+from bleach.sanitizer import Cleaner
 
 
 class EntryValidator:
@@ -14,13 +15,29 @@ class EntryValidator:
         }
 
         for key, value in self.entries.items():
-            if value != None:
+            if value is not None:
                 if len(value) == 0:
                     return {"error": error_responses.get(key, "Password Confirmation is Empty!")}
 
-        if self.entries["name"] != None:
+        if self.entries["name"] is not None:
             if len(self.entries["name"]) < 4:
                 return {"error": length_error}
+
+        return True
+
+
+class Sanitizer:
+    def __init__(self, entries: dict):
+        self.entries = entries
+        self.cleaner = Cleaner(tags=[])
+
+    def validate(self) -> bool | dict:
+        invalid_characters: str = "Invalid Characters found:"
+
+        for key, value in self.entries.items():
+            if value is not None:
+                if self.cleaner.clean(value) != value:
+                    return {"error": f"{invalid_characters} {value}"}
 
         return True
 
@@ -51,7 +68,7 @@ class PasswordValidator:
         pattern = compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$")
 
         for key, value in self.entries.items():
-            if value != None:
+            if value is not None:
                 if key == "password":
                     if len(value) < 8:
                         return {"error": length_error}
@@ -59,7 +76,7 @@ class PasswordValidator:
                     if not pattern.match(value):
                         return {"error": combination_error}
 
-        if self.entries["confirm_password"] != None and self.entries["password"] != None:
+        if self.entries["confirm_password"] is not None and self.entries["password"] is not None:
             if self.entries["password"] != self.entries["confirm_password"]:
                 return {"error": password_error}
 
@@ -70,6 +87,7 @@ class UserValidation:
     def __init__(self, entries: dict):
         self.validators = [
             EntryValidator(entries),
+            Sanitizer(entries),
             EmailValidator(entries),
             PasswordValidator(entries)
         ]

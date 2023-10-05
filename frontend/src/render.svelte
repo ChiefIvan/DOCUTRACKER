@@ -20,8 +20,6 @@
       }, 8000);
     }
   });
-
-  $: console.log($location);
 </script>
 
 <ServerMessages />

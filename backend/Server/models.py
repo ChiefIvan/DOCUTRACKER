@@ -20,3 +20,13 @@ class Revoked(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(100), nullable=False, index=True)
     revoked_at = db.Column(db.DateTime, nullable=False)
+
+
+class Resend(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(120), nullable=False)
+
+
+class Reset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(120), nullable=False)

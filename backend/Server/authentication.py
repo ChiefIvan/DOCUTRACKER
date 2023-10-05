@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from captcha.image import ImageCaptcha
 from io import BytesIO
 from base64 import b64encode
@@ -12,8 +12,8 @@ from random import choice
 from uuid import uuid4
 
 from . import db, mail, server
-from .models import User, Captcha
-from .static.predef_function.user_validation import UserValidation, PasswordValidator
+from .models import User, Captcha, Resend, Reset
+from .static.predef_function.user_validation import UserValidation, PasswordValidator, Sanitizer
 from .static.predef_function.smt import Smt
 
 auth: Blueprint = Blueprint("auth", __name__)
@@ -28,8 +28,17 @@ def login() -> dict:
         password_error: str = "Incorrect Password, Please try again!"
 
         user_credentials: dict = request.json
+        email: str = user_credentials["email"]
+        password: str = user_credentials["password"]
+
+        sanitize: bool | dict = Sanitizer(
+            {"email": email, "password": password}).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
+
         user: User = User.query.filter_by(
-            email=user_credentials["email"]).first()
+            email=email).first()
 
         if not user:
             return jsonify({"error": user_error})
@@ -37,7 +46,7 @@ def login() -> dict:
         if not user.confirmed:
             return jsonify({"error": verification_error})
 
-        if not check_password_hash(user.password, user_credentials["password"]):
+        if not check_password_hash(user.password, password):
             return jsonify({"error": password_error})
 
         access_token: str = create_access_token(
@@ -56,13 +65,18 @@ def email_verification() -> dict:
         email_existance_error: str = "Account doesn't Exist"
         success_response: str = "Email Already Confirmed!"
 
-        user_email: dict = request.json
-        user_email: str = user_email["userEmail"]
+        user_credentials: dict = request.json
+        email: str = user_credentials["userEmail"]
 
-        if not user_email:
+        sanitize: bool | dict = Sanitizer({"email": email}).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
+
+        if not email:
             return jsonify({"error": email_error})
 
-        user: User = User.query.filter_by(email=user_email).first()
+        user: User | None = User.query.filter_by(email=email).first()
 
         if not user:
             return jsonify({"error": email_existance_error})
@@ -70,8 +84,8 @@ def email_verification() -> dict:
         if user.confirmed:
             return jsonify({"success": success_response})
 
-        smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
-                       data=user_email, username=user.user_name).send()
+        smt: Smt = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
+                       data=email, username=user.user_name).send()
 
         if isinstance(smt, dict):
             return jsonify(smt)
@@ -98,19 +112,24 @@ def signup() -> dict:
         user_credentials |= {"captVerification": None, "disabled": None}
         user_email: str = user_credentials["email"]
 
+        sanitize: bool | dict = Sanitizer(user_credentials).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
+
         validation_response: bool | dict = UserValidation(
             user_credentials).validate_user()
 
         if isinstance(validation_response, dict):
             return jsonify(validation_response)
 
-        user: User = User.query.filter_by(
+        user: User | None = User.query.filter_by(
             email=user_email).first()
 
         if user:
             return jsonify({"error": duplicate_email_error})
 
-        smt: Smt = Smt(server=server, mail=mail, access="auth.confirm_email",
+        smt: Smt = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
                        data=user_email, username=user_credentials["name"]).send()
 
         if isinstance(smt, dict):
@@ -142,7 +161,13 @@ def check() -> dict:
 
         user_email: dict = request.json
         user_email: str = user_email["userEmail"]
-        user: User = User.query.filter_by(email=user_email).first()
+
+        sanitize: bool | dict = Sanitizer({"email": user_email}).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
+
+        user: User | None = User.query.filter_by(email=user_email).first()
 
         if not user:
             return jsonify({"response": True})
@@ -189,7 +214,7 @@ def captcha_verification():
 
         captcha_data: dict = request.json
         captcha_id: str = captcha_data["captchaId"]
-        stored_captcha: Captcha = Captcha.query.filter_by(
+        stored_captcha: Captcha | None = Captcha.query.filter_by(
             identifier=captcha_id).first()
 
         if not stored_captcha:
@@ -220,23 +245,33 @@ def pswd_reset_req() -> dict:
         user_error: str = "Account Doesn't Exist!"
         duration_mgs: str = "You can only change your password once every 7 days"
         request_msg: str = "A Reset Link has been sent to your Email."
+        verification_error: str = "Please verify your account first!"
 
         user_credentials: dict = request.json
+        email: str = user_credentials["email"]
+
+        sanitize: bool | dict = Sanitizer({"email": email}).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
 
         if user_credentials["disabled"]:
             return jsonify({"error": "Paghulat daw, you madufaka!"})
 
-        user: User = User.query.filter_by(
-            email=user_credentials["email"]).first()
+        user: User | None = User.query.filter_by(
+            email=email).first()
 
         if not user:
             return jsonify({"error": user_error})
+
+        if not user.confirmed:
+            return jsonify({"error": verification_error})
 
         if user.last_password_reset_request and \
                 user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
             return jsonify({"error": duration_mgs})
 
-        smt: Smt = Smt(server=server, mail=mail, access="auth.pswd_reset_confirm",
+        smt: Smt = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.pswd_reset_confirm",
                        data=user.email, username=user.user_name).request()
 
         if isinstance(smt, dict):
@@ -249,6 +284,7 @@ def pswd_reset_req() -> dict:
 
 @auth.route("/confirm_reset/<token>", methods=["GET", "POST"])
 def pswd_reset_confirm(token):
+
     try:
         confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
             server.config['SECRET_KEY'])
@@ -261,12 +297,22 @@ def pswd_reset_confirm(token):
                                    "color": "crimson"
                                })
 
+    reset_token: Reset | None = Reset.query.filter_by(token=token).first()
+    print(token)
+
+    if not reset_token:
+        return render_template("confirmation_template.html",
+                               content={
+                                   "content": "You do not have the permission to access this template! ❌",
+                                   "color": "crimson"
+                               })
+
     if request.method == "GET":
 
         if "rendered_template" in session and session["rendered_template"]:
             return render_template("confirmation_template.html",
                                    content={
-                                       "content": "You can only open this template once!",
+                                       "content": "You can only access this template once!",
                                        "color": "crimson"
                                    })
 
@@ -277,12 +323,17 @@ def pswd_reset_confirm(token):
         user_passwords: str = {"password": new_password,
                                "confirm_password": cnfrm_password}
         validity: bool | dict = PasswordValidator(user_passwords).validate()
+        sanitize: bool | dict = Sanitizer(user_passwords).validate()
 
         if isinstance(validity, dict):
             flash(validity, category="error")
             return redirect(url_for("auth.pswd_reset_confirm", token=token))
 
-        user: User = User.query.filter_by(email=token_url).first()
+        if isinstance(sanitize, dict):
+            flash(sanitize, category="error")
+            return redirect(url_for("auth.pswd_reset_confirm", token=token))
+
+        user: User | None = User.query.filter_by(email=token_url).first()
 
         if user:
             if check_password_hash(user.password, new_password):
@@ -324,7 +375,16 @@ def confirm_email(token):
                                        "color": "crimson"
                                    })
 
-        user: User = User.query.filter_by(email=token_url).first()
+        resend_token: Resend | None = Resend.query.filter_by(
+            token=token).first()
+        if not resend_token:
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "content": "You do not have the permission to access this page! ❌",
+                                       "color": "crimson"
+                                   })
+
+        user: User | None = User.query.filter_by(email=token_url).first()
 
         if user.confirmed:
             return render_template("confirmation_template.html",

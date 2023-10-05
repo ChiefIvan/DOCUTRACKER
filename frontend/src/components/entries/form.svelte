@@ -17,8 +17,8 @@
   export let api = "";
   export let warnMessage = "";
   export let navigateUser = "";
-  export let handleResetPassword;
-  export let parentName;
+  export let handleResetPassword = null;
+  export let parentName = null;
   export let disableResend = false;
 
   const dispatch = createEventDispatcher();

@@ -24,7 +24,7 @@
   const storedResendTime = localStorage.getItem("passwordResendTime");
   if (storedResendTime) {
     const elapsedTime = Date.now() - storedResendTime;
-    const delay = 60000;
+    const delay = 120000;
 
     if (elapsedTime < delay) {
       disableResend = true;
@@ -44,7 +44,7 @@
   const handleResetPassword = () => {
     localStorage.setItem("passwordResendTime", Date.now());
     disableResend = true;
-    timeLeft = 60;
+    timeLeft = 120;
 
     const countdown = setInterval(() => {
       if (timeLeft > 0) {

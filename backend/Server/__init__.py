@@ -60,11 +60,20 @@ class Flaskserver:
         self.server.register_blueprint(views, url_prefix="/")
 
         try:
+            tables: list[str] = [
+                "user",
+                "captcha",
+                "revoked",
+                "resend",
+                "reset"
+            ]
+
             with self.server.app_context():
                 with db.engine.connect() as connection:
                     inspector = inspect(connection)
-                    if "user" and "captcha" and "revoked" not in inspector.get_table_names():
-                        db.create_all()
+                    for table in tables:
+                        if table not in inspector.get_table_names():
+                            db.create_all()
 
         except Exception:
             print("Please enable you database connection!")
