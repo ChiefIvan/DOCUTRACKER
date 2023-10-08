@@ -1,7 +1,6 @@
 <script>
   // @ts-nocheck
 
-  import { afterUpdate } from "svelte";
   import { entryState, resetInput } from "../../stores";
   import { fade } from "svelte/transition";
 
@@ -19,13 +18,11 @@
   let activeWarning = false;
   let showModal = false;
 
-  afterUpdate(() => {
-    if ($entryState) {
-      if (inputValue.length === 0) {
-        inputState = false;
-      }
+  $: if ($entryState) {
+    if (inputValue.length === 0) {
+      inputState = false;
     }
-  });
+  }
 
   const handleOnfocus = (/** @type {any} */ e) => {
     inputState = true;

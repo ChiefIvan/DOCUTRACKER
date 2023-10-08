@@ -7,6 +7,7 @@ class EntryValidator:
         self.entries = entries
 
     def validate(self) -> bool | dict:
+
         length_error: str = "Your Firstname must be greater than 3 Characters"
         error_responses: dict = {
             "name": "Username Entry is Empty!",
@@ -28,6 +29,7 @@ class EntryValidator:
 
 class Sanitizer:
     def __init__(self, entries: dict):
+
         self.entries = entries
         self.cleaner = Cleaner(tags=[])
 
@@ -47,6 +49,7 @@ class EmailValidator:
         self.entries = entries
 
     def validate(self) -> bool | dict:
+
         email_format_error: str = "Your Email Format is Invalid."
         pattern = compile(
             r'^[a-zA-Z0-9._%+-]{5,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
@@ -62,6 +65,7 @@ class PasswordValidator:
         self.entries = entries
 
     def validate(self) -> bool | dict:
+
         length_error: str = "Your Password must be greater than 7 Characters!"
         combination_error: str = "Your Password have atleast 1 Uppercase, 1 Lowercase and a Number"
         password_error: str = "Your Password and Confirmation Password must be the same!"
@@ -94,7 +98,7 @@ class UserValidation:
 
     def validate_user(self) -> bool | dict:
         for validator in self.validators:
-            response = validator.validate()
+            response: dict | bool = validator.validate()
             if isinstance(response, dict):
                 return response
 

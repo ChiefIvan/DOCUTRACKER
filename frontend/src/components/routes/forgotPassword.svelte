@@ -1,7 +1,12 @@
 <script>
   // @ts-nocheck
 
-  import { backendAddress, loaderState } from "../../stores";
+  import {
+    backendAddress,
+    loaderState,
+    pageTransitionValue1,
+    pageTransitionValue2,
+  } from "../../stores";
   import { onMount } from "svelte";
   import { Link } from "svelte-routing";
 
@@ -59,6 +64,8 @@
   onMount(() => {
     document.body.className = "body-class";
     document.title = "DOCUTRACKER | Forgot Password";
+    $pageTransitionValue1 = 0;
+    $pageTransitionValue2 = 0;
   });
 
   const handleResetEntry = (e) => {
@@ -105,8 +112,10 @@
         btnLoginSize={true}
         btnDisabled={disableResend}
       />
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <p>
-        Go back to <Link to="/auth/u/login"><span>Login</span></Link>
+        Go back to <a href="/auth/u/login"><span>Login</span></a>
       </p>
     </Form>
   </div>

@@ -8,10 +8,11 @@
   import Home from "./components/routes/home.svelte";
   import ServerMessages from "./components/entries/serverMessages.svelte";
   import PageNotFound from "./components/routes/pageNotFound.svelte";
-  import PageTransition from "./components/winEvents/pageTransFly.svelte";
+  import PageTransition from "./components/winEvents/pageTransition.svelte";
   import ForgotPassword from "./components/routes/forgotPassword.svelte";
   import SideBar from "./components/main/sideBar.svelte";
   import Header from "./components/main/header.svelte";
+  import Overview from "./components/routes/overview.svelte";
 
   beforeUpdate(() => {
     if (String(Object.keys($serverResponse)).length !== 0) {
@@ -20,6 +21,8 @@
       }, 8000);
     }
   });
+
+
 </script>
 
 <ServerMessages />
@@ -36,23 +39,16 @@
         <Header />
       {/if}
 
-      <PageTransition>
-        <Route path="auth/u/signup" component={Signup} />
-        <Route path="auth/u/login" component={Login} />
-        <Route path="auth/u/reset" component={ForgotPassword} />
-        <Route path="home" component={Home} />
-        <Route path="" component={PageNotFound} />
+      <PageTransition >
+          <Route path="auth/u/signup" component={Signup} />
+          <Route path="auth/u/login" component={Login} />
+          <Route path="auth/u/reset" component={ForgotPassword} />
+          <Route path="home" component={Home} />
+          <Route path="/" component={Overview} />
+          <Route path="" component={PageNotFound} />
       </PageTransition>
     </div>
   </div>
-  <Route path="/">
-    <button>
-      <Link to="auth/u/signup">Signup</Link>
-    </button>
-    <button>
-      <Link to="auth/u/login">Login</Link>
-    </button>
-  </Route>
 </Router>
 
 <style>

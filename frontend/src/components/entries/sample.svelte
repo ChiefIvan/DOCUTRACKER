@@ -7,29 +7,22 @@
     resetInput,
     captchaVerification,
     captchaAttemps,
-    fetchData,
+    backendAddress,
   } from "../../stores";
 
   import Input from "./input.svelte";
   import Button from "./button.svelte";
-  import Auth from "./auth.svelte";
 
   let bytesIO = {};
   let id = "";
   let byteValue = "";
   let userCaptGenVal = "";
-  let authBind;
-  let isUpdated = false;
-
-  afterUpdate(() => {
-    isUpdated = true;
-  });
 
   export let checkboxDisabled = true;
 
-  const captchaAPI = "http://127.0.0.1:5000/captcha";
+  const captchaAPI = `${backendAddress}captcha`;
 
-  function handleGETCaptcha() {
+  async function handleGETCaptcha() {
     $captchaAttemps--;
 
     if ($captchaAttemps < 0) {
@@ -41,20 +34,26 @@
       return;
     }
 
-    authBind.endPoint(
-      captchaAPI,
-      "GET",
-      "Server is down, please try again later.",
-      { "Content-Type": "application/json" }
-    );
-  }
+    await fetch(captchaAPI, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => (bytesIO = data.captcha))
+      .catch(
+        () =>
+          ($serverResponse = {
+            error: "Server is down, please try again later.",
+          })
+      );
 
-  const handleData = (e) => {
-    bytesIO = e.detail;
-    
     id = bytesIO[1];
     byteValue = bytesIO[0];
-  };
+
+    localStorage.setItem("captchaId", id);
+  }
 
   async function handlePOSTCaptcha() {
     $resetInput.blur();
@@ -95,8 +94,6 @@
   }
 </script>
 
-<Auth bind:this={authBind} on:authData={handleData} />
-
 {#if byteValue.length !== 0}
   <div class="capt-img-wrapper" transition:fade={{ delay: 100, duration: 400 }}>
     <form on:submit|preventDefault={handlePOSTCaptcha}>
@@ -106,8 +103,8 @@
         inputType={"text"}
         inputAutocomplete={"off"}
         inputValue={userCaptGenVal}
-        inputZ={"2"}
-        inputSize={"100%"}
+        inputZ={true}
+        inputSize={true}
         on:input={(e) => (userCaptGenVal = e.target.value)}
       />
       <div class="btn-wrapper">
@@ -119,7 +116,7 @@
 
 <div
   class:container-disabled={checkboxDisabled}
-  title={checkboxDisabled ? "Please fill all entries first" : ""}
+  title={checkboxDisabled ? "Please fill all entries first" : "Captcha"}
 >
   <div class="checkbox-wrapper">
     <span>
@@ -173,7 +170,7 @@
 
       background-color: white;
       padding: 0.5rem;
-      box-shadow: 5px 5px 25px gray;
+      box-shadow: 5px 5px 25px var(--main-col-1);
       border-radius: 1rem;
 
       & div.btn-wrapper {
@@ -191,7 +188,7 @@
     & label {
       cursor: pointer;
       transition: all calc(var(--dur) / 3) ease-in-out;
-      color: gray;
+      color: var(--main-col-1);
     }
 
     & .checkbox-wrapper {
@@ -283,6 +280,6 @@
 
   div.container-disabled:hover label {
     cursor: not-allowed;
-    color: gray;
+    color: var(--main-col-1);
   }
 </style>

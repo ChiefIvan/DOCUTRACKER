@@ -4,8 +4,9 @@
   import Auth from "../entries/auth.svelte";
 
   let authBind;
-  const remembered = localStorage.getItem("remembered") || "";
+  let shrink = false;
 
+  const remembered = localStorage.getItem("remembered") || "";
   const logoutAddress = `${backendAddress}/logout`;
   const errorMessage = "";
 
@@ -23,11 +24,12 @@
 
 <Auth bind:this={authBind} />
 
-<section>
-  <nav>Hello Sidebar</nav>
-  <div>
+<section class:on-shrink={shrink}>
+  <nav>
+    Hello Sidebar
     <button on:click={handleLogout}>Logout</button>
-  </div>
+    <button on:click={() => (shrink = !shrink)}>Shrink</button>
+  </nav>
 </section>
 
 <style>
@@ -40,19 +42,15 @@
     display: flex;
     flex-direction: column;
 
-    min-width: 15rem;
+    width: 15rem;
     height: 100vh;
     background-color: #333;
     color: white;
+    transition: all ease-in-out var(--dur);
+    overflow: hidden;
+  }
 
-    & nav {
-      width: calc(15rem * 0.9);
-      height: calc(100vh * 0.97);
-      flex: 4;
-    }
-
-    & div {
-      flex: 1;
-    }
+  section.on-shrink {
+    width: var(--size-3);
   }
 </style>

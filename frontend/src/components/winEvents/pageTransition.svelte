@@ -7,21 +7,13 @@
     location,
   } from "../../stores";
 
-  const pageTransitionDuration = 200;
   const userLocation = useLocation();
 
   $: $location = $userLocation.pathname;
 </script>
 
 {#key $userLocation.pathname}
-  <main
-    in:fly={{
-      x: $pageTransitionValue1,
-      duration: pageTransitionDuration,
-      delay: pageTransitionDuration + 100,
-    }}
-    out:fly={{ x: $pageTransitionValue2, duration: pageTransitionDuration }}
-  >
+  <main in:fly={$pageTransitionValue1} out:fly={$pageTransitionValue2}>
     <slot />
   </main>
 {/key}

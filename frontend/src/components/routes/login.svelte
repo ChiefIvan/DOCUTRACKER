@@ -2,7 +2,7 @@
   // @ts-nocheck
 
   import { Link, navigate } from "svelte-routing";
-  import { onMount, onDestroy, beforeUpdate } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     pageTransitionValue1,
     pageTransitionValue2,
@@ -17,13 +17,15 @@
   import BarLoader from "../assets/barLoader.svelte";
   import Button from "../entries/button.svelte";
   import favicon from "../../lib/transparent-favicon-elegant.png";
+  import Checkbox from "../entries/checkbox.svelte";
   import Auth from "../entries/auth.svelte";
 
   let email = "";
-  let userEmail = localStorage.getItem("userEmail") || "";
   let password = "";
+  let userEmail = localStorage.getItem("userEmail") || "";
   let disableResend = false;
   let timeLeft = 0;
+  let checkboxValue = false;
   // let authBind;
 
   const method = "POST";
@@ -58,6 +60,33 @@
     email = e.detail;
     password = e.detail;
   };
+
+  const handlecheckChange = () => {
+    if (email.trim().length === 0 || password.trim().length === 0) {
+      $serverResponse = { error: "Please fill all Entries first!" };
+      checkboxValue = false;
+      return;
+    }
+
+    checkboxValue = !checkboxValue;
+  };
+
+  $: if (email.trim().length === 0 || password.trim().length === 0) {
+    checkboxValue = false;
+
+    if (!checkboxValue) {
+      sessionStorage.setItem("email", undefined);
+      sessionStorage.setItem("password", undefined);
+    }
+  }
+
+  $: if (checkboxValue) {
+    sessionStorage.setItem("email", email);
+    sessionStorage.setItem("password", password);
+  } else {
+    sessionStorage.setItem("email", undefined);
+    sessionStorage.setItem("password", undefined);
+  }
 
   async function handleResend() {
     if (disableResend) return;
@@ -105,14 +134,29 @@
       $serverResponse = {
         error: errorMessage,
       };
+
+      disableResend = false;
     }
   }
 
   onMount(() => {
     document.body.className = "body-class";
     document.title = "DOCUTRACKER | Login";
-    $pageTransitionValue1 = -150;
-    $pageTransitionValue2 = 150;
+
+    const axisValue = -150;
+    const duration = 200;
+    const delay = 300;
+
+    $pageTransitionValue1 = {
+      x: axisValue,
+      duration: duration,
+      delay: delay,
+    };
+
+    $pageTransitionValue2 = {
+      x: axisValue + delay,
+      duration: duration,
+    };
     // authBind.postEndPoint(confirmation, errorMessage, body);
   });
 
@@ -152,11 +196,15 @@
       on:input={(e) => (password = e.target.value)}
     />
     <div class="container">
-      <div class="checkbox">
-        <input id="remember" type="checkbox" />
-        <label class="remmember" for="remember">Remember me</label>
-      </div>
-      <a href="/auth/u/reset">forgot password?</a>
+      <Checkbox
+        checkboxDisabled={false}
+        checkboxName={"Remember Me"}
+        checkboxChecked={checkboxValue}
+        on:change={handlecheckChange}
+      />
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <a href="/auth/u/reset"><span>forgot password?</span></a>
     </div>
     <Button btnName={"Login"} btnLoginSize={true} btnTitle={"Login"} />
     <!-- {#if !$fetchData.response} -->

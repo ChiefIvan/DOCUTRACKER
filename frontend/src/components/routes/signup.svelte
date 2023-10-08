@@ -35,9 +35,22 @@
   onMount(() => {
     document.body.className = "body-class";
     document.title = "DOCUTRACKER | Signup";
-    $pageTransitionValue1 = 150;
-    $pageTransitionValue2 = -150;
     $captchaVerification = false;
+
+    const axisValue = -150;
+    const duration = 200;
+    const delay = 300;
+
+    $pageTransitionValue1 = {
+      x: axisValue + 300,
+      duration: duration,
+      delay: delay,
+    };
+
+    $pageTransitionValue2 = {
+      x: axisValue,
+      duration: duration,
+    };
   });
 
   onDestroy(() => {
@@ -123,7 +136,9 @@
       <div>
         <CaptchaCheckbox checkboxDisabled={captchaDisabled} />
       </div>
-      <a href="/auth/u/reset">forgot password?</a>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <a href="/auth/u/reset"><span>forgot password?</span></a>
     </div>
     <Button
       btnName={"Submit"}

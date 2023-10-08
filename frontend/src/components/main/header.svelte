@@ -18,7 +18,8 @@
     z-index: 1;
 
     background-color: var(--main-col-2);
-    padding: calc(var(--size-1) * 0.3);
+    padding: 0 calc(var(--size-1) * 0.3);
+    height: var(--size-3);
 
     display: flex;
     justify-content: space-between;

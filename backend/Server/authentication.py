@@ -84,8 +84,8 @@ def email_verification() -> dict:
         if user.confirmed:
             return jsonify({"success": success_response})
 
-        smt: Smt = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
-                       data=email, username=user.user_name).send()
+        smt: Smt | None = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
+                              data=email, username=user.user_name).send()
 
         if isinstance(smt, dict):
             return jsonify(smt)
@@ -112,7 +112,8 @@ def signup() -> dict:
         user_credentials |= {"captVerification": None, "disabled": None}
         user_email: str = user_credentials["email"]
 
-        sanitize: bool | dict = Sanitizer(user_credentials).validate()
+        sanitize: Sanitizer | bool | dict = Sanitizer(
+            user_credentials).validate()
 
         if isinstance(sanitize, dict):
             return jsonify(sanitize)
@@ -129,8 +130,8 @@ def signup() -> dict:
         if user:
             return jsonify({"error": duplicate_email_error})
 
-        smt: Smt = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
-                       data=user_email, username=user_credentials["name"]).send()
+        smt: Smt | None = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
+                              data=user_email, username=user_credentials["name"]).send()
 
         if isinstance(smt, dict):
             return jsonify(smt)
@@ -300,7 +301,7 @@ def pswd_reset_confirm(token):
         confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
             server.config['SECRET_KEY'])
         token_url: str = confirm_serializer.loads(
-            token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=15000)
+            token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
     except Exception:
         return render_template("confirmation_template.html",
                                content={
@@ -311,13 +312,13 @@ def pswd_reset_confirm(token):
 
     reset_token: Reset | None = Reset.query.filter_by(token=token).first()
     user: User | None = User.query.filter_by(email=token_url).first()
-    access_template: Template = Template.query.filter_by(
+    access_template: Template | None = Template.query.filter_by(
         user_id=user.id).first()
 
     if not reset_token:
         return render_template("confirmation_template.html",
                                content={
-                                   "title": "DOCUTRACKER | Reset Password",
+                                   "title": "DOCUTRACKER | Verification",
                                    "content": "You do not have the permission to access this template! ❌",
                                    "color": "crimson"
                                })
@@ -398,7 +399,7 @@ def confirm_email(token):
         if not resend_token:
             return render_template("confirmation_template.html",
                                    content={
-                                       "title": "DOCUTRACKER | Verification",
+                                       "title": "DOCUTRACKER | Reset Password",
                                        "content": "You do not have the permission to access this page! ❌",
                                        "color": "crimson"
                                    })
