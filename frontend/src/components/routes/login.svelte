@@ -202,8 +202,6 @@
         checkboxChecked={checkboxValue}
         on:change={handlecheckChange}
       />
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <a href="/auth/u/reset"><span>forgot password?</span></a>
     </div>
     <Button btnName={"Login"} btnLoginSize={true} btnTitle={"Login"} />

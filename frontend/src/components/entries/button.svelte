@@ -1,15 +1,20 @@
 <script>
+  import { fade } from "svelte/transition";
+
   export let btnName = "";
   export let btnLoginSize = false;
   export let btnSignupSize = false;
   export let btnDisabled = false;
+  export let onhover = false;
   export let btnTitle = "";
 </script>
 
 <button
+  transition:fade={{ duration: 200, delay: 200 }}
   class:change-login-size={btnLoginSize}
   class:change-signup-size={btnSignupSize}
   class:btn-disabled={btnDisabled}
+  class:btn-logout-hovered={onhover}
   type="submit"
   title={btnName !== "Submit" ? btnTitle : btnDisabled ? btnTitle : "Submit"}
   disabled={btnDisabled}
@@ -47,5 +52,9 @@
     box-shadow: none;
     opacity: 1;
     cursor: not-allowed;
+  }
+
+  button.btn-logout-hovered:hover {
+    box-shadow: none;
   }
 </style>

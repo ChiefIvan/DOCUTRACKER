@@ -18,7 +18,11 @@ class EntryValidator:
         for key, value in self.entries.items():
             if value is not None:
                 if len(value) == 0:
-                    return {"error": error_responses.get(key, "Password Confirmation is Empty!")}
+
+                    return {
+                        "error": error_responses.get
+                        (key, "Password Confirmation is Empty!")
+                    }
 
         if self.entries["name"] is not None:
             if len(self.entries["name"]) < 4:
@@ -80,7 +84,9 @@ class PasswordValidator:
                     if not pattern.match(value):
                         return {"error": combination_error}
 
-        if self.entries["confirm_password"] is not None and self.entries["password"] is not None:
+        if self.entries["confirm_password"] is not None \
+                and self.entries["password"] is not None:
+
             if self.entries["password"] != self.entries["confirm_password"]:
                 return {"error": password_error}
 
@@ -89,6 +95,7 @@ class PasswordValidator:
 
 class UserValidation:
     def __init__(self, entries: dict):
+
         self.validators = [
             EntryValidator(entries),
             Sanitizer(entries),
@@ -97,8 +104,10 @@ class UserValidation:
         ]
 
     def validate_user(self) -> bool | dict:
+
         for validator in self.validators:
             response: dict | bool = validator.validate()
+
             if isinstance(response, dict):
                 return response
 

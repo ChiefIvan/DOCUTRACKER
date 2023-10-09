@@ -47,8 +47,6 @@ class Flaskserver:
         self.server.config["MAIL_USERNAME"] = EMAIL
         self.server.config["MAIL_PASSWORD"] = PASSWORD
         self.server.config["MAIL_DEFAULT_SENDER"] = EMAIL
-        self.server.config["SESSION_PERMANENT"] = False
-        self.server.config["SESSION_TYPE"] = "filesystem"
 
         db.init_app(self.server)
         mail.init_app(self.server)
