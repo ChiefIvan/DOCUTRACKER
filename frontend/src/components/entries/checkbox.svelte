@@ -1,5 +1,5 @@
 <script>
-  import { captchaVerification, resetInput } from "../../stores";
+  import { resetInput } from "../../stores";
 
   export let checkboxDisabled = true;
   export let checkboxName = "";

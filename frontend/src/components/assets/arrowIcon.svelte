@@ -1,4 +1,6 @@
 <script>
+  import { dark } from "../../stores";
+
   export let arrowState = false;
 </script>
 
@@ -9,7 +11,10 @@
   class:rotate={arrowState}
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
-  ><path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6l-6 6l-1.41-1.41z" /></svg
+  ><path
+    class:dark={$dark}
+    d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6l-6 6l-1.41-1.41z"
+  /></svg
 >
 
 <style>
@@ -22,12 +27,21 @@
     border-radius: 50%;
 
     & path {
+      fill: var(--main-col-1);
+      transition: all ease-in-out var(--dur);
+    }
+
+    & path.dark {
       fill: var(--bg);
     }
   }
 
   svg:hover {
     background-color: var(--main-col-1);
+  }
+
+  svg:hover path {
+    fill: var(--bg);
   }
 
   svg.rotate {

@@ -12,8 +12,7 @@
     inset: 0;
 
     transition: ease-in-out var(--dur);
-    opacity: 0.8;
-    background-color: var(--bg);
+    background-color: rgba(255, 255, 255, 0.8);
     z-index: 4;
   }
 

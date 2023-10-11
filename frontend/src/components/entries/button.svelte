@@ -18,7 +18,7 @@
   type="submit"
   title={btnName !== "Submit" ? btnTitle : btnDisabled ? btnTitle : "Submit"}
   disabled={btnDisabled}
-  on:click
+  on:click|stopPropagation
 >
   {btnName}
 </button>

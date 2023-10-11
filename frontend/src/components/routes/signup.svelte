@@ -190,8 +190,17 @@
       width: 100%;
       margin: 1.2rem 0;
 
-      & a:hover {
-        text-decoration: underline;
+      & a {
+        & span {
+          text-decoration: none;
+          color: var(--brdr-hovr);
+          transition: all ease-in-out 200ms;
+        }
+
+        & span:hover {
+          opacity: var(--opacity);
+          text-decoration: underline;
+        }
       }
     }
 

@@ -1,5 +1,6 @@
 <script>
   import { backendAddress } from "../../stores";
+  import { dark } from "../../stores";
   import { fade } from "svelte/transition";
 
   import Auth from "../entries/auth.svelte";
@@ -35,7 +36,7 @@
 
 <Auth bind:this={authBind} />
 
-<section class:on-shrink={shrink}>
+<section class:on-shrink={shrink} class:dark={$dark}>
   <nav>
     <!-- {#if shrink}
       <ul>
@@ -44,7 +45,6 @@
     {:else}
       Hello
     {/if} -->
-    Hello
   </nav>
   <div>
     <div class="end-wrapper">
@@ -75,17 +75,18 @@
     position: sticky;
     top: 0;
     left: 0;
-    padding: 0 calc(var(--size-5) * 0.3);
+    z-index: 2;
 
     display: flex;
     flex-direction: column;
 
-    width: 15rem;
+    width: 17rem;
     height: 100vh;
-    background-color: #333;
-    color: white;
+    background-color: var(--main-col-5);
+    padding: 0 calc(var(--size-5) * 0.3);
     transition: all ease-in-out var(--dur);
     overflow: hidden;
+    color: var(--bg);
 
     & nav {
       width: 100%;
@@ -120,6 +121,10 @@
         justify-content: center;
       }
     }
+  }
+
+  section.dark {
+    background-color: var(--dark-main-col-1);
   }
 
   section.on-shrink {

@@ -52,8 +52,7 @@ class Flaskserver:
         mail.init_app(self.server)
         jwt.init_app(self.server)
 
-        from .models import \
-            User, Captcha, Revoked, Resend, Reset, Template
+        from .models import User, Captcha, Revoked, Resend, Reset, Template, Credentials, Documents
         from .authentication import auth
         from .views import views
 
@@ -68,11 +67,15 @@ class Flaskserver:
                 "resend",
                 "reset",
                 "template",
+                "documents",
+                "credentials",
+
             ]
 
             with self.server.app_context():
                 with db.engine.connect() as connection:
                     inspector = inspect(connection)
+
                     for table in tables:
                         if table not in inspector.get_table_names():
                             db.create_all()

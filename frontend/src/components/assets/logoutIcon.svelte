@@ -1,5 +1,6 @@
 <script>
   import { fade } from "svelte/transition";
+  import { dark } from "../../stores";
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -9,7 +10,7 @@
   transition:fade={{ duration: 200, delay: 200 }}
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
-  ><g
+  ><g class:dark={$dark}
     ><path
       d="M12 3.25a.75.75 0 0 1 0 1.5a7.25 7.25 0 0 0 0 14.5a.75.75 0 0 1 0 1.5a8.75 8.75 0 1 1 0-17.5Z"
     /><path
@@ -29,15 +30,24 @@
     border-radius: 50%;
 
     & g {
-      fill: var(--bg);
+      fill: var(--main-col-1);
+      transition: all ease-in-out var(--dur);
 
       & path {
         stroke-width: 10;
       }
     }
+
+    & g.dark {
+      fill: var(--bg);
+    }
   }
 
   svg:hover {
     background-color: var(--main-col-1);
+  }
+
+  svg:hover g {
+    fill: var(--bg);
   }
 </style>

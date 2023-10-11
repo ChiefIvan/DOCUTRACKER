@@ -10,6 +10,7 @@ from base64 import b64encode
 from string import ascii_letters, digits
 from random import choice
 from uuid import uuid4
+# from time import sleep
 
 from . import db, mail, server
 from .models import User, Captcha, Resend, Reset, Template
@@ -22,6 +23,7 @@ auth: Blueprint = Blueprint("auth", __name__)
 @auth.route("/login", methods=["POST"])
 def login() -> dict:
     if request.method == "POST":
+        # sleep(60)
 
         user_error: str = "Account Doesn't Exist!"
         verification_error: str = "Please verify your account first!"
@@ -141,6 +143,7 @@ def signup() -> dict:
                 user_name=user_credentials["name"],
                 email=user_email,
                 confirmed=False,
+                full_verified=False,
                 last_password_reset_request=None,
                 password=generate_password_hash(
                     user_credentials["password"], method="pbkdf2:sha256")

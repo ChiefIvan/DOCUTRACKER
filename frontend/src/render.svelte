@@ -21,11 +21,10 @@
       }, 8000);
     }
   });
-
-
 </script>
 
 <ServerMessages />
+
 <!-- <SocketData /> -->
 
 <Router basepath="/">
@@ -39,13 +38,13 @@
         <Header />
       {/if}
 
-      <PageTransition >
-          <Route path="auth/u/signup" component={Signup} />
-          <Route path="auth/u/login" component={Login} />
-          <Route path="auth/u/reset" component={ForgotPassword} />
-          <Route path="home" component={Home} />
-          <Route path="/" component={Overview} />
-          <Route path="" component={PageNotFound} />
+      <PageTransition>
+        <Route path="auth/u/signup" component={Signup} />
+        <Route path="auth/u/login" component={Login} />
+        <Route path="auth/u/reset" component={ForgotPassword} />
+        <Route path="home" component={Home} />
+        <Route path="/" component={Overview} />
+        <Route path="" component={PageNotFound} />
       </PageTransition>
     </div>
   </div>
