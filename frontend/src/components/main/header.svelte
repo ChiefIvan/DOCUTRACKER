@@ -48,7 +48,7 @@
 
 {#if $openProfile}
   <div
-    transition:fade={{ duration: 150, delay: 150 }}
+    transition:fade={{ duration: 150, delay: 0 }}
     class="profiles"
     class:not-verified-wrapper={!verified}
   >
@@ -106,9 +106,9 @@
     }
   }
 
-  div.has-scrolled {
+  /* div.has-scrolled {
     box-shadow: 2px 0px 5px var(--main-col-1);
-  }
+  } */
 
   div.dark {
     background-color: var(--dark-main-col-2);

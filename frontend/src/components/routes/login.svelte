@@ -144,8 +144,8 @@
     document.title = "DOCUTRACKER | Login";
 
     const axisValue = -150;
-    const duration = 200;
-    const delay = 300;
+    const duration = 250;
+    const delay = 350;
 
     $pageTransitionValue1 = {
       x: axisValue,

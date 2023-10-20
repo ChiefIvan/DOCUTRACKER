@@ -24,9 +24,6 @@
 </script>
 
 <ServerMessages />
-
-<!-- <SocketData /> -->
-
 <Router basepath="/">
   <div>
     {#if $location === "/home"}
