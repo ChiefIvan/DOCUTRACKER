@@ -35,8 +35,8 @@
   }
 
   svg.large {
-    width: var(--size-4);
-    height: var(--size-4);
+    width: calc(var(--size-4) * 0.9);
+    height: calc(var(--size-4) * 0.9);
   }
 
   svg:hover {

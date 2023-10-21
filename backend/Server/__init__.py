@@ -22,12 +22,15 @@ jwt: JWTManager = JWTManager()
 dotenv_path = join(dirname(__file__), "static", ".env")
 load_dotenv(dotenv_path)
 
+CORS(
+    server,
+    resources={
+        r"/*": {"origins": getenv("CORS_ADDRESS")}
+    }
+)
+
 
 class Flaskserver:
-    CORS(
-        server,
-        resources={r"/*": {"origins": getenv("CORS_ADDRESS")}}
-    )
 
     def __init__(self):
 

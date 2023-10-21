@@ -21,7 +21,7 @@ def index() -> dict:
 @jwt_required()
 def logout() -> dict:
     jti = get_jwt()["jti"]
-    now = datetime.now(timezone.utc)
+    now = datetime.now()
     revoked_token = Revoked(jti=jti, revoked_at=now)
     db.session.add(revoked_token)
     db.session.commit()

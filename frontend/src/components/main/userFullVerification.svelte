@@ -1,10 +1,12 @@
 <script>
   import { fly, fade } from "svelte/transition";
   import { quintInOut } from "svelte/easing";
-  import { openVerSec } from "../../stores";
+  import { openVerSec, dark } from "../../stores";
 
   import UserIcon from "../assets/userIcon.svelte";
   import Cropper from "svelte-easy-crop";
+  import EditIcon from "../assets/editIcon.svelte";
+  import Input from "../entries/input.svelte";
 
   let fileData;
   let base64String;
@@ -116,8 +118,13 @@
   }
 </script>
 
-<div class="full-reg-container" transition:fade={{ duration: 200, delay: 0 }}>
+<div
+  class="full-reg-container"
+  class:dark-mode={$dark}
+  transition:fade={{ duration: 200, delay: 0 }}
+>
   <section
+    class:dark-mode={$dark}
     transition:fly={{
       x: 700,
       delay: 200,
@@ -125,7 +132,7 @@
       easing: quintInOut,
     }}
   >
-    <div class="image-wrapper">
+    <label for="image_upload" class="image-wrapper">
       {#if base64String}
         <!-- svelte-ignore a11y-img-redundant-alt -->
         {#if croppedImage}
@@ -148,16 +155,19 @@
           </div>
         {/if}
       {:else}
-        <UserIcon largeSize={true} />
+        <div class="user-icon-wrapper">
+          <UserIcon largeSize={true} />
+        </div>
       {/if}
-
-      {#if fileName.length !== 0}
-        <p transition:fade={{ duration: 300, delay: 0 }}>{fileName}</p>
-      {/if}
-    </div>
+    </label>
+    {#if fileName.length !== 0}
+      <p transition:fade={{ duration: 300, delay: 0 }}>{fileName}</p>
+    {/if}
     <form on:submit|preventDefault>
       <div class="image-wrapper">
-        <label for="image_upload">Upload Your Image</label>
+        <label for="image_upload">
+          <EditIcon />
+        </label>
         <button
           on:click={async () => {
             croppedImage = await getCroppedImg(base64String, pixelCrop);
@@ -184,6 +194,7 @@
     background-color: rgba(255, 255, 255, 0.7);
     display: flex;
     justify-content: flex-end;
+    transition: all ease-in-out var(--dur);
 
     & section {
       width: 70%;
@@ -192,6 +203,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: all ease-in-out var(--dur);
 
       & div.image-wrapper {
         display: flex;
@@ -201,30 +213,33 @@
         position: relative;
 
         & img.final-user-picture {
-          width: var(--size-4);
-          height: var(--size-4);
+          width: calc(var(--size-4) * 0.9);
+          height: calc(var(--size-4) * 0.9);
 
           border-radius: 50%;
         }
 
         & div.cropper-wrapper {
-          width: var(--size-4);
-          height: var(--size-4);
+          width: calc(var(--size-4) * 0.9);
+          height: calc(var(--size-4) * 0.9);
           position: relative;
-          margin: var(--size-1) 0;
+          /* margin: var(--size-1) 0; */
+        }
+
+        & div.user-icon-wrapper {
         }
       }
 
       & form {
         & div.image-wrapper {
-          & label {
+          /* & label {
             cursor: pointer;
             display: inline-block;
             padding: var(--size-6) var(--size-3);
             background-color: var(--brdr-hovr);
             color: white;
             border-radius: var(--size-6);
-          }
+          } */
 
           & input[type="file"] {
             display: none;
@@ -232,5 +247,13 @@
         }
       }
     }
+
+    & section.dark-mode {
+      background-color: var(--dark-main-col-1);
+    }
+  }
+
+  div.dark-mode {
+    background-color: rgba(45, 53, 75, 0.7);
   }
 </style>

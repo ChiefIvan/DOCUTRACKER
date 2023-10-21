@@ -37,19 +37,16 @@
     document.title = "DOCUTRACKER | Signup";
     $captchaVerification = false;
 
-    const axisValue = -150;
-    const duration = 250;
-    const delay = 350;
-
     $pageTransitionValue1 = {
-      x: axisValue + 300,
-      duration: duration,
-      delay: delay,
+      x: 150,
+      duration: 500,
+      delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: axisValue,
-      duration: duration,
+      x: -150,
+      duration: 200,
+      delay: -100,
     };
   });
 

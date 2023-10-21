@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 
-export const pageTransitionValue1 = writable({});
-export const pageTransitionValue2 = writable({});
+export const pageTransitionValue1 = writable({ x: 0, duration: 0, delay: 0 });
+export const pageTransitionValue2 = writable({ x: 0, duration: 0, delay: 0 });
 export const serverResponse = writable({});
 export const fetchData = writable({});
 
@@ -14,7 +14,7 @@ export const dark = writable(false);
 export const openProfile = writable(false);
 export const openVerSec = writable(false);
 
-export const location = writable("");
+export const location = writable("/");
 export const backendAddress = "http://127.0.0.1:5000/";
 
 export const captchaAttemps = writable(3);

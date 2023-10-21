@@ -51,6 +51,7 @@
     transition:fade={{ duration: 150, delay: 0 }}
     class="profiles"
     class:not-verified-wrapper={!verified}
+    class:dark-mode={$dark}
   >
     {#if verified}
       <section class="upper-wrapper">
@@ -64,6 +65,7 @@
         on:click={openVerificationSection}
         btnName={"Full Verfication"}
         btnLoginSize={true}
+        onhover={true}
         btnTitle={"Get a full verification"}
       />
     {/if}
@@ -124,13 +126,14 @@
     border-radius: var(--size-1);
     overflow: hidden;
     box-shadow: 5px 5px 25px var(--main-col-2);
+    transition: all ease-in-out var(--dur);
 
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     row-gap: var(--size-1);
-    padding: var(--size-3);
+    padding: calc(var(--size-6) * 0.5);
 
     & section.upper-wrapper {
       display: flex;
@@ -152,8 +155,13 @@
     }
   }
 
+  div.dark-mode {
+    background-color: var(--dark-main-col-1);
+    box-shadow: none;
+  }
+
   div.not-verified-wrapper {
-    padding: var(--size-6);
+    padding: calc(var(--size-6) * 0.5);
     width: calc(var(--size-2) * 2);
     border-radius: var(--size-6);
   }

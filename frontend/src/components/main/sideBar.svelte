@@ -1,7 +1,7 @@
 <script>
   import { backendAddress } from "../../stores";
   import { dark } from "../../stores";
-  import { fade } from "svelte/transition";
+  import { navigate } from "svelte-routing";
 
   import Auth from "../entries/auth.svelte";
   import ArrowIcon from "../assets/arrowIcon.svelte";
@@ -13,18 +13,20 @@
   let shrink = false;
   let arrowState = false;
 
-  const remembered = localStorage.getItem("remembered") || "";
-  const logoutAddress = `${backendAddress}/logout`;
-  const errorMessage = "";
-
   const handleLogout = () => {
+    const remembered = localStorage.getItem("remembered") || "";
+    const logoutAddress = `${backendAddress}/logout`;
+    const errorMessage = "";
+
+    console.log(remembered);
+
     if (remembered.length !== 0) {
       authBind.getEndPoint(logoutAddress, errorMessage, {
         Authorization: `Bearer ${remembered}`,
       });
     }
 
-    window.location.href = "/";
+    navigate("/");
     localStorage.setItem("remembered", "");
   };
 

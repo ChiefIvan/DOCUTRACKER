@@ -46,7 +46,7 @@ class Captcha(db.Model):
 
 class Revoked(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(100), nullable=False, index=True)
+    jti = db.Column(db.String(300), nullable=False, index=True)
     revoked_at = db.Column(db.DateTime(timezone=True), nullable=False)
 
 

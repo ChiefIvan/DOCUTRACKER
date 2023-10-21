@@ -148,14 +148,15 @@
     const delay = 350;
 
     $pageTransitionValue1 = {
-      x: axisValue,
-      duration: duration,
-      delay: delay,
+      x: -150,
+      duration: 500,
+      delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: axisValue + delay,
-      duration: duration,
+      x: 150,
+      duration: 200,
+      delay: -100,
     };
     // authBind.postEndPoint(confirmation, errorMessage, body);
   });
