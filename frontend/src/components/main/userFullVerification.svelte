@@ -128,7 +128,7 @@
     transition:fly={{
       x: 700,
       delay: 200,
-      duration: 1000,
+      duration: 1300,
       easing: quintInOut,
     }}
   >

@@ -1,13 +1,14 @@
 <script>
-  import { backendAddress } from "../../stores";
-  import { dark } from "../../stores";
+  import { backendAddress, dark } from "../../stores";
   import { navigate } from "svelte-routing";
+  import { fade } from "svelte/transition";
 
   import Auth from "../entries/auth.svelte";
   import ArrowIcon from "../assets/arrowIcon.svelte";
   import Button from "../entries/button.svelte";
   import Logouticon from "../assets/logoutIcon.svelte";
   import LogoutIcon from "../assets/logoutIcon.svelte";
+  import favicon from "../../lib/transparent-favicons-simple.png";
 
   let authBind;
   let shrink = false;
@@ -39,6 +40,21 @@
 <Auth bind:this={authBind} />
 
 <section class:on-shrink={shrink} class:dark={$dark}>
+  <div class="logo-wrapper">
+    <div class="start-wrapper" class:dark-mode={$dark}>
+      <img src={favicon} alt="Docutracker's Logo" />
+      {#if !shrink}
+        <h2
+          class="logo-name"
+          class:dark-mode={$dark}
+          transition:fade={{ duration: 200, delay: 200 }}
+        >
+          DOCUTRACKER
+        </h2>
+      {/if}
+    </div>
+  </div>
+
   <nav>
     <!-- {#if shrink}
       <ul>
@@ -88,7 +104,42 @@
     padding: 0 calc(var(--size-5) * 0.3);
     transition: all ease-in-out var(--dur);
     overflow: hidden;
-    color: var(--bg);
+
+    & div.logo-wrapper {
+      position: relative;
+
+      & div.start-wrapper {
+        display: flex;
+        align-items: center;
+        column-gap: var(--size-6);
+
+        border-bottom: 1px solid var(--main-col-6);
+        height: var(--size-3);
+        width: 100%;
+        transition: all ease-in-out var(--dur);
+
+        position: absolute;
+        inset: 0;
+
+        & img {
+          max-width: calc(var(--size-3) * 0.7);
+        }
+
+        & h2.logo-name {
+          font-size: 1.1rem;
+          transition: all ease-in-out var(--dur);
+          font-weight: 700;
+        }
+
+        & h2.dark-mode {
+          color: var(--bg);
+        }
+      }
+
+      & div.dark-mode {
+        border-bottom: 1px solid var(--scroll-col);
+      }
+    }
 
     & nav {
       width: 100%;

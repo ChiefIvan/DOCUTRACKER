@@ -143,18 +143,14 @@
     document.body.className = "body-class";
     document.title = "DOCUTRACKER | Login";
 
-    const axisValue = -150;
-    const duration = 250;
-    const delay = 350;
-
     $pageTransitionValue1 = {
-      x: -150,
+      x: -200,
       duration: 500,
       delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: 150,
+      x: 200,
       duration: 200,
       delay: -100,
     };

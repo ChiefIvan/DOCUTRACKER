@@ -38,13 +38,13 @@
     $captchaVerification = false;
 
     $pageTransitionValue1 = {
-      x: 150,
+      x: 200,
       duration: 500,
       delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: -150,
+      x: -200,
       duration: 200,
       delay: -100,
     };

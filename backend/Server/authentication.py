@@ -338,6 +338,30 @@ def pswd_reset_confirm(token):
 
     if request.method == "POST":
 
+        try:
+            confirm_serializer: URLSafeTimedSerializer = URLSafeTimedSerializer(
+                server.config['SECRET_KEY'])
+            token_url: str = confirm_serializer.loads(
+                token, salt=server.config['SECURITY_PASSWORD_SALT'], max_age=3600)
+        except Exception:
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "title": "DOCUTRACKER | Reset Password",
+                                       "content": "The reset link has expired, or invalid token! ❌",
+                                       "color": "crimson"
+                                   })
+
+        user: User | None = User.query.filter_by(email=token_url).first()
+
+        if user.last_password_reset_request and \
+                user.last_password_reset_request > datetime.utcnow() - timedelta(days=7):
+            return render_template("confirmation_template.html",
+                                   content={
+                                       "title": "DOCUTRACKER | Reset Password",
+                                       "content": "You can only change your password once every 7 days! ❌",
+                                       "color": "crimson"
+                                   })
+
         new_password: str = request.form.get("password")
         cnfrm_password: str = request.form.get("cnfrm-password")
         user_passwords: str = {"password": new_password,
@@ -373,7 +397,7 @@ def pswd_reset_confirm(token):
             return render_template("confirmation_template.html",
                                    content={
                                        "title": "DOCUTRACKER | Reset Password",
-                                       "content": "You change your password succesfully ✅",
+                                       "content": "You can only change your password once every 7 days! ❌",
                                        "color": "green"
                                    })
 

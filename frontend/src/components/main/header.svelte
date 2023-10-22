@@ -93,7 +93,7 @@
 
     & h1 {
       color: var(--main-col-3);
-      font-weight: 700;
+      font-weight: 600;
     }
 
     & h1.dark {

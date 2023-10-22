@@ -29,7 +29,7 @@
         if (errorMessage.length !== 0) {
           $serverResponse = { error: errorMessage };
         }
-        window.location.href = "/";
+        navigate("/");
       });
   }
 
