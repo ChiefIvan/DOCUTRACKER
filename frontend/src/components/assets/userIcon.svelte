@@ -1,13 +1,10 @@
 <script>
   import { dark } from "../../stores";
-
-  export let largeSize = false;
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <svg
-  class:large={largeSize}
   on:click|stopPropagation
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
@@ -22,6 +19,7 @@
     width: calc(var(--size-1) * 1.4);
     height: calc(var(--size-1) * 1.4);
     transition: all ease-in-out var(--dur2);
+    border-radius: 50%;
     cursor: pointer;
 
     & path {
@@ -34,16 +32,7 @@
     }
   }
 
-  svg.large {
-    width: calc(var(--size-4) * 0.9);
-    height: calc(var(--size-4) * 0.9);
-  }
-
   svg:hover {
     opacity: 0.6;
-  }
-
-  svg.large:hover {
-    opacity: 1;
   }
 </style>

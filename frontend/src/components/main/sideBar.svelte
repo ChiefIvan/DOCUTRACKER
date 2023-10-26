@@ -54,7 +54,6 @@
       {/if}
     </div>
   </div>
-
   <nav>
     <!-- {#if shrink}
       <ul>
@@ -117,6 +116,7 @@
         height: var(--size-3);
         width: 100%;
         transition: all ease-in-out var(--dur);
+        cursor: pointer;
 
         position: absolute;
         inset: 0;
@@ -129,6 +129,7 @@
           font-size: 1.1rem;
           transition: all ease-in-out var(--dur);
           font-weight: 700;
+          color: var(--main-col-3);
         }
 
         & h2.dark-mode {

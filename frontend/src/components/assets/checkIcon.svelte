@@ -2,11 +2,17 @@
   import { dark } from "../../stores";
 </script>
 
-<svg class:dark={$dark} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<svg
+  class:dark={$dark}
+  on:click
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
   ><path
     class:dark={$dark}
     fill="currentColor"
-    d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 5.63l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83l3.75 3.75l1.83-1.83a.996.996 0 0 0 0-1.41z"
+    d="m9 20.42l-6.21-6.21l2.83-2.83L9 14.77l9.88-9.89l2.83 2.83L9 20.42Z"
   /></svg
 >
 
@@ -15,9 +21,9 @@
     width: calc(var(--size-1) * 0.9);
     height: calc(var(--size-1) * 0.9);
     transition: all ease-in-out var(--dur2);
-    border-radius: 50%;
     cursor: pointer;
-    padding: calc(var(--size-6) * 0.4);
+    border-radius: 50%;
+    padding: calc(var(--size-6) * 0.3);
 
     & path {
       fill: var(--main-col-1);

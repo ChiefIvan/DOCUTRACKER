@@ -92,8 +92,8 @@
     align-items: center;
 
     & h1 {
+      /* font-weight: 600; */
       color: var(--main-col-3);
-      font-weight: 600;
     }
 
     & h1.dark {

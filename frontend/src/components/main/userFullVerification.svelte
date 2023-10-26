@@ -3,15 +3,16 @@
   import { quintInOut } from "svelte/easing";
   import { openVerSec, dark } from "../../stores";
 
-  import UserIcon from "../assets/userIcon.svelte";
   import Cropper from "svelte-easy-crop";
   import EditIcon from "../assets/editIcon.svelte";
-  import Input from "../entries/input.svelte";
+  import UserIcon from "../../lib/user-icon.png";
+  import CheckIcon from "../assets/checkIcon.svelte";
+  // import Input from "../entries/input.svelte";
 
   let fileData;
   let base64String;
   let pixelCrop;
-  let fileName = "";
+  let fileName = "Upload Your Profile";
   let croppedImage = null;
   let crop = { x: 0, y: 0 };
   let zoom = 1;
@@ -132,7 +133,7 @@
       easing: quintInOut,
     }}
   >
-    <label for="image_upload" class="image-wrapper">
+    <div class="cropper-wrapper">
       {#if base64String}
         <!-- svelte-ignore a11y-img-redundant-alt -->
         {#if croppedImage}
@@ -143,36 +144,38 @@
             alt="User Image"
           />
         {:else}
-          <div class="cropper-wrapper">
-            <Cropper
-              image={base64String}
-              bind:crop
-              bind:zoom
-              cropShape="round"
-              aspect={1}
-              on:cropcomplete={(e) => (pixelCrop = e.detail.pixels)}
-            />
-          </div>
+          <Cropper
+            image={base64String}
+            bind:crop
+            bind:zoom
+            cropShape="round"
+            aspect={1}
+            on:cropcomplete={(e) => (pixelCrop = e.detail.pixels)}
+          />
         {/if}
       {:else}
-        <div class="user-icon-wrapper">
-          <UserIcon largeSize={true} />
-        </div>
+        <img
+          class="user-icon-wrapper"
+          src={UserIcon}
+          alt="User Anonymous Icon"
+        />
       {/if}
-    </label>
-    {#if fileName.length !== 0}
-      <p transition:fade={{ duration: 300, delay: 0 }}>{fileName}</p>
-    {/if}
+    </div>
+    <!-- {#if fileName.length !== 0} -->
+    <h3 class:dark={$dark} transition:fade={{ duration: 300, delay: 200 }}>
+      {fileName}
+    </h3>
+    <!-- {/if} -->
     <form on:submit|preventDefault>
       <div class="image-wrapper">
         <label for="image_upload">
           <EditIcon />
         </label>
-        <button
+        <CheckIcon
           on:click={async () => {
             croppedImage = await getCroppedImg(base64String, pixelCrop);
-          }}>Save</button
-        >
+          }}
+        />
         <input
           id="image_upload"
           bind:files={fileData}
@@ -205,29 +208,33 @@
       align-items: center;
       transition: all ease-in-out var(--dur);
 
-      & div.image-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
+      & div.cropper-wrapper {
+        width: calc(var(--size-4) * 0.9);
+        height: calc(var(--size-4) * 0.9);
         position: relative;
+        margin-top: var(--size-5);
+        margin-bottom: var(--size-6);
 
         & img.final-user-picture {
           width: calc(var(--size-4) * 0.9);
           height: calc(var(--size-4) * 0.9);
-
           border-radius: 50%;
         }
 
-        & div.cropper-wrapper {
+        & img.user-icon-wrapper {
           width: calc(var(--size-4) * 0.9);
           height: calc(var(--size-4) * 0.9);
-          position: relative;
-          /* margin: var(--size-1) 0; */
         }
+      }
 
-        & div.user-icon-wrapper {
-        }
+      & h3 {
+        margin-bottom: var(--size-6);
+        color: var(--main-col-3);
+        transition: all ease-in-out var(--dur);
+      }
+
+      & h3.dark {
+        color: var(--bg);
       }
 
       & form {
