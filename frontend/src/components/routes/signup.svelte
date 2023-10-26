@@ -38,13 +38,13 @@
     $captchaVerification = false;
 
     $pageTransitionValue1 = {
-      x: 200,
+      x: 150,
       duration: 500,
       delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: -200,
+      x: -150,
       duration: 200,
       delay: -100,
     };
@@ -83,10 +83,13 @@
 <section>
   <img src={banner} alt="login banner" />
   <Form
-    {userName}
-    {email}
-    {password}
-    {cnfrmPassword}
+    requestBody={{
+      name: userName,
+      email: email,
+      password: password,
+      confirm_password: cnfrmPassword,
+      captVerification: $captchaVerification,
+    }}
     {api}
     {warnMessage}
     {navigateUser}

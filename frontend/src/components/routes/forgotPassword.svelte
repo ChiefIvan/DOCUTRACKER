@@ -87,8 +87,7 @@
       </p>
     </header>
     <Form
-      {email}
-      {disableResend}
+      requestBody={{ email: email, disabled: disableResend }}
       {api}
       {warnMessage}
       {navigateUser}

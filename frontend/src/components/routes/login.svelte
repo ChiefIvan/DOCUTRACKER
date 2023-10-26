@@ -144,13 +144,13 @@
     document.title = "DOCUTRACKER | Login";
 
     $pageTransitionValue1 = {
-      x: -200,
+      x: -150,
       duration: 500,
       delay: 500,
     };
 
     $pageTransitionValue2 = {
-      x: 200,
+      x: 150,
       duration: 200,
       delay: -100,
     };
@@ -177,7 +177,7 @@
       <Link to="/auth/u/signup"><span>Signup</span></Link>
     </p>
   </header>
-  <Form {email} {password} {api} {navigateUser} on:resetInput={handleReset}>
+  <Form requestBody={{email: email, password: password}} {api} {navigateUser} on:resetInput={handleReset}>
     <Input
       inputName={"Email"}
       inputType={"email"}

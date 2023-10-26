@@ -9,7 +9,7 @@
   export let inputAutocomplete = "";
   export let inputValue = "";
   export let miniModal = "";
-  export let inputZ = "";
+  export let inputZ = false;
   export let inputSize = false;
   export let errorColor = false;
 

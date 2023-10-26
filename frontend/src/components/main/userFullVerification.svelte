@@ -1,17 +1,19 @@
 <script>
   import { fly, fade } from "svelte/transition";
   import { quintInOut } from "svelte/easing";
-  import { openVerSec, dark } from "../../stores";
+  import { openVerSec, dark, openProfile } from "../../stores";
 
   import Cropper from "svelte-easy-crop";
   import EditIcon from "../assets/editIcon.svelte";
   import UserIcon from "../../lib/user-icon.png";
   import CheckIcon from "../assets/checkIcon.svelte";
-  // import Input from "../entries/input.svelte";
+  import Button from "../entries/button.svelte";
+  import Input from "../entries/input.svelte";
 
   let fileData;
   let base64String;
   let pixelCrop;
+  let firstName = "";
   let fileName = "Upload Your Profile";
   let croppedImage = null;
   let crop = { x: 0, y: 0 };
@@ -184,8 +186,25 @@
           accept=".jpg, .jpeg, .png"
         />
       </div>
+      <Input
+        inputName={"Firstname"}
+        inputType={"Text"}
+        inputAutocomplete={"on"}
+        inputZ={true}
+        inputValue={firstName}
+        on:input={(e) => (firstName = e.target.value)}
+      />
     </form>
-    <button on:click={() => ($openVerSec = false)}>Close</button>
+    <Button
+      btnName="Close"
+      btnSignupSize={true}
+      onhover={$dark ? true : false}
+      on:click={() => {
+        $openVerSec = false;
+        $openProfile = false;
+      }}
+    />
+    <!-- <Button btnName="Save" btnSignupSize={true} /> -->
   </section>
 </div>
 
@@ -239,14 +258,9 @@
 
       & form {
         & div.image-wrapper {
-          /* & label {
-            cursor: pointer;
-            display: inline-block;
-            padding: var(--size-6) var(--size-3);
-            background-color: var(--brdr-hovr);
-            color: white;
-            border-radius: var(--size-6);
-          } */
+          display: flex;
+          justify-content: center;
+          column-gap: var(--size-6);
 
           & input[type="file"] {
             display: none;

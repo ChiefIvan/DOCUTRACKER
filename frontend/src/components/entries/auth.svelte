@@ -48,7 +48,7 @@
       headers: {
         "Content-Type": "application/json",
       },
-      body: authBody,
+      body: JSON.stringify(authBody),
     })
       .then((response) => {
         if (!response.ok) {

@@ -99,6 +99,7 @@
 {#if byteValue.length !== 0}
   <div class="capt-img-wrapper" transition:fade={{ delay: 100, duration: 400 }}>
     <form on:submit|preventDefault={handlePOSTCaptcha}>
+      <!-- svelte-ignore a11y-img-redundant-alt -->
       <img src={`data:image/jpeg;base64,${byteValue}`} alt="Captcha Image" />
       <Input
         inputName={"Captcha"}

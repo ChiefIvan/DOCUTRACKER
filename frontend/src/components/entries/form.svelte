@@ -10,26 +10,21 @@
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
 
-  export let userName = "";
-  export let email = "";
-  export let password = "";
-  export let cnfrmPassword = "";
+  export let requestBody = {};
   export let api = "";
   export let warnMessage = "";
   export let navigateUser = "";
   export let handleResetPassword = null;
   export let parentName = null;
-  export let disableResend = false;
+  // export let disableResend = false;
 
   const dispatch = createEventDispatcher();
 
   async function handleSubmit() {
     updateStatesBeforeSubmit();
 
-    const userCredentials = getUserCredentials();
-
     try {
-      const request = await sendRequest(userCredentials);
+      const request = await sendRequest(requestBody);
 
       if (request.ok) {
         handleSuccessfulRequest(request);
@@ -48,17 +43,6 @@
     $entryState = true;
     $captchaAttemps = 3;
     $resetInput.blur();
-  }
-
-  function getUserCredentials() {
-    return {
-      name: userName,
-      email: email,
-      password: password,
-      confirm_password: cnfrmPassword,
-      captVerification: $captchaVerification,
-      disabled: disableResend,
-    };
   }
 
   async function sendRequest(userCredentials) {
@@ -113,7 +97,10 @@
   function updateStatesAfterSubmit() {
     $loaderState = false;
     $captchaVerification = false;
-    localStorage.setItem("userEmail", email.length != 0 ? email : "");
+    localStorage.setItem(
+      "userEmail",
+      requestBody.email.length != 0 ? requestBody.email : ""
+    );
     dispatch("resetInput", "");
   }
 </script>
