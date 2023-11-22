@@ -10,7 +10,7 @@ class EntryValidator:
 
         length_error: str = "Your Firstname must be greater than 3 Characters"
         error_responses: dict = {
-            "name": "Username Entry is Empty!",
+            "userName": "Username Entry is Empty!",
             "email": "Email Entry is Empty!",
             "password": "Password Entry is Empty!",
         }
@@ -24,11 +24,23 @@ class EntryValidator:
                         (key, "Password Confirmation is Empty!")
                     }
 
-        if self.entries["name"] is not None:
-            if len(self.entries["name"]) < 4:
+        if self.entries["userName"] is not None:
+            if len(self.entries["userName"]) < 4:
                 return {"error": length_error}
 
         return True
+
+
+class RegisterEntryValidator:
+    def __init__(self, *args):
+        self.args = args
+
+    def validate(self):
+        length_error: str = "Please fill all Entries"
+
+        for data in self.args:
+            if data is not None and len(data) == 0:
+                return {"error": length_error}
 
 
 class Sanitizer:
@@ -84,10 +96,10 @@ class PasswordValidator:
                     if not pattern.match(value):
                         return {"error": combination_error}
 
-        if self.entries["confirm_password"] is not None \
+        if self.entries["cnfrmPassword"] is not None \
                 and self.entries["password"] is not None:
 
-            if self.entries["password"] != self.entries["confirm_password"]:
+            if self.entries["password"] != self.entries["cnfrmPassword"]:
                 return {"error": password_error}
 
         return True

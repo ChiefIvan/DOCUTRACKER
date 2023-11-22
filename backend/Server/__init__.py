@@ -10,7 +10,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from os import getenv
 from os.path import join, dirname
-from gevent.pywsgi import WSGIServer
+# from gevent.pywsgi import WSGIServer
 
 from .static.predef_function.server_credentials import EMAIL, PASSWORD
 
@@ -21,6 +21,7 @@ mail: Mail = Mail()
 jwt: JWTManager = JWTManager()
 dotenv_path = join(dirname(__file__), "static", ".env")
 load_dotenv(dotenv_path)
+
 
 CORS(
     server,
@@ -35,7 +36,7 @@ class Flaskserver:
     def __init__(self):
 
         self.server = server
-        self.http_server = WSGIServer(("127.0.0.1", 5000), self.server)
+        # self.http_server = WSGIServer(("127.0.0.1", 5000), self.server)
 
         self.server.config["SECRET_KEY"] = token_hex(128)
         self.server.config["JWT_SECRET_KEY"] = token_hex(128)
@@ -102,5 +103,5 @@ class Flaskserver:
             return revoked_token is not None
 
     def server_run(self):
-        return self.http_server
-        # return self.server
+        # return self.http_server
+        return self.server

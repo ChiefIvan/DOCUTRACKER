@@ -17,7 +17,7 @@ class User(db.Model):
 
 class Credentials(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_img = db.Column(db.String(2000), nullable=False)
+    user_img = db.Column(db.String(200_000), nullable=False)
     firstname = db.Column(db.String(20), nullable=False)
     mid_init = db.Column(db.String(20), nullable=False)
     lastname = db.Column(db.String(20), nullable=False)

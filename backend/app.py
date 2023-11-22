@@ -1,8 +1,13 @@
 from Server import Flaskserver
 
 app: Flaskserver = Flaskserver()
-server = app.server_run()
+
+
+def create_app():
+    return app.server_run()
+
 
 if __name__ == "__main__":
-    # server.run(debug=True)
-    server.serve_forever()
+    server = create_app()
+    server.run(debug=True)
+    # server.serve_forever()

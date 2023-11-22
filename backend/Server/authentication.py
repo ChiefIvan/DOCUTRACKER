@@ -23,15 +23,19 @@ auth: Blueprint = Blueprint("auth", __name__)
 @auth.route("/login", methods=["POST"])
 def login() -> dict:
     if request.method == "POST":
-        # sleep(60)
 
         user_error: str = "Account Doesn't Exist!"
         verification_error: str = "Please verify your account first!"
         password_error: str = "Incorrect Password, Please try again!"
+        button_error: str = "Paghulat daw, sheyyt!"
 
         user_credentials: dict = request.json
         email: str = user_credentials["email"]
         password: str = user_credentials["password"]
+        btn_disabled: bool = user_credentials["btnDisabled"]
+
+        if btn_disabled:
+            return jsonify({"error": button_error})
 
         sanitize: bool | dict = Sanitizer(
             {"email": email, "password": password}).validate()
@@ -66,9 +70,14 @@ def email_verification() -> dict:
         email_error: str = "Please Sign Up First!"
         email_existance_error: str = "Account doesn't Exist"
         success_response: str = "Email Already Confirmed!"
+        button_error: str = "Paghulat daw, sheyyt!"
 
         user_credentials: dict = request.json
-        email: str = user_credentials["userEmail"]
+        email: str = user_credentials["email"]
+        disabled: bool = user_credentials["btnDisabled"]
+
+        if disabled:
+            return jsonify({"error": button_error})
 
         sanitize: bool | dict = Sanitizer({"email": email}).validate()
 
@@ -91,8 +100,6 @@ def email_verification() -> dict:
 
         if isinstance(smt, dict):
             return jsonify(smt)
-
-        return jsonify({"response": True})
 
     return jsonify({})
 
@@ -133,14 +140,14 @@ def signup() -> dict:
             return jsonify({"error": duplicate_email_error})
 
         smt: Smt | None = Smt(db=db, resend=Resend, reset=Reset, server=server, mail=mail, access="auth.confirm_email",
-                              data=user_email, username=user_credentials["name"]).send()
+                              data=user_email, username=user_credentials["userName"]).send()
 
         if isinstance(smt, dict):
             return jsonify(smt)
 
         try:
             new_user: User = User(
-                user_name=user_credentials["name"],
+                user_name=user_credentials["userName"],
                 email=user_email,
                 confirmed=False,
                 full_verified=False,
@@ -210,34 +217,34 @@ def captcha_verification():
         db.session.commit()
 
         return jsonify({
-            "captcha": [base64_image_data, identifier],
+            "captchaGETValue": [base64_image_data, identifier],
             "Content-Type": "image/jpeg"
         })
 
     if request.method == "POST":
 
         captcha_data: dict = request.json
-        captcha_id: str = captcha_data["captchaId"]
+        captcha_id: str = captcha_data["captchaID"]
         stored_captcha: Captcha | None = Captcha.query.filter_by(
             identifier=captcha_id).first()
 
         if not stored_captcha:
-            return jsonify({"error": False})
+            return jsonify({"captchaPOSTValue": False})
 
         if captcha_id != stored_captcha.identifier:
             db.session.delete(stored_captcha)
             db.session.commit()
-            return jsonify({"error": False})
+            return jsonify({"captchaPOSTValue": False})
 
-        if captcha_data["captValue"] != stored_captcha.value:
+        if captcha_data["captcha"] != stored_captcha.value:
             db.session.delete(stored_captcha)
             db.session.commit()
-            return jsonify({"error": False})
+            return jsonify({"captchaPOSTValue": False})
 
         db.session.delete(stored_captcha)
         db.session.commit()
 
-        return jsonify({"success": True})
+        return jsonify({"captchaPOSTValue": True})
 
     return jsonify({})
 
@@ -259,8 +266,8 @@ def pswd_reset_req() -> dict:
         if isinstance(sanitize, dict):
             return jsonify(sanitize)
 
-        if user_credentials["disabled"]:
-            return jsonify({"error": "Paghulat daw, you madufaka!"})
+        if user_credentials["btnDisabled"]:
+            return jsonify({"error": "Paghulat daw, sheyyt!"})
 
         user: User | None = User.query.filter_by(
             email=email).first()
@@ -365,7 +372,7 @@ def pswd_reset_confirm(token):
         new_password: str = request.form.get("password")
         cnfrm_password: str = request.form.get("cnfrm-password")
         user_passwords: str = {"password": new_password,
-                               "confirm_password": cnfrm_password}
+                               "cnfrmPassword": cnfrm_password}
 
         validity: bool | dict = PasswordValidator(user_passwords).validate()
         sanitize: bool | dict = Sanitizer(user_passwords).validate()
@@ -397,7 +404,7 @@ def pswd_reset_confirm(token):
             return render_template("confirmation_template.html",
                                    content={
                                        "title": "DOCUTRACKER | Reset Password",
-                                       "content": "You can only change your password once every 7 days! ❌",
+                                       "content": "Password changed Succesfully ✅",
                                        "color": "green"
                                    })
 
