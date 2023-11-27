@@ -1,39 +1,32 @@
 <script>
   import { dark } from "../../store";
-  export let compColor = false;
 </script>
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
   ><path
-    class:dark={$dark}
-    class:bg={compColor}
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    stroke-width="2"
-    d="M4 4h6v8H4zm0 12h6v4H4zm10-4h6v8h-6zm0-8h6v4h-6z"
+    class:bg={$dark}
+    fill="currentColor"
+    d="M13 9h5l-5-5v5ZM6 22q-.825 0-1.413-.588T4 20v-3h16v3q0 .825-.588 1.413T18 22H6Zm-5-7v-2h22v2H1Zm3-4V4q0-.825.588-1.413T6 2h8l6 6v3H4Z"
   /></svg
 >
 
 <style>
   svg {
-    min-width: 2rem;
-    max-width: 2rem;
+    min-width: 1.8rem;
+    max-width: 1.8rem;
     cursor: pointer;
     transition: all ease-in-out 500ms;
 
     & path {
       transition: all ease-in-out 500ms;
       fill: var(--main-col-1);
-      stroke: var(--main-col-1);
     }
 
     & path.bg {
       fill: var(--icon-active-color);
-      stroke: var(--icon-active-color);
     }
 
     & path.dark {
-      stroke: var(--background);
       fill: var(--background);
     }
   }

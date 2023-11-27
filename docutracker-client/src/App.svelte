@@ -7,6 +7,7 @@
   import Signup from "./components/routes/Signup.svelte";
   import Reset from "./components/routes/Reset.svelte";
   import Dashboard from "./components/routes/Dashboard.svelte";
+  import Updates from "./components/routes/Updates.svelte";
   import NavigationLocation from "./components/lib/NavigationLocation.svelte";
   import _Error from "./components/routes/Error.svelte";
   import DisplayMessage from "./components/lib/ShowMessage.svelte";
@@ -44,7 +45,7 @@
 
 <Router basepath="/">
   <div class="side-main-wrapper">
-    {#if $location === "/dashboard"}
+    {#if $location === "/dashboard" || $location === "/updates"}
       <SideBar />
     {/if}
 
@@ -56,6 +57,9 @@
       <Route path="/" component={Overview} />
       <Route path="/dashboard">
         <Dashboard on:user={handleUser} on:userImg={handleSendImg} />
+      </Route>
+      <Route path="/updates">
+        <Updates></Updates>
       </Route>
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />

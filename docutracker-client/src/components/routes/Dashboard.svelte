@@ -79,7 +79,7 @@
 </script>
 
 <main class:dark={$dark}>
-  <!--  -->
+  <h1>Hello From Dashboard</h1>
 </main>
 <div class="sample" />
 <div class="sample" />

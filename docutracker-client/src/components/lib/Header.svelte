@@ -70,7 +70,7 @@
       </Link>
     {:else if $location === "/"}
       This is Overview
-    {:else if $location === "/dashboard"}
+    {:else if $location === "/dashboard" || $location === "/updates"}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <h1 on:click={() => ($navExpand = !$navExpand)}>

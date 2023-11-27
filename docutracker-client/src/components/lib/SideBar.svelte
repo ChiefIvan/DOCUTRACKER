@@ -110,7 +110,7 @@
           display: flex;
           align-items: center;
           column-gap: 0.8rem;
-          border-bottom: 1px solid var(--main-col-7);
+          border-bottom: 1px solid var(--header-color);
           padding: 0.12rem 0;
           text-align: center;
           transition: all ease-in-out 500ms;
