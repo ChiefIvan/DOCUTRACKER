@@ -16,8 +16,9 @@
   import SideBar from "./components/lib/SideBar.svelte";
 
   let show: boolean = false;
-  let user: ResponseData = {};
-  let id: number | undefined;
+  let user: ResponseData;
+  let userImg: ResponseData;
+  let id: string | number | NodeJS.Timeout | undefined;
 
   $: if (Object.keys($showMessage).length !== 0) {
     clearTimeout(id);
@@ -30,6 +31,10 @@
 
   const handleUser = (event: { detail: ResponseData }) => {
     user = event.detail;
+  };
+
+  const handleSendImg = (event: { detail: ResponseData }) => {
+    userImg = event.detail;
   };
 </script>
 
@@ -45,12 +50,12 @@
 
     <div class="main-wrapper">
       <DomEvents />
-      <Header {user} />
+      <Header {user} userUpdatedImg={userImg} />
 
       <Route path="" component={_Error} />
       <Route path="/" component={Overview} />
       <Route path="/dashboard">
-        <Dashboard on:user={handleUser} />
+        <Dashboard on:user={handleUser} on:userImg={handleSendImg} />
       </Route>
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />

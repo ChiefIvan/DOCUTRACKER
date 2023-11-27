@@ -18,11 +18,20 @@
   import UserIcon from "../icons/UserIcon.svelte";
   import Button from "../shared/Button.svelte";
   import userIcon from "../../assets/user-icon.png";
+  import BellIcon from "../icons/BellIcon.svelte";
 
-  export let user: ResponseData;
+  export let user: ResponseData = {};
+  export let userUpdatedImg: ResponseData = {};
   export let verified = false;
 
-  $: console.log(user);
+  let img: string | undefined;
+
+  $: {
+    img = user.userImg;
+    if (userUpdatedImg.userImg?.length) {
+      img = userUpdatedImg.userImg;
+    }
+  }
 
   const tooltipContent = "Go Back to Overview";
 
@@ -54,7 +63,7 @@
           offset: [0, 15],
         }}
       >
-        <ArrowIcon arrowState={true} dark={true} on:click={handleNavigate} />
+        <ArrowIcon arrowState={true} on:click={handleNavigate} />
       </div>
       <Link to="/terms">
         <span class="terms-link">Terms</span>
@@ -69,17 +78,22 @@
       </h1>
       <div class="utils-wrapper">
         <div class="icon-wrapper">
+          <MediaQuery query="(min-width: 500px)" let:matches>
+            {#if matches}
+              <BellIcon />
+            {/if}
+          </MediaQuery>
           <Mode />
         </div>
 
-        {#if user.userImg && user.userImg.length !== 0}
+        {#if img && img.length !== 0}
           <!-- svelte-ignore a11y-img-redundant-alt -->
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
           <img
             class="user-image-profile"
             on:click|stopPropagation={handleProfile}
-            src={`data:image/png;base64,${user.userImg}`}
+            src={`data:image/png;base64,${img}`}
             alt="User Profile Picture"
           />
         {:else}
@@ -100,10 +114,10 @@
     <!-- {#if verified} -->
     <div class="upper-wrapper">
       <!-- svelte-ignore a11y-img-redundant-alt -->
-      {#if user.userImg && user.userImg.length !== 0}
+      {#if img && img.length !== 0}
         <img
           class="user-placeholder-icon"
-          src={`data:image/png;base64,${user.userImg}`}
+          src={`data:image/png;base64,${img}`}
           alt="User Profile Picture"
         />
       {:else}
@@ -161,7 +175,7 @@
 
       & span.terms-link {
         text-decoration: none;
-        color: var(--background);
+        color: var(--scroll-color);
       }
 
       & span.terms-link:hover {

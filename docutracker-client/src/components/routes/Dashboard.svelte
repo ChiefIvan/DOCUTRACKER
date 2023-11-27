@@ -65,6 +65,8 @@
         streamRequest,
         authToken
       );
+
+      dispatch("userImg", response);
     }, 5000);
   });
 

@@ -374,11 +374,11 @@
 
       & div.button-wrapper {
         display: flex;
-        column-gap: 1rem;
+        column-gap: .5rem;
         position: absolute;
         bottom: 1.5rem;
         right: 1.5rem;
-        width: 30%;
+        width: 40%;
       }
 
       & div.button-wrapper > * {
@@ -393,5 +393,11 @@
 
   div.dark {
     background-color: rgba(45, 53, 75, 0.7);
+  }
+
+  @media (max-width: 700px) {
+    div.full-reg-container section {
+      width: 100%;
+    }
   }
 </style>

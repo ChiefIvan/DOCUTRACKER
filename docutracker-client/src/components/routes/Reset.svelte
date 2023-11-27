@@ -42,7 +42,7 @@
   };
 
   let isRequest = false;
-  let timeOutID: number | undefined;
+  let timeOutID: string | number | NodeJS.Timeout | undefined;
 
   const handleSubmit = async () => {
     isRequest = true;

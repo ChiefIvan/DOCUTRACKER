@@ -119,9 +119,6 @@ def event_polling():
     if user_credentials:
         data = {
             "userImg": user_credentials.user_img,
-            "firstName": user_credentials.firstname,
-            "middleName": user_credentials.mid_init,
-            "lastName": user_credentials.lastname,
         }
 
         return jsonify(data)

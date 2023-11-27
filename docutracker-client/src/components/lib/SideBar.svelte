@@ -14,6 +14,7 @@
   import Button from "../shared/Button.svelte";
   import LogoutIcon from "../icons/LogoutIcon.svelte";
   import MediaQuery from "../shared/MediaQuery.svelte";
+  import Navigation from "./Navigation.svelte";
 
   const logoutAddress = `${address}/logout`;
   const logoutMethod = "GET";
@@ -50,7 +51,9 @@
           </h1>
         {/if}
       </div>
-      <div class="navigation-wrapper" />
+      <div class="navigation-wrapper">
+        <Navigation />
+      </div>
       <MediaQuery query="(min-width: 500px)" let:matches>
         {#if matches}
           <div class="logout-expand-wrapper">
@@ -61,7 +64,6 @@
                 <LogoutIcon on:click={handleLogout} />
               {/if}
             </div>
-
             <ArrowIcon
               sizeMedium={true}
               arrowState={$navExpand}
@@ -133,6 +135,10 @@
         & div.dark {
           border-bottom-color: var(--input-color);
           background-color: var(--dark-main-col-5);
+        }
+
+        & div.navigation-wrapper {
+          /* height: 100%; */
         }
 
         & div.logout-expand-wrapper {
