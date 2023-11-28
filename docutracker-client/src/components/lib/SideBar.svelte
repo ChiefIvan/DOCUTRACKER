@@ -137,10 +137,6 @@
           background-color: var(--dark-main-col-5);
         }
 
-        & div.navigation-wrapper {
-          /* height: 100%; */
-        }
-
         & div.logout-expand-wrapper {
           position: absolute;
           bottom: 0;

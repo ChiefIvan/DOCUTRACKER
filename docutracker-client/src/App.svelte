@@ -18,7 +18,7 @@
   import Signup from "./components/routes/Signup.svelte";
   import Reset from "./components/routes/Reset.svelte";
   import Dashboard from "./components/routes/Dashboard.svelte";
-  import Updates from "./components/routes/Updates.svelte";
+  import Updates from "./components/routes/History.svelte";
   import NavigationLocation from "./components/lib/NavigationLocation.svelte";
   import _Error from "./components/routes/Error.svelte";
   import DisplayMessage from "./components/lib/ShowMessage.svelte";
@@ -28,6 +28,8 @@
   import SideBar from "./components/lib/SideBar.svelte";
   import UserRegistration from "./components/lib/UserRegistration.svelte";
   import Notification from "./components/routes/Notification.svelte";
+  import Analytics from "./components/routes/Analytics.svelte";
+  import DocumentOverview from "./components/routes/DocumentOverview.svelte";
 
   let show: boolean = false;
   let user: ResponseData;
@@ -84,7 +86,7 @@
 
 <Router basepath="/">
   <div class="side-main-wrapper">
-    {#if $location === "/dashboard" || $location === "/updates" || $location === "/notifications"}
+    {#if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
       <SideBar />
     {/if}
 
@@ -101,11 +103,17 @@
       <Route path="/dashboard">
         <Dashboard on:user={handleUser} {authToken} />
       </Route>
-      <Route path="/updates">
+      <Route path="/history">
         <Updates on:user={handleUser} {authToken}></Updates>
       </Route>
       <Route path="/notifications">
         <Notification on:user={handleUser} {authToken}></Notification>
+      </Route>
+      <Route path="/analytics">
+        <Analytics on:user={handleUser} {authToken}></Analytics>
+      </Route>
+      <Route path="/document/overview">
+        <DocumentOverview on:user={handleUser} {authToken}></DocumentOverview>
       </Route>
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />

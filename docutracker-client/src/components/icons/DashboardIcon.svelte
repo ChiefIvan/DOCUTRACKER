@@ -22,7 +22,7 @@
     transition: all ease-in-out 500ms;
 
     & path {
-      transition: all ease-in-out 500ms;
+      transition: all ease-in-out 300ms;
       fill: var(--main-col-1);
       stroke: var(--main-col-1);
     }

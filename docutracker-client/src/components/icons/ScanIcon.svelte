@@ -1,14 +1,38 @@
 <script>
-  import { dark } from "../../store";
+  import { dark, navExpand } from "../../store";
+  import { tooltip } from "../shared/Tooltip";
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-  ><path
-    class:bg={$dark}
-    fill="currentColor"
-    d="M13 9h5l-5-5v5ZM6 22q-.825 0-1.413-.588T4 20v-3h16v3q0 .825-.588 1.413T18 22H6Zm-5-7v-2h22v2H1Zm3-4V4q0-.825.588-1.413T6 2h8l6 6v3H4Z"
-  /></svg
->
+{#if $navExpand}
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+      ><path
+        class:bg={$dark}
+        fill="currentColor"
+        d="M13 9h5l-5-5v5ZM6 22q-.825 0-1.413-.588T4 20v-3h16v3q0 .825-.588 1.413T18 22H6Zm-5-7v-2h22v2H1Zm3-4V4q0-.825.588-1.413T6 2h8l6 6v3H4Z"
+      /></svg
+    >
+  </div>
+{:else}
+  <div
+    use:tooltip={{
+      arrow: false,
+      content: "Scan Document",
+      animation: "perspective-subtle",
+      theme: "tooltip",
+      offset: [0, 20],
+      placement: "right",
+    }}
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+      ><path
+        class:bg={$dark}
+        fill="currentColor"
+        d="M13 9h5l-5-5v5ZM6 22q-.825 0-1.413-.588T4 20v-3h16v3q0 .825-.588 1.413T18 22H6Zm-5-7v-2h22v2H1Zm3-4V4q0-.825.588-1.413T6 2h8l6 6v3H4Z"
+      /></svg
+    >
+  </div>
+{/if}
 
 <style>
   svg {

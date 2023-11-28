@@ -42,6 +42,10 @@
       & g {
         fill: none;
 
+        & path {
+          transition: all ease-in-out 300ms;
+        }
+
         & path.second {
           fill: var(--main-col-1);
         }

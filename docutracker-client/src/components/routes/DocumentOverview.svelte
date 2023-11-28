@@ -4,4 +4,4 @@
 </script>
 
 <CheckAuthenticity {authToken} on:user></CheckAuthenticity>
-<main>Hello From Notifications</main>
+<main>Hello From Document Overview</main>

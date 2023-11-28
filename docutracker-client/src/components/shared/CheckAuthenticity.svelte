@@ -50,26 +50,3 @@
     await fetchEventSourceAndLog();
   });
 </script>
-
-<main class:dark={$dark}>
-  <h1>Hello From Updates</h1>
-</main>
-
-<style>
-  /* main {
-    background-color: var(--header-color);
-    text-align: center;
-    font-size: 10rem;
-    line-height: 60vh;
-    height: 60vh;
-    transition: background-color ease-in-out 400ms;
-  }
-
-  main.dark {
-    background-color: var(--dark-main-col-6);
-  } */
-
-  /* div.sample {
-    height: 100vh;
-  } */
-</style>
