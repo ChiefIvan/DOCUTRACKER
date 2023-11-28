@@ -1,6 +1,11 @@
 <script lang="ts">
   import { beforeUpdate } from "svelte";
-  import { modeExpand, dark, profileExpand } from "../../store";
+  import {
+    modeExpand,
+    dark,
+    profileExpand,
+    notificationExpand,
+  } from "../../store";
   import { tooltip } from "./Tooltip";
 
   import SunIcon from "../icons/SunIcon.svelte";
@@ -16,8 +21,8 @@
         ? ($dark = false)
         : ($dark = true)
       : !window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ($dark = false)
-      : ($dark = true);
+        ? ($dark = false)
+        : ($dark = true);
   });
 
   const enableLight = () => {
@@ -44,6 +49,7 @@
   const openModes = () => {
     $modeExpand = !$modeExpand;
     $profileExpand = false;
+    $notificationExpand = false;
   };
 </script>
 

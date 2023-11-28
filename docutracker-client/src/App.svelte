@@ -1,6 +1,17 @@
 <script lang="ts">
   import { Router, Route } from "svelte-routing";
-  import { location, showMessage, type ResponseData } from "./store";
+  import {
+    location,
+    showMessage,
+    notificationExpand,
+    registrationExpand,
+    handleFetch,
+    address,
+    type ResponseData,
+    type RequestAPI,
+  } from "./store";
+  import { fly } from "svelte/transition";
+  import { afterUpdate } from "svelte";
 
   import Overview from "./components/routes/Overview.svelte";
   import Login from "./components/routes/Login.svelte";
@@ -15,11 +26,17 @@
   import Header from "./components/lib/Header.svelte";
   import DomEvents from "./components/lib/DOMEvents.svelte";
   import SideBar from "./components/lib/SideBar.svelte";
+  import UserRegistration from "./components/lib/UserRegistration.svelte";
+  import Notification from "./components/routes/Notification.svelte";
 
   let show: boolean = false;
   let user: ResponseData;
   let userImg: ResponseData;
   let id: string | number | NodeJS.Timeout | undefined;
+
+  const authToken = sessionStorage.getItem("remember") || "";
+  const indexMethod = "GET";
+  const streamAddress = `${address}/user_credentials_updates`;
 
   $: if (Object.keys($showMessage).length !== 0) {
     clearTimeout(id);
@@ -37,6 +54,28 @@
   const handleSendImg = (event: { detail: ResponseData }) => {
     userImg = event.detail;
   };
+
+  const streamRequest: RequestAPI = {
+    method: indexMethod,
+    address: streamAddress,
+  };
+
+  let intervalId: string | number | NodeJS.Timeout | undefined;
+
+  afterUpdate(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+
+    intervalId = setInterval(async () => {
+      const response: ResponseData = await handleFetch(
+        streamRequest,
+        authToken
+      );
+
+      userImg = response;
+    }, 5000);
+  });
 </script>
 
 {#if show}
@@ -45,7 +84,7 @@
 
 <Router basepath="/">
   <div class="side-main-wrapper">
-    {#if $location === "/dashboard" || $location === "/updates"}
+    {#if $location === "/dashboard" || $location === "/updates" || $location === "/notifications"}
       <SideBar />
     {/if}
 
@@ -53,18 +92,33 @@
       <DomEvents />
       <Header {user} userUpdatedImg={userImg} />
 
+      {#if $registrationExpand}
+        <UserRegistration />
+      {/if}
+
       <Route path="" component={_Error} />
       <Route path="/" component={Overview} />
       <Route path="/dashboard">
-        <Dashboard on:user={handleUser} on:userImg={handleSendImg} />
+        <Dashboard on:user={handleUser} {authToken} />
       </Route>
       <Route path="/updates">
-        <Updates></Updates>
+        <Updates on:user={handleUser} {authToken}></Updates>
+      </Route>
+      <Route path="/notifications">
+        <Notification on:user={handleUser} {authToken}></Notification>
       </Route>
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />
       <Route path="/auth/reset" component={Reset} />
-
+      {#if $notificationExpand}
+        <div
+          in:fly={{ x: 200, duration: 300, delay: 100 }}
+          out:fly={{ x: 200, duration: 300, delay: 100 }}
+          class="notification-wrapper"
+        >
+          Hello From Notifications
+        </div>
+      {/if}
       <NavigationLocation />
     </div>
   </div>
@@ -84,6 +138,15 @@
 
     & div.main-wrapper {
       width: 100%;
+
+      & div.notification-wrapper {
+        position: fixed;
+        top: 3rem;
+        right: 0;
+        background-color: var(--main-col-5);
+        height: 95vh;
+        width: 15rem;
+      }
     }
   }
 </style>

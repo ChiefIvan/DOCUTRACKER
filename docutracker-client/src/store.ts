@@ -130,6 +130,7 @@ export const showMessage: Writable<ResponseData> = writable({});
 localStorage.getItem("mode") || localStorage.setItem("mode", "System");
 export const modeExpand = writable(false);
 export const profileExpand = writable(false);
+export const notificationExpand = writable(false);
 export const navExpand = writable(true);
 export const registrationExpand = writable(false);
 export const dark = writable(false);

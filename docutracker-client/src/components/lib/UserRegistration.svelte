@@ -178,7 +178,6 @@
   const handleSubmit = async () => {
     const base64String = await blobToBase64(croppedImage);
     registrationRequest.credentials.userImg = base64String;
-    console.log(registrationRequest.credentials.userImg);
 
     isRequest = true;
 

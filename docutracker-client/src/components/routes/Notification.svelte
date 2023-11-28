@@ -52,10 +52,8 @@
 </script>
 
 <main class:dark={$dark}>
-  <h1>Hello From Dashboard</h1>
+  <h1>Hello From Notifications</h1>
 </main>
-<div class="sample" />
-<div class="sample" />
 
 <style>
   /* main {
@@ -71,7 +69,7 @@
     background-color: var(--dark-main-col-6);
   } */
 
-  div.sample {
+  /* div.sample {
     height: 100vh;
-  }
+  } */
 </style>

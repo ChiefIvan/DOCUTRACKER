@@ -11,6 +11,7 @@
   import { Link, navigate } from "svelte-routing";
   import { fade, fly } from "svelte/transition";
   import type { ResponseData } from "../../store";
+  import { notificationExpand } from "../../store";
 
   import ArrowIcon from "../icons/ArrowIcon.svelte";
   import MediaQuery from "../shared/MediaQuery.svelte";
@@ -42,11 +43,19 @@
   const handleProfile = () => {
     $profileExpand = !$profileExpand;
     $modeExpand = false;
+    $notificationExpand = false;
   };
 
   const handleRegistration = () => {
     $registrationExpand = true;
     $profileExpand = false;
+    $notificationExpand = false;
+  };
+
+  const handleNotificationExpand = () => {
+    $notificationExpand = !$notificationExpand;
+    $profileExpand = false;
+    $modeExpand = false;
   };
 </script>
 
@@ -70,7 +79,7 @@
       </Link>
     {:else if $location === "/"}
       This is Overview
-    {:else if $location === "/dashboard" || $location === "/updates"}
+    {:else if $location === "/dashboard" || $location === "/updates" || $location === "/notifications"}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <h1 on:click={() => ($navExpand = !$navExpand)}>
@@ -80,7 +89,7 @@
         <div class="icon-wrapper">
           <MediaQuery query="(min-width: 500px)" let:matches>
             {#if matches}
-              <BellIcon />
+              <BellIcon compColor={true} on:click={handleNotificationExpand} />
             {/if}
           </MediaQuery>
           <Mode />

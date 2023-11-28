@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { modeExpand, navExpand, profileExpand, dark } from "../../store";
+  import {
+    modeExpand,
+    navExpand,
+    profileExpand,
+    notificationExpand,
+    dark,
+  } from "../../store";
   let width: number;
 
   $: $navExpand = width > 500;
@@ -13,6 +19,10 @@
   const close = (): void => {
     if ($modeExpand) {
       $modeExpand = false;
+    }
+
+    if ($notificationExpand) {
+      $notificationExpand = false;
     }
   };
 
@@ -28,7 +38,8 @@
     func: (...args: any[]) => void,
     wait: number
   ): (() => void) => {
-    let timeout: number | undefined;
+    let timeout: string | number | NodeJS.Timeout | undefined;
+
     return function executedFunction(...args: any[]): void {
       const later = (): void => {
         clearTimeout(timeout);

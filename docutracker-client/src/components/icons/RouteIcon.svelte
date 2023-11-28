@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+  ><path
+    d="M11 10H5L3 8l2-2h6V3l1-1l1 1v1h6l2 2l-2 2h-6v2h6l2 2l-2 2h-6v6a2 2 0 0 1 2 2H9a2 2 0 0 1 2-2z"
+  /></svg
+>
+
+<style>
+  svg {
+    min-width: 1.8rem;
+    max-width: 1.8rem;
+    cursor: pointer;
+    transition: all ease-in-out 500ms;
+
+    & path {
+      transition: all ease-in-out 500ms;
+      fill: var(--main-col-1);
+    }
+
+    /* & path.bg {
+      fill: var(--icon-active-color);
+    } */
+
+    /* & path.dark {
+      fill: var(--background);
+    } */
+  }
+</style>
