@@ -7,6 +7,7 @@
     registrationExpand,
     handleFetch,
     address,
+    dark,
     type ResponseData,
     type RequestAPI,
   } from "./store";
@@ -30,6 +31,7 @@
   import Notification from "./components/routes/Notification.svelte";
   import Analytics from "./components/routes/Analytics.svelte";
   import DocumentOverview from "./components/routes/DocumentOverview.svelte";
+  import ShortcutWrapper from "./components/shared/ShortcutWrapper.svelte";
 
   let show: boolean = false;
   let user: ResponseData;
@@ -53,10 +55,6 @@
     user = event.detail;
   };
 
-  const handleSendImg = (event: { detail: ResponseData }) => {
-    userImg = event.detail;
-  };
-
   const streamRequest: RequestAPI = {
     method: indexMethod,
     address: streamAddress,
@@ -78,6 +76,44 @@
       userImg = response;
     }, 5000);
   });
+
+  let scan = false;
+  let registerD = false;
+  let registerR = false;
+  let updateR = false;
+  let shortcutData: string = "";
+
+  const handleShortcutData = (event: { detail: string }) => {
+    shortcutData = event.detail;
+
+    if (shortcutData === "Scan Document") {
+      scan = !scan;
+      registerD = false;
+      registerR = false;
+      updateR = false;
+    }
+
+    if (shortcutData === "Register Document") {
+      scan = false;
+      registerD = !registerD;
+      registerR = false;
+      updateR = false;
+    }
+
+    if (shortcutData === "Register Route") {
+      scan = false;
+      registerD = false;
+      registerR = !registerR;
+      updateR = false;
+    }
+
+    if (shortcutData === "Update Route") {
+      scan = false;
+      registerD = false;
+      registerR = false;
+      updateR = !updateR;
+    }
+  };
 </script>
 
 {#if show}
@@ -87,7 +123,7 @@
 <Router basepath="/">
   <div class="side-main-wrapper">
     {#if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
-      <SideBar />
+      <SideBar on:switch={handleShortcutData} />
     {/if}
 
     <div class="main-wrapper">
@@ -123,9 +159,26 @@
           in:fly={{ x: 200, duration: 300, delay: 100 }}
           out:fly={{ x: 200, duration: 300, delay: 100 }}
           class="notification-wrapper"
+          class:dark={$dark}
         >
           Hello From Notifications
         </div>
+      {/if}
+
+      {#if scan}
+        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+      {/if}
+
+      {#if registerD}
+        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+      {/if}
+
+      {#if registerR}
+        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+      {/if}
+
+      {#if updateR}
+        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
       {/if}
       <NavigationLocation />
     </div>
@@ -145,15 +198,21 @@
     display: flex;
 
     & div.main-wrapper {
+      position: relative;
       width: 100%;
 
       & div.notification-wrapper {
+        transition: background-color ease-in-out 300ms;
         position: fixed;
         top: 3rem;
         right: 0;
         background-color: var(--main-col-5);
         height: 95vh;
         width: 15rem;
+      }
+
+      & div.notification-wrapper.dark {
+        background-color: var(--dark-main-col-5);
       }
     }
   }

@@ -4,4 +4,7 @@
 </script>
 
 <CheckAuthenticity {authToken} on:user></CheckAuthenticity>
-<main>Hello From Dashboard</main>
+<main>Hello from Dashboard</main>
+
+<style>
+</style>

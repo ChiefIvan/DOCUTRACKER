@@ -52,7 +52,7 @@
         {/if}
       </div>
       <div class="navigation-wrapper">
-        <Navigation />
+        <Navigation on:switch />
       </div>
       <MediaQuery query="(min-width: 500px)" let:matches>
         {#if matches}
@@ -64,12 +64,14 @@
                 <LogoutIcon on:click={handleLogout} />
               {/if}
             </div>
-            <ArrowIcon
-              sizeMedium={true}
-              arrowState={$navExpand}
-              dark={$dark}
-              on:click={handleExpand}
-            />
+            <div class="arrow-wrapper" class:translate={!$navExpand}>
+              <ArrowIcon
+                sizeMedium={true}
+                arrowState={$navExpand}
+                dark={$dark}
+                on:click={handleExpand}
+              />
+            </div>
           </div>
         {/if}
       </MediaQuery>
@@ -100,7 +102,7 @@
       background-color: var(--main-col-5);
 
       & div.sidebar-wrapper {
-        margin: 0 0.7rem;
+        margin: 0 0.5rem;
         position: relative;
         height: 100%;
 
@@ -146,6 +148,14 @@
           & div.logout-wrapper {
             height: 2rem;
             position: relative;
+          }
+
+          & div.arrow-wrapper {
+            transition: all ease-in-out 500ms;
+          }
+
+          & div.translate {
+            transform: translateX(-0.2rem);
           }
         }
 
