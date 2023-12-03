@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navExpand, dark, location } from "../../store";
+  import { navExpand, dark, location, registrationExpand } from "../../store";
   import { navigate } from "svelte-routing";
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
@@ -14,23 +14,53 @@
   import AnalyticsIcon from "../icons/AnalyticsIcon.svelte";
   import OverviewIcon from "../icons/OverviewIcon.svelte";
 
+  const dispatch = createEventDispatcher();
+  let activeElement = "";
+
+  $: if ($registrationExpand) {
+    activeElement = "";
+  }
+
+  const closeNav = () => {
+    let width = window.innerWidth;
+
+    if (width < 500) {
+      $navExpand = false;
+    }
+  };
+
   const goToDashboard = () => {
+    dispatch("navActive");
+    activeElement = "";
+    closeNav();
     navigate("/dashboard");
   };
 
   const goToUpdates = () => {
+    dispatch("navActive");
+    activeElement = "";
+    closeNav();
     navigate("/history");
   };
 
   const goToNotifications = () => {
+    dispatch("navActive");
+    activeElement = "";
+    closeNav();
     navigate("/notifications");
   };
 
   const goToAnalytics = () => {
+    dispatch("navActive");
+    activeElement = "";
+    closeNav();
     navigate("/analytics");
   };
 
   const goToOverview = () => {
+    dispatch("navActive");
+    activeElement = "";
+    closeNav();
     navigate("/document/overview");
   };
 
@@ -72,17 +102,9 @@
     },
   ];
 
-  const dispatch = createEventDispatcher();
-
-  let scan = false;
-  let registerD = false;
-  let registerR = false;
-  let updateR = false;
-
-  let activeElement = "";
-
   const scanDocument = () => {
     dispatch("switch", "Scan Document");
+    closeNav();
     if (activeElement === "Scan Document") {
       activeElement = "";
       return;
@@ -93,6 +115,7 @@
 
   const registerDocument = () => {
     dispatch("switch", "Register Document");
+    closeNav();
     if (activeElement === "Register Document") {
       activeElement = "";
       return;
@@ -103,6 +126,7 @@
 
   const registerRoute = () => {
     dispatch("switch", "Register Route");
+    closeNav();
     if (activeElement === "Register Route") {
       activeElement = "";
       return;
@@ -113,6 +137,7 @@
 
   const updateRoute = () => {
     dispatch("switch", "Update Route");
+    closeNav();
     if (activeElement === "Update Route") {
       activeElement = "";
       return;
@@ -120,8 +145,6 @@
 
     activeElement = "Update Route";
   };
-
-  $: console.log(activeElement);
 
   const shortcut = [
     {
@@ -165,6 +188,7 @@
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <li
         class="shortcut-links"
+        class:dark={$dark}
         class:active={activeElement === value.shortcutName}
         on:click={value.bind}
       >
@@ -270,6 +294,14 @@
 
       & li.shortcut-links.active {
         background-color: var(--component-active);
+      }
+
+      & li.shortcut-links.active.dark {
+        background-color: var(--dark-main-col-2);
+      }
+
+      & li.shortcut-links.dark:hover {
+        background-color: var(--navigation-hover-dark);
       }
     }
 

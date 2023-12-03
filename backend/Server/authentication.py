@@ -10,7 +10,6 @@ from base64 import b64encode
 from string import ascii_letters, digits
 from random import choice
 from uuid import uuid4
-# from time import sleep
 
 from . import db, mail, server
 from .models import User, Captcha, Resend, Reset, Template

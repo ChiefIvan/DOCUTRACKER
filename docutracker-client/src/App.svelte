@@ -63,18 +63,26 @@
   let intervalId: string | number | NodeJS.Timeout | undefined;
 
   afterUpdate(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
+    if (
+      $location === "/dashboard" ||
+      $location === "/history" ||
+      $location === "/notifications" ||
+      $location === "/analytics" ||
+      $location === "/document/overview"
+    ) {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+
+      intervalId = setInterval(async () => {
+        const response: ResponseData = await handleFetch(
+          streamRequest,
+          authToken
+        );
+
+        userImg = response;
+      }, 5000);
     }
-
-    intervalId = setInterval(async () => {
-      const response: ResponseData = await handleFetch(
-        streamRequest,
-        authToken
-      );
-
-      userImg = response;
-    }, 5000);
   });
 
   let scan = false;
@@ -94,8 +102,8 @@
     }
 
     if (shortcutData === "Register Document") {
-      scan = false;
       registerD = !registerD;
+      scan = false;
       registerR = false;
       updateR = false;
     }
@@ -114,6 +122,27 @@
       updateR = !updateR;
     }
   };
+
+  const handleNavigation = () => {
+    scan = false;
+    registerD = false;
+    registerR = false;
+    updateR = false;
+  };
+
+  $: if ($registrationExpand) {
+    scan = false;
+    registerD = false;
+    registerR = false;
+    updateR = false;
+  }
+
+  $: if (scan || registerD || registerR || updateR) {
+    document.body.classList.add("disable-scroll");
+    window.scrollTo(0, 0);
+  } else {
+    document.body.classList.remove("disable-scroll");
+  }
 </script>
 
 {#if show}
@@ -123,7 +152,7 @@
 <Router basepath="/">
   <div class="side-main-wrapper">
     {#if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
-      <SideBar on:switch={handleShortcutData} />
+      <SideBar on:switch={handleShortcutData} on:navActive={handleNavigation} />
     {/if}
 
     <div class="main-wrapper">
@@ -204,6 +233,7 @@
       & div.notification-wrapper {
         transition: background-color ease-in-out 300ms;
         position: fixed;
+        z-index: 1;
         top: 3rem;
         right: 0;
         background-color: var(--main-col-5);

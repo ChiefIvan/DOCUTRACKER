@@ -52,7 +52,7 @@
         {/if}
       </div>
       <div class="navigation-wrapper">
-        <Navigation on:switch />
+        <Navigation on:switch on:navActive />
       </div>
       <MediaQuery query="(min-width: 500px)" let:matches>
         {#if matches}

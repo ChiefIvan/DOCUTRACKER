@@ -52,12 +52,12 @@
         fill: var(--main-col-1);
       }
 
-      & path.active {
-        fill: var(--icon-active-color);
-      }
-
       & path.dark {
         fill: var(--icon-dark);
+      }
+
+      & path.active {
+        fill: var(--icon-active-color);
       }
     }
   }

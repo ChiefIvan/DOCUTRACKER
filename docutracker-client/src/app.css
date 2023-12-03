@@ -32,6 +32,7 @@
   --dark-main-col-4: #060657;
   --dark-main-col-5: #3d4864;
   --dark-main-col-6: #2c3a62;
+  --dark-main-col-7: #3c4b71;
 }
 
 ::-ms-reveal {
@@ -40,7 +41,9 @@
 
 :root::-webkit-scrollbar {
   width: 0.5rem;
+  height: 0.5rem;
 }
+
 :root::-webkit-scrollbar-track {
   background: var(--main-col-6);
 }
@@ -67,6 +70,10 @@
 
 html {
   min-width: 15rem;
+}
+
+body.disable-scroll {
+  overflow: hidden;
 }
 
 body.light {

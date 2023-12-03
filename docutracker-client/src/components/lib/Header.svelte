@@ -20,6 +20,7 @@
   import Button from "../shared/Button.svelte";
   import userIcon from "../../assets/user-icon.png";
   import BellIcon from "../icons/BellIcon.svelte";
+  import BurgerIcon from "../icons/BurgerIcon.svelte";
 
   export let user: ResponseData = {};
   export let userUpdatedImg: ResponseData = {};
@@ -57,6 +58,12 @@
     $profileExpand = false;
     $modeExpand = false;
   };
+
+  $: if ($registrationExpand) {
+    document.body.classList.add("disable-scroll");
+  } else {
+    document.body.classList.remove("disable-scroll");
+  }
 </script>
 
 <header class="header" class:dark={$dark}>
@@ -82,9 +89,15 @@
     {:else if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-      <h1 on:click={() => ($navExpand = !$navExpand)}>
-        Hello, {user.user_name ? user.user_name : "Anonymous"}
-      </h1>
+      <MediaQuery query="(max-width: 500px)" let:matches>
+        {#if matches}
+          <BurgerIcon></BurgerIcon>
+        {:else}
+          <h1 on:click={() => ($navExpand = !$navExpand)}>
+            Hello, {user.user_name ? user.user_name : "Anonymous"}
+          </h1>
+        {/if}
+      </MediaQuery>
       <div class="utils-wrapper">
         <div class="icon-wrapper">
           <MediaQuery query="(min-width: 500px)" let:matches>
@@ -157,6 +170,11 @@
           >Full Verification</Button
         >
       {/if}
+      <MediaQuery query="(max-width: 500px)" let:matches>
+        {#if matches}
+          <Button on:click={() => {}} critical={true}>Logout</Button>
+        {/if}
+      </MediaQuery>
     </div>
     <!-- {:else} -->
     <!-- {/if} -->
@@ -220,6 +238,7 @@
 
   div.profiles {
     position: fixed;
+    z-index: 1;
     top: 3.5rem;
     right: 0.5rem;
     padding: 1.5rem;
@@ -269,14 +288,15 @@
         color: var(--background);
       }
 
-      & div.button-wrapper {
-        display: inline;
+      & div.button-wrapper > * {
+        margin-bottom: 1rem;
+        /* display: flex; */
       }
     }
 
-    & div.register-wrapper {
+    /* & div.register-wrapper {
       width: 15rem;
-    }
+    } */
   }
 
   div.dark {

@@ -3,11 +3,13 @@
 
   export let hoverized = false;
   export let disabled = false;
+  export let critical = false;
 </script>
 
 <button
   class:hovered={hoverized}
   class:t={disabled}
+  class:crit={critical}
   {disabled}
   transition:fade={{ duration: 200, delay: 200 }}
   on:click|stopPropagation
@@ -38,5 +40,9 @@
 
   button.t:hover {
     box-shadow: none;
+  }
+
+  button.crit {
+    background: var(--forground-color);
   }
 </style>

@@ -8,7 +8,7 @@ from sqlalchemy import inspect
 from secrets import token_hex
 from datetime import timedelta
 from dotenv import load_dotenv
-from os import getenv
+from os import getenv, path
 from os.path import join, dirname
 # from gevent.pywsgi import WSGIServer
 
@@ -32,6 +32,7 @@ CORS(
 
 
 class Flaskserver:
+    DB_NAME = "database.db"
 
     def __init__(self):
 
@@ -42,7 +43,8 @@ class Flaskserver:
         self.server.config["JWT_SECRET_KEY"] = token_hex(128)
         self.server.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
         self.server.config["SECURITY_PASSWORD_SALT"] = token_hex(128)
-        self.server.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URI")
+        # self.server.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URI")
+        self.server.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{self.DB_NAME}"
         self.server.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         self.server.config["MAIL_SERVER"] = getenv("MAIL_SERVER")
         self.server.config["MAIL_PORT"] = 587
@@ -63,29 +65,33 @@ class Flaskserver:
         self.server.register_blueprint(auth, url_prefix="/")
         self.server.register_blueprint(views, url_prefix="/")
 
-        try:
-            tables: list[str] = [
-                "user",
-                "captcha",
-                "revoked",
-                "resend",
-                "reset",
-                "template",
-                "documents",
-                "credentials",
+        # try:
+        #     tables: list[str] = [
+        #         "user",
+        #         "captcha",
+        #         "revoked",
+        #         "resend",
+        #         "reset",
+        #         "template",
+        #         "documents",
+        #         "credentials",
 
-            ]
+        #     ]
 
-            with self.server.app_context():
-                with db.engine.connect() as connection:
-                    inspector = inspect(connection)
+        #     with self.server.app_context():
+        #         with db.engine.connect() as connection:
+        #             inspector = inspect(connection)
 
-                    for table in tables:
-                        if table not in inspector.get_table_names():
-                            db.create_all()
+        #             for table in tables:
+        #                 if table not in inspector.get_table_names():
+        #                     db.create_all()
 
-        except Exception:
-            print("Please enable you database connection!")
+        # except Exception:
+        #     print("Please enable you database connection!")
+
+        with self.server.app_context():
+            if not path.exists(self.DB_NAME):
+                db.create_all()
 
         @jwt.user_identity_loader
         def user_loader(user) -> int:

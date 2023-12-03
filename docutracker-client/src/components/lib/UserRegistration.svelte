@@ -386,7 +386,7 @@
     }
 
     & section.dark {
-      background-color: var(--dark-main-col-5);
+      background-color: var(--dark-main-col-7);
     }
   }
 
