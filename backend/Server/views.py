@@ -124,3 +124,13 @@ def event_polling():
         return jsonify(data)
 
     return jsonify({})
+
+
+@views.route("/scan", methods=["POST"])
+@jwt_required()
+def scan():
+    if request.method == "POST":
+        scan_data = request.json
+        print(scan_data);
+    
+    return jsonify({})

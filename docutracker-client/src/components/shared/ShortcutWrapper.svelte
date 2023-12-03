@@ -5,6 +5,7 @@
   import ScanDocument from "../lib/ScanDocument.svelte";
 
   export let shortcutData = "Hello from Shortcut Wrapper";
+  export let authToken = "";
 </script>
 
 <div
@@ -14,7 +15,7 @@
   out:fly={{ x: 1000, duration: 800, delay: 100 }}
 >
   {#if shortcutData === "Scan Document"}
-    <ScanDocument></ScanDocument>
+    <ScanDocument {authToken}></ScanDocument>
   {:else}
     {shortcutData}
   {/if}

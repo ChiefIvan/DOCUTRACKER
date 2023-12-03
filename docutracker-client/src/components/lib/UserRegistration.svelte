@@ -7,7 +7,6 @@
     handleFetch,
     address,
     dark,
-    type RequestAPI,
     type Credentials,
     type RegisterBind,
   } from "../../store";
@@ -373,7 +372,7 @@
 
       & div.button-wrapper {
         display: flex;
-        column-gap: .5rem;
+        column-gap: 0.5rem;
         position: absolute;
         bottom: 1.5rem;
         right: 1.5rem;

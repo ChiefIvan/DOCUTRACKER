@@ -29,6 +29,7 @@ export type Credentials = {
   firstName?: string;
   middleName?: string;
   lastName?: string;
+  codeData?: string;
 };
 
 export type RequestAPI = {

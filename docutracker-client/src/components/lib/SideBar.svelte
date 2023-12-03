@@ -108,7 +108,6 @@
 
         & div.logo-wrapper {
           background-color: var(--main-col-5);
-
           display: flex;
           align-items: center;
           column-gap: 0.8rem;

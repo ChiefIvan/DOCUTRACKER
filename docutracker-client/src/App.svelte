@@ -195,19 +195,19 @@
       {/if}
 
       {#if scan}
-        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
       {/if}
 
       {#if registerD}
-        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
       {/if}
 
       {#if registerR}
-        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
       {/if}
 
       {#if updateR}
-        <ShortcutWrapper {shortcutData}></ShortcutWrapper>
+        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
       {/if}
       <NavigationLocation />
     </div>
