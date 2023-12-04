@@ -3,8 +3,14 @@
   import { fly } from "svelte/transition";
 
   import ScanDocument from "../lib/ScanDocument.svelte";
+  import RegisterDocument from "../lib/RegisterDocument.svelte";
 
   export let shortcutData = "Hello from Shortcut Wrapper";
+  export let fullname: {
+    firstName: string;
+    middleName: string;
+    lastName: string;
+  } = { firstName: "", middleName: "", lastName: "" };
   export let authToken = "";
 </script>
 
@@ -16,6 +22,8 @@
 >
   {#if shortcutData === "Scan Document"}
     <ScanDocument {authToken}></ScanDocument>
+  {:else if shortcutData === "Register Document"}
+    <RegisterDocument {fullname}></RegisterDocument>
   {:else}
     {shortcutData}
   {/if}

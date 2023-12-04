@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 
 
-from .models import User, Revoked, Credentials
+from .models import User, Revoked, Credentials, Documents
 from .static.predef_function.user_validation import Sanitizer, RegisterEntryValidator
 from .static.predef_function.image_compressor import compress_image
 from . import db
@@ -20,13 +20,16 @@ def index() -> dict:
 
         user: User = User.query.filter_by(id=current_user).first()
         user_credentials: Credentials = Credentials.query.filter_by(
-            id=user.id).first()
+            id=current_user).first()
 
         data = {
             "userImg": user_credentials.user_img if user_credentials else "",
             "email": user.email,
             "user_name": user.user_name,
-            "full_ver_val": user.full_verified
+            "full_ver_val": user.full_verified,
+            "firstName": user_credentials.firstname,
+            "middleName": user_credentials.mid_init,
+            "lastName": user_credentials.lastname
         }
 
         return jsonify(data)
@@ -129,8 +132,32 @@ def event_polling():
 @views.route("/scan", methods=["POST"])
 @jwt_required()
 def scan():
+    empty_code_data = "QR code cannot be found!"
+    associated_document = "There's no document associated with the QR Code!"
+
     if request.method == "POST":
         scan_data = request.json
-        print(scan_data);
-    
+
+        if len(scan_data["codeData"]) == 0:
+            return jsonify({"error": empty_code_data})
+
+        current_user = get_jwt_identity()
+        document: Documents = Documents.query.filter_by(
+            user_id=current_user).first()
+
+        if not document:
+            return jsonify({"error": associated_document})
+
+        return jsonify({"codeData": document.code, "regAt": document.doc_reg_at})
+
+    return jsonify({})
+
+
+@views.route("/document_register", methods=["POST"])
+@jwt_required()
+def document_register():
+    if request.method == "POST":
+        data = request.json
+        print(data)
+
     return jsonify({})

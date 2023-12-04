@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_jwt_extended import JWTManager
 
-from sqlalchemy import inspect
+# from sqlalchemy import inspect
 from secrets import token_hex
 from datetime import timedelta
 from dotenv import load_dotenv

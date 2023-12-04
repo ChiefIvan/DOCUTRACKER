@@ -1,7 +1,15 @@
 <script lang="ts">
-  import { Html5Qrcode } from "html5-qrcode";
-  import { dark, handleFetch, address, type RequestAPI } from "../../store";
+  import {
+    dark,
+    handleFetch,
+    address,
+    showMessage,
+    type RequestAPI,
+    type ResponseData,
+  } from "../../store";
+  import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
+  import { Html5Qrcode } from "html5-qrcode";
 
   import WebcamIcon from "../icons/WebcamIcon.svelte";
   import FileSystemIcon from "../icons/FileSystemIcon.svelte";
@@ -14,20 +22,16 @@
   let scanning = false;
   let html5Qrcode: Html5Qrcode;
   let fileData: FileList;
+  let pixelCrop = "";
   let base64String: string | null;
-  let pixelCrop: { width: number; height: number; x: number; y: number };
-  let fileName = "Upload Your Profile";
-  let croppedImage: string | null;
   let crop: { x: number; y: number };
   let zoom = 1;
 
   function handleImage() {
-    croppedImage = null;
     zoom = 1;
     crop = { x: 0, y: 0 };
 
     let files = fileData[0];
-    fileName = files.name;
     const reader = new FileReader();
 
     reader.onload = function (e) {
@@ -161,8 +165,12 @@
     decodedResult: { decodedText: string; result: { text: string } }
   ) {
     scanRequest.credentials!.codeData = decodedText;
-    const request = await handleFetch(scanRequest, authToken);
-    console.log(request);
+    const request: ResponseData = await handleFetch(scanRequest, authToken);
+    if (request.error) {
+      $showMessage = request;
+    } else {
+      navigate("/document/overview");
+    }
   }
 
   function onScanFailure(error: any) {
@@ -190,15 +198,22 @@
 
         if (decodedQR) {
           scanRequest.credentials!.codeData = decodedQR.data;
-          const request = await handleFetch(scanRequest, authToken);
-          console.log(request);
+          const request: ResponseData = await handleFetch(
+            scanRequest,
+            authToken
+          );
+          if (request.error) {
+            base64String = null;
+            $showMessage = request;
+          } else {
+            navigate("/document/overview");
+          }
         } else {
-          console.log("No QR code found in image.");
+          base64String = null;
+          $showMessage = { error: "No Qr Code Found" };
         }
       };
     }
-
-    console.warn("No Image Uploaded.");
   };
 </script>
 

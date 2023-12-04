@@ -8,7 +8,7 @@
 
 <style>
   div {
-    position: absolute;
+    position: fixed;
     inset: 0;
 
     transition: ease-in-out var(--dur);

@@ -38,6 +38,8 @@
   let userImg: ResponseData;
   let id: string | number | NodeJS.Timeout | undefined;
 
+  $: console.log(user);
+
   const authToken = sessionStorage.getItem("remember") || "";
   const indexMethod = "GET";
   const streamAddress = `${address}/user_credentials_updates`;
@@ -199,7 +201,17 @@
       {/if}
 
       {#if registerD}
-        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
+        <ShortcutWrapper
+          {shortcutData}
+          {authToken}
+          fullname={user.firstName && user.middleName && user.lastName
+            ? {
+                firstName: user.firstName,
+                middleName: user.middleName,
+                lastName: user.lastName,
+              }
+            : { firstName: "", middleName: "", lastName: "" }}
+        ></ShortcutWrapper>
       {/if}
 
       {#if registerR}
