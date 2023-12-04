@@ -117,7 +117,7 @@
     z-index: 1;
 
     transition: all ease-in-out 400ms;
-    background-color: #fff;
+    background-color: var(--background);
     box-shadow: 5px 5px 25px lightgray;
     border-radius: 0.5rem;
     box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.3);

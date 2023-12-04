@@ -1,15 +1,25 @@
 <script lang="ts">
-  import { dark, handleFetch, type RequestAPI } from "../../store";
+  import {
+    dark,
+    handleFetch,
+    address,
+    showMessage,
+    routeExpand,
+    type ResponseData,
+    type RequestAPI,
+  } from "../../store";
   import { v4 as uuidv4 } from "uuid";
   import { fade } from "svelte/transition";
 
   import Input from "../shared/Input.svelte";
   import QrCode from "svelte-qrcode";
   import Button from "../shared/Button.svelte";
+  import TriangleIcon from "../icons/TriangleIcon.svelte";
 
   let placeholderHovered = false;
   let qrCodeElement: any;
 
+  export let authToken = "";
   export let fullname: {
     firstName: string;
     middleName: string;
@@ -24,7 +34,23 @@
   });
 
   let value: string;
+
   const handleGenerate = () => {
+    if (!documentName.length) {
+      $showMessage = { error: "Please fill all entries first" };
+      return;
+    }
+
+    if (!documentDescription.length) {
+      $showMessage = { error: "Please fill all entries first" };
+      return;
+    }
+
+    if (!documentPath.length) {
+      $showMessage = { error: "Please fill all entries first" };
+      return;
+    }
+
     value = uuidv4();
   };
 
@@ -38,38 +64,132 @@
     downloadLink.click();
   };
 
-  const handleSubmit = () => {};
+  let routeName = "";
+  let documentPath = "";
+  let documentName = "";
+  let documentDescription = "";
+
+  const handleInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    documentName = target.value;
+  };
+
+  const handleTextArea = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    documentDescription = target.value;
+  };
+
+  let routes = [
+    { id: 1, name: "Love", route: "I / Love / You" },
+    { id: 2, name: "Hate", route: "I / Hate / You" },
+  ];
+
+  const handleRouteExpand = () => {
+    $routeExpand = !$routeExpand;
+  };
+
+  const registrationMethod = "POST";
+  const registrationAddress = `${address}/document_register`;
+  const registrationRequest: RequestAPI = {
+    method: registrationMethod,
+    address: registrationAddress,
+    credentials: {
+      codeData: "",
+      documentName: "",
+      documentDescription: "",
+    },
+  };
+
+  const handleSubmit = async () => {
+    registrationRequest.credentials!.codeData = value;
+    registrationRequest.credentials!.documentName = documentName;
+    registrationRequest.credentials!.documentDescription = documentDescription;
+
+    const request: ResponseData = await handleFetch(
+      registrationRequest,
+      authToken
+    );
+
+    if (request.error) {
+      $showMessage = request;
+    }
+  };
 </script>
 
 <div class="register-document-wrapper">
-  <form class="register-document-form" on:submit={handleSubmit}>
+  <form class="register-document-form" on:submit|preventDefault={handleSubmit}>
     <div class="credential-wrapper">
-      <span class="date"
+      <span class="date" class:dark={$dark}
         >Author: {fullname.firstName}
         {fullname.middleName}
         {fullname.lastName}</span
       >
-
       <Input
         inputName="Document Name"
         inputType="Text"
         overlap={true}
-        on:input={() => {}}
+        on:input={handleInput}
+        dark={$dark}
       ></Input>
-      <textarea placeholder="Description" required></textarea>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div
+        class="route-options-wrapper"
+        on:click|stopPropagation={handleRouteExpand}
+      >
+        {#if routeName.length}
+          {#each routes as route (route.id)}
+            {#if routeName === route.name}
+              <span class="route-name"> {route.name}: {route.route} </span>
+            {/if}
+          {/each}
+        {:else}
+          <span class="route-name"> Select a Route </span>
+        {/if}
+        <TriangleIcon rotate={$routeExpand}></TriangleIcon>
+      </div>
+      <div
+        class="route-options-wrapper-expand"
+        class:wrapper-expand={$routeExpand}
+      >
+        <ul class="route-wrapper">
+          {#each routes as route (route.id)}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+            <!-- svelte-ignore missing-declaration -->
+            <li
+              on:click={() => {
+                routeName = route.name;
+                documentPath = route.route;
+                $routeExpand = false;
+              }}
+            >
+              <span
+                class="route-name"
+                class:active={route.name === routeName && true}
+                >{route.name}: {route.route}
+              </span>
+            </li>
+          {/each}
+        </ul>
+      </div>
+      <textarea placeholder="Description" on:input={handleTextArea} required
+      ></textarea>
       <div class="button-wrapper">
-        <Button>Submit</Button>
+        <div class="button">
+          <Button>Submit</Button>
+        </div>
       </div>
     </div>
     <div class="code-wrapper">
-      <span class="date">{date}</span>
+      <span class="date" class:dark={$dark}>{date}</span>
       <!-- svelte-ignore missing-declaration -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="code-placeholder"
         bind:this={qrCodeElement}
-        on:click|once={handleGenerate}
+        on:click|stopPropagation={handleGenerate}
         on:mouseenter={() => {
           placeholderHovered = true;
         }}
@@ -97,12 +217,16 @@
     font-size: 1rem;
     font-weight: 700;
     color: var(--scroll-color);
+    transition: all ease-in-out 300ms;
+  }
+
+  span.dark {
+    color: var(--background);
   }
 
   div.register-document-wrapper {
     padding: 2rem;
     height: 100%;
-    /* background-color: gray; */
 
     & form {
       display: flex;
@@ -112,6 +236,72 @@
 
       & div.credential-wrapper {
         width: 100%;
+        position: relative;
+
+        & div.route-options-wrapper {
+          transition: all ease-in-out 300ms;
+          width: 100%;
+          border: 1px solid var(--header-color);
+          margin-bottom: 1rem;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: pointer;
+
+          & span.route-name {
+            font-weight: normal;
+            font-size: 0.9rem;
+          }
+        }
+
+        & div.route-options-wrapper-expand {
+          display: grid;
+          grid-template-rows: 0fr;
+          border-radius: 0.5rem;
+          position: absolute;
+          top: 8.5rem;
+          z-index: 1;
+          overflow: hidden;
+          transition: all ease-in-out 400ms;
+          background-color: var(--background);
+          box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.3);
+
+          width: 100%;
+
+          & ul.route-wrapper {
+            min-height: 0;
+
+            & li {
+              display: flex;
+              align-items: center;
+              column-gap: 0.5rem;
+              margin: 0.2rem;
+              padding: 0.3rem 0.5rem;
+              border-radius: 0.4rem;
+              transition: all ease-in-out 500ms;
+              cursor: pointer;
+
+              & span.route-name {
+                font-weight: normal;
+                font-size: 0.9rem;
+              }
+            }
+
+            & li:hover {
+              background-color: var(--main-col-2);
+            }
+          }
+        }
+
+        & div.route-options-wrapper-expand.wrapper-expand {
+          grid-template-rows: 1fr;
+        }
+
+        & div.route-options-wrapper:hover {
+          background-color: var(--header-color);
+        }
 
         & textarea {
           outline: none;
@@ -120,7 +310,7 @@
           border-radius: 0.5rem;
           padding: 0.5rem;
           width: 100%;
-          height: 79%;
+          height: 70%;
           min-width: 20%;
           min-height: 20%;
           border: 1px solid var(--header-color);
@@ -136,10 +326,13 @@
         }
 
         & div.button-wrapper {
-          display: inline-block;
-          width: 10rem;
           text-align: end;
-          margin-top: 1rem;
+
+          & div.button {
+            display: inline-block;
+            width: 10rem;
+            margin-top: 1rem;
+          }
         }
       }
 

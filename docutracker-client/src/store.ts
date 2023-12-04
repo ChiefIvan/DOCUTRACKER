@@ -30,6 +30,8 @@ export type Credentials = {
   middleName?: string;
   lastName?: string;
   codeData?: string;
+  documentName?: string;
+  documentDescription?: string;
 };
 
 export type RequestAPI = {
@@ -134,4 +136,5 @@ export const profileExpand = writable(false);
 export const notificationExpand = writable(false);
 export const navExpand = writable(true);
 export const registrationExpand = writable(false);
+export const routeExpand = writable(false);
 export const dark = writable(false);

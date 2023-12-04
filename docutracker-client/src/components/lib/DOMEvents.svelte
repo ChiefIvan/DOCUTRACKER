@@ -4,6 +4,7 @@
     navExpand,
     profileExpand,
     notificationExpand,
+    routeExpand,
     dark,
   } from "../../store";
   let width: number;
@@ -23,6 +24,10 @@
 
     if ($notificationExpand) {
       $notificationExpand = false;
+    }
+
+    if ($routeExpand) {
+      $routeExpand = false;
     }
   };
 

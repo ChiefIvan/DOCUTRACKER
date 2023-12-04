@@ -23,7 +23,7 @@
   {#if shortcutData === "Scan Document"}
     <ScanDocument {authToken}></ScanDocument>
   {:else if shortcutData === "Register Document"}
-    <RegisterDocument {fullname}></RegisterDocument>
+    <RegisterDocument {fullname} {authToken}></RegisterDocument>
   {:else}
     {shortcutData}
   {/if}
