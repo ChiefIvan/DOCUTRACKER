@@ -21,7 +21,7 @@
   let transition: Duration = { y: -30, duration: 300 };
 
   $: if (
-    "/dashboard" ||
+    $location === "/dashboard" ||
     $location === "/history" ||
     $location === "/notifications" ||
     $location === "/analytics" ||

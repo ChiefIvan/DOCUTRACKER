@@ -10,6 +10,7 @@
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
   import { Html5Qrcode } from "html5-qrcode";
+  import { createEventDispatcher } from "svelte";
 
   import WebcamIcon from "../icons/WebcamIcon.svelte";
   import FileSystemIcon from "../icons/FileSystemIcon.svelte";
@@ -26,6 +27,7 @@
   let base64String: string | null;
   let crop: { x: number; y: number };
   let zoom = 1;
+  let dispatch = createEventDispatcher();
 
   function handleImage() {
     zoom = 1;
@@ -169,6 +171,9 @@
     if (request.error) {
       $showMessage = request;
     } else {
+      stop();
+      dispatch("documentData", request);
+      dispatch("closeShortCut");
       navigate("/document/overview");
     }
   }
@@ -206,6 +211,8 @@
             base64String = null;
             $showMessage = request;
           } else {
+            dispatch("documentData", request);
+            dispatch("closeShortCut");
             navigate("/document/overview");
           }
         } else {

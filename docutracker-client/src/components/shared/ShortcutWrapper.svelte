@@ -21,7 +21,7 @@
   out:fly={{ x: 1000, duration: 800, delay: 100 }}
 >
   {#if shortcutData === "Scan Document"}
-    <ScanDocument {authToken}></ScanDocument>
+    <ScanDocument {authToken} on:closeShortCut on:documentData></ScanDocument>
   {:else if shortcutData === "Register Document"}
     <RegisterDocument {fullname} {authToken}></RegisterDocument>
   {:else}

@@ -32,6 +32,7 @@ export type Credentials = {
   codeData?: string;
   documentName?: string;
   documentDescription?: string;
+  documentPath?: string;
 };
 
 export type RequestAPI = {

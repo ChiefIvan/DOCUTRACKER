@@ -15,6 +15,7 @@
   import QrCode from "svelte-qrcode";
   import Button from "../shared/Button.svelte";
   import TriangleIcon from "../icons/TriangleIcon.svelte";
+  import MediaQuery from "../shared/MediaQuery.svelte";
 
   let placeholderHovered = false;
   let qrCodeElement: any;
@@ -33,9 +34,13 @@
     day: "numeric",
   });
 
-  let value: string;
+  let value = "";
 
   const handleGenerate = () => {
+    if (value.length) {
+      return
+    }
+
     if (!documentName.length) {
       $showMessage = { error: "Please fill all entries first" };
       return;
@@ -60,7 +65,7 @@
 
     const downloadLink = document.createElement("a");
     downloadLink.href = base64Image;
-    downloadLink.download = "Image.png";
+    downloadLink.download = `${documentName}.png`;
     downloadLink.click();
   };
 
@@ -97,13 +102,35 @@
       codeData: "",
       documentName: "",
       documentDescription: "",
+      documentPath: "",
     },
   };
 
   const handleSubmit = async () => {
     registrationRequest.credentials!.codeData = value;
     registrationRequest.credentials!.documentName = documentName;
+    registrationRequest.credentials!.documentPath = documentPath;
     registrationRequest.credentials!.documentDescription = documentDescription;
+
+    if (!documentName.length) {
+      $showMessage = { error: "Please Enter a Document Name!" };
+      return;
+    }
+
+    if (!documentPath.length) {
+      $showMessage = { error: "Please Select a Document Route!" };
+      return;
+    }
+
+    if (!documentDescription.length) {
+      $showMessage = { error: "Please Provide a Document Desciption!" };
+      return;
+    }
+
+    if (!value.length) {
+      $showMessage = { error: "Please Generate a Code first!" };
+      return;
+    }
 
     const request: ResponseData = await handleFetch(
       registrationRequest,
@@ -112,12 +139,18 @@
 
     if (request.error) {
       $showMessage = request;
+    } else {
+      console.log(request)
     }
   };
 </script>
 
 <div class="register-document-wrapper">
-  <form class="register-document-form" on:submit|preventDefault={handleSubmit}>
+  <form
+    class="register-document-form"
+    on:submit|preventDefault={handleSubmit}
+    autocomplete="off"
+  >
     <div class="credential-wrapper">
       <span class="date" class:dark={$dark}
         >Author: {fullname.firstName}
@@ -135,21 +168,25 @@
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="route-options-wrapper"
+        class:dark={$dark}
         on:click|stopPropagation={handleRouteExpand}
       >
         {#if routeName.length}
           {#each routes as route (route.id)}
             {#if routeName === route.name}
-              <span class="route-name"> {route.name}: {route.route} </span>
+              <span class="route-name" class:dark={$dark}>
+                {route.name}: {route.route}
+              </span>
             {/if}
           {/each}
         {:else}
-          <span class="route-name"> Select a Route </span>
+          <span class="route-name" class:dark={$dark}> Select a Route </span>
         {/if}
         <TriangleIcon rotate={$routeExpand}></TriangleIcon>
       </div>
       <div
         class="route-options-wrapper-expand"
+        class:dark={$dark}
         class:wrapper-expand={$routeExpand}
       >
         <ul class="route-wrapper">
@@ -158,6 +195,7 @@
             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <!-- svelte-ignore missing-declaration -->
             <li
+              class:dark={$dark}
               on:click={() => {
                 routeName = route.name;
                 documentPath = route.route;
@@ -165,7 +203,8 @@
               }}
             >
               <span
-                class="route-name"
+                class="route-name-choices"
+                class:dark={$dark}
                 class:active={route.name === routeName && true}
                 >{route.name}: {route.route}
               </span>
@@ -173,60 +212,108 @@
           {/each}
         </ul>
       </div>
-      <textarea placeholder="Description" on:input={handleTextArea} required
+      <textarea
+        class:dark={$dark}
+        placeholder="Description"
+        on:input={handleTextArea}
       ></textarea>
+      <MediaQuery query="(max-width: 900px)" let:matches>
+        {#if matches}
+          <div class="code-wrapper">
+            <!-- svelte-ignore missing-declaration -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+              class="code-placeholder"
+              class:dark={$dark}
+              bind:this={qrCodeElement}
+              on:click|stopPropagation={handleGenerate}
+              on:mouseenter={() => {
+                placeholderHovered = true;
+              }}
+              on:mouseleave={() => {
+                placeholderHovered = false;
+              }}
+            >
+              {#if value && value.length}
+                <QrCode {value}></QrCode>
+                {#if value && value.length && placeholderHovered}
+                  <div
+                    transition:fade
+                    class="code-overlap"
+                    on:click={handleDownload}
+                  >
+                    <span class="download-qr">Download Image</span>
+                  </div>
+                {/if}
+              {:else}
+                <span class="qr-label">Generate QR Code</span>
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </MediaQuery>
       <div class="button-wrapper">
         <div class="button">
           <Button>Submit</Button>
         </div>
       </div>
     </div>
-    <div class="code-wrapper">
-      <span class="date" class:dark={$dark}>{date}</span>
-      <!-- svelte-ignore missing-declaration -->
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div
-        class="code-placeholder"
-        bind:this={qrCodeElement}
-        on:click|stopPropagation={handleGenerate}
-        on:mouseenter={() => {
-          placeholderHovered = true;
-        }}
-        on:mouseleave={() => {
-          placeholderHovered = false;
-        }}
-      >
-        {#if value && value.length}
-          <QrCode {value}></QrCode>
-          {#if value && value.length && placeholderHovered}
-            <div transition:fade class="code-overlap" on:click={handleDownload}>
-              <span class="download-qr">Download Image</span>
-            </div>
-          {/if}
-        {:else}
-          <span class="qr-label">Generate QR Code</span>
-        {/if}
-      </div>
-    </div>
+    <MediaQuery query="(min-width: 900px)" let:matches>
+      {#if matches}
+        <div class="code-wrapper">
+          <span class="date" class:dark={$dark}>{date}</span>
+          <!-- svelte-ignore missing-declaration -->
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div
+            class="code-placeholder"
+            class:dark={$dark}
+            bind:this={qrCodeElement}
+            on:click|stopPropagation={handleGenerate}
+            on:mouseenter={() => {
+              placeholderHovered = true;
+            }}
+            on:mouseleave={() => {
+              placeholderHovered = false;
+            }}
+          >
+            {#if value && value.length}
+              <QrCode {value}></QrCode>
+              {#if value && value.length && placeholderHovered}
+                <div
+                  transition:fade
+                  class="code-overlap"
+                  on:click={handleDownload}
+                >
+                  <span class="download-qr">Download Image</span>
+                </div>
+              {/if}
+            {:else}
+              <span class="qr-label">Generate QR Code</span>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    </MediaQuery>
   </form>
 </div>
 
 <style>
-  span {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--scroll-color);
-    transition: all ease-in-out 300ms;
-  }
-
-  span.dark {
-    color: var(--background);
-  }
-
   div.register-document-wrapper {
     padding: 2rem;
     height: 100%;
+
+    & span {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--scroll-color);
+      transition: all ease-in-out 300ms;
+    }
+
+    & span.dark {
+      color: var(--icon-dark);
+    }
 
     & form {
       display: flex;
@@ -254,6 +341,24 @@
             font-weight: normal;
             font-size: 0.9rem;
           }
+
+          & span.route-name.dark {
+            color: var(--background);
+          }
+        }
+
+        & div.route-options-wrapper.dark {
+          border-color: var(--input-color);
+          color: var(--background);
+
+          & span.route-name.dark {
+            color: var(--background);
+          }
+        }
+
+        & div.route-options-wrapper.dark:hover {
+          border-color: transparent;
+          background-color: var(--navigation-hover-dark);
         }
 
         & div.route-options-wrapper-expand {
@@ -267,7 +372,6 @@
           transition: all ease-in-out 400ms;
           background-color: var(--background);
           box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.3);
-
           width: 100%;
 
           & ul.route-wrapper {
@@ -283,16 +387,32 @@
               transition: all ease-in-out 500ms;
               cursor: pointer;
 
-              & span.route-name {
+              & span.route-name-choices {
                 font-weight: normal;
                 font-size: 0.9rem;
+              }
+
+              & span.route-name-choices.dark {
+                color: var(--header-color);
+              }
+
+              & span.route-name-choices.active {
+                color: var(--icon-active-color);
               }
             }
 
             & li:hover {
               background-color: var(--main-col-2);
             }
+
+            & li.dark:hover {
+              background-color: var(--dark-main-col-5);
+            }
           }
+        }
+
+        & div.route-options-wrapper-expand.dark {
+          background-color: var(--dark-main-col-1);
         }
 
         & div.route-options-wrapper-expand.wrapper-expand {
@@ -317,12 +437,94 @@
           color: var(--scroll-color);
         }
 
+        & textarea.dark {
+          border-color: var(--input-color);
+          color: var(--background);
+        }
+
+        & textarea.dark::placeholder {
+          color: var(--background);
+        }
+
         & textarea:hover {
           border-color: var(--border-hover-color);
         }
 
         & textarea:focus {
           border-color: var(--border-active-color);
+        }
+
+        & div.code-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+
+          & div.code-placeholder {
+            overflow: hidden;
+            position: relative;
+            border-radius: 1rem;
+            transition: all ease-in-out 300ms;
+            background-color: var(--main-col-1);
+            width: 15rem;
+            height: 15rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+
+            & span.qr-label {
+              transition: color ease-in-out 300ms;
+              color: var(--background);
+              margin: auto;
+              font-weight: normal;
+              font-size: 0.9rem;
+            }
+
+            & img.qrcode {
+              border-radius: 0.5rem;
+            }
+
+            & div.code-overlap {
+              position: absolute;
+              transition: all ease-in-out 300ms;
+              inset: 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              z-index: 2;
+
+              & span.download-qr {
+                color: var(--background);
+              }
+            }
+
+            & div.code-overlap:hover {
+              background-color: rgba(84, 84, 84, 0.9);
+            }
+          }
+
+          & div.dark {
+            background-color: var(--dark-main-col-2);
+          }
+
+          & div.code-placeholder:hover {
+            background-color: var(--main-col-2);
+            box-shadow: 1px 2px 3px var(--main-col-2);
+          }
+
+          & div.dark:hover {
+            background-color: var(--navigation-hover-dark);
+            box-shadow: none;
+          }
+
+          & div.code-placeholder:hover span.qr-label {
+            color: var(--scroll-color);
+          }
+
+          & div.dark:hover span.qr-label {
+            color: var(--background);
+          }
         }
 
         & div.button-wrapper {
@@ -341,6 +543,17 @@
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
+
+        & span {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--scroll-color);
+          transition: all ease-in-out 300ms;
+        }
+
+        & span.dark {
+          color: var(--icon-dark);
+        }
 
         & div.code-placeholder {
           overflow: hidden;
@@ -386,15 +599,45 @@
           }
         }
 
+        & div.dark {
+          background-color: var(--dark-main-col-2);
+        }
+
         & div.code-placeholder:hover {
           background-color: var(--main-col-2);
           box-shadow: 1px 2px 3px var(--main-col-2);
         }
 
+        & div.dark:hover {
+          background-color: var(--navigation-hover-dark);
+          box-shadow: none;
+        }
+
         & div.code-placeholder:hover span.qr-label {
           color: var(--scroll-color);
         }
+
+        & div.dark:hover span.qr-label {
+          color: var(--background);
+        }
       }
+    }
+  }
+
+  @media (max-width: 700px) {
+    div.register-document-wrapper
+      form.register-document-form
+      div.credential-wrapper
+      textarea {
+      height: 30%;
+    }
+
+    div.register-document-wrapper
+      form.register-document-form
+      div.credential-wrapper
+      div.code-wrapper
+      div.code-placeholder {
+      width: 100%;
     }
   }
 </style>

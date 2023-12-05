@@ -124,6 +124,7 @@
 
     & input.dark {
       border-bottom-color: var(--input-color);
+      color: var(--header-color);
     }
 
     & div.warning-mark-container {

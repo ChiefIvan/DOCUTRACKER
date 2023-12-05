@@ -27,8 +27,10 @@ class Credentials(db.Model):
 
 class Documents(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
     doc_reg_at = db.Column(db.DateTime(timezone=True), default=func.now())
     code = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.String(1000), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 

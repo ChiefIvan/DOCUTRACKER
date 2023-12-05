@@ -17,20 +17,26 @@ views = Blueprint("views", __name__)
 def index() -> dict:
     if request.method == "GET":
         current_user = get_jwt_identity()
+        data = {}
 
         user: User = User.query.filter_by(id=current_user).first()
         user_credentials: Credentials = Credentials.query.filter_by(
             id=current_user).first()
 
-        data = {
-            "userImg": user_credentials.user_img if user_credentials else "",
-            "email": user.email,
-            "user_name": user.user_name,
-            "full_ver_val": user.full_verified,
-            "firstName": user_credentials.firstname,
-            "middleName": user_credentials.mid_init,
-            "lastName": user_credentials.lastname
-        }
+        if not user_credentials:
+            data = {
+                "email": user.email,
+                "user_name": user.user_name,
+                "full_ver_val": user.full_verified,
+            }
+
+        else:
+            data |= {
+                "userImg": user_credentials.user_img if user_credentials else "",
+                "firstName": user_credentials.firstname,
+                "middleName": user_credentials.mid_init,
+                "lastName": user_credentials.lastname
+            }
 
         return jsonify(data)
 
@@ -141,14 +147,13 @@ def scan():
         if len(scan_data["codeData"]) == 0:
             return jsonify({"error": empty_code_data})
 
-        current_user = get_jwt_identity()
         document: Documents = Documents.query.filter_by(
-            user_id=current_user).first()
+            code=scan_data["codeData"]).first()
 
         if not document:
             return jsonify({"error": associated_document})
 
-        return jsonify({"codeData": document.code, "regAt": document.doc_reg_at})
+        return jsonify({"documentName": document.name, "documentDescription": document.description, "codeData": document.code, "regAt": document.doc_reg_at})
 
     return jsonify({})
 
@@ -156,8 +161,55 @@ def scan():
 @views.route("/document_register", methods=["POST"])
 @jwt_required()
 def document_register():
+    insertion_error: str = "Sorry, something went wrong!. Please try again."
+
     if request.method == "POST":
         data = request.json
-        print(data)
+
+        entry_validate: RegisterEntryValidator = RegisterEntryValidator(
+            data["codeData"], data["documentName"], data["documentDescription"], data["documentPath"]).validate()
+
+        if isinstance(entry_validate, dict):
+            return jsonify(entry_validate)
+
+        sanitize: bool | dict = Sanitizer(
+            {"Document Name": data["documentName"], "Document Code": data["codeData"],
+                "Document Descripttion": data["documentDescription"], "Document Route": data["documentPath"]}
+        ).validate()
+
+        if isinstance(sanitize, dict):
+            return jsonify(sanitize)
+
+        current_user = get_jwt_identity()
+
+        try:
+            documents: Documents = Documents(
+                name=data["documentName"],
+                doc_reg_at=datetime.now(),
+                code=data["codeData"],
+
+
+                \
+                description=data["documentDescription"],
+                user_id=current_user,
+            )
+
+            db.session.add(documents)
+            db.session.commit()
+
+        except Exception:
+            return jsonify({"error": insertion_error})
+
+        document: Documents = Documents.query.filter_by(
+            code=data["codeData"]).first()
+
+        if document:
+            return jsonify({
+                "Document Name": document.name,
+                "Document Code": document.code,
+                "Document Descripttion": document.description,
+                "Document Route": document.route,
+                "Document Reg Date": document.doc_reg_at
+            })
 
     return jsonify({})

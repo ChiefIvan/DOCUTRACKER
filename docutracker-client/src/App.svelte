@@ -38,8 +38,6 @@
   let userImg: ResponseData;
   let id: string | number | NodeJS.Timeout | undefined;
 
-  $: console.log(user);
-
   const authToken = sessionStorage.getItem("remember") || "";
   const indexMethod = "GET";
   const streamAddress = `${address}/user_credentials_updates`;
@@ -145,6 +143,24 @@
   } else {
     document.body.classList.remove("disable-scroll");
   }
+
+  type DocumentData = {
+    documentName: string;
+    documentDescription: string;
+    codeData: string;
+    regAt: string;
+  };
+
+  let documentData: DocumentData = {
+    documentName: "",
+    documentDescription: "",
+    codeData: "",
+    regAt: "",
+  };
+
+  const handleDocumentData = (event: { detail: DocumentData }) => {
+    documentData = event.detail;
+  };
 </script>
 
 {#if show}
@@ -180,7 +196,7 @@
         <Analytics on:user={handleUser} {authToken}></Analytics>
       </Route>
       <Route path="/document/overview">
-        <DocumentOverview on:user={handleUser} {authToken}></DocumentOverview>
+        <DocumentOverview on:user={handleUser} {authToken} {documentData}></DocumentOverview>
       </Route>
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />
@@ -197,7 +213,14 @@
       {/if}
 
       {#if scan}
-        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
+        <ShortcutWrapper
+          {shortcutData}
+          {authToken}
+          on:documentData={handleDocumentData}
+          on:closeShortCut={() => {
+            scan = false;
+          }}
+        ></ShortcutWrapper>
       {/if}
 
       {#if registerD}
