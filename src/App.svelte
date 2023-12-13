@@ -175,7 +175,7 @@
   <DisplayMessage responseMessage={$showMessage} />
 {/if}
 
-<Router basepath="/">
+<Router basepath="/DOCUTRACKER">
   <div class="side-main-wrapper">
     {#if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
       <SideBar on:switch={handleShortcutData} on:navActive={handleNavigation} />
