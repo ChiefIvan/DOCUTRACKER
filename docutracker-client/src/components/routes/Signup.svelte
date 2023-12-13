@@ -196,8 +196,6 @@
     checkValue = event.detail;
     newUser.captVerification = checkValue;
 
-    console.log(checkValue);
-
     if (!checkValue) {
       attemps--;
 

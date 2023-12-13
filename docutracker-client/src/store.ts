@@ -32,13 +32,26 @@ export type Credentials = {
   codeData?: string;
   documentName?: string;
   documentDescription?: string;
-  documentPath?: string;
+  documentPath?: { [key: string]: string };
+  documentRegDate?: string;
+  routeName?: string;
 };
 
 export type RequestAPI = {
   method: string;
   address: string;
   credentials?: Credentials | undefined;
+};
+
+export type DocumentPath = { approved: boolean; name: string };
+
+export type Document = {
+  documentID: number;
+  codeData: string;
+  documentName: string;
+  documentDescription: string;
+  documentRegDate: string;
+  documentPath: DocumentPath[];
 };
 
 export type ResponseData = {
@@ -54,6 +67,9 @@ export type ResponseData = {
   firstName?: string;
   middleName?: string;
   lastName?: string;
+  documents?: Document;
+  routes?: [];
+  users?: [];
 };
 
 export const handleFetch = async (
@@ -130,6 +146,9 @@ const handleGET = async (address: string, token: null | string) => {
 export const address = "http://127.0.0.1:8080";
 export const location = writable("/");
 export const showMessage: Writable<ResponseData> = writable({});
+export const activeDocument = writable("");
+export const documentTimeZone = writable("");
+export const adminUser = writable("");
 
 localStorage.getItem("mode") || localStorage.setItem("mode", "System");
 export const modeExpand = writable(false);
@@ -138,4 +157,5 @@ export const notificationExpand = writable(false);
 export const navExpand = writable(true);
 export const registrationExpand = writable(false);
 export const routeExpand = writable(false);
+export const docNameExpand = writable(false);
 export const dark = writable(false);

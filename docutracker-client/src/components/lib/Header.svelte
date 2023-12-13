@@ -6,6 +6,7 @@
     modeExpand,
     profileExpand,
     registrationExpand,
+    adminUser,
   } from "../../store";
   import { tooltip } from "../shared/Tooltip";
   import { Link, navigate } from "svelte-routing";
@@ -21,18 +22,16 @@
   import userIcon from "../../assets/user-icon.png";
   import BellIcon from "../icons/BellIcon.svelte";
   import BurgerIcon from "../icons/BurgerIcon.svelte";
+  import LogoSimple from "./../../assets/transparent-favicons-simple.png";
+  import DocumentAvail from "./DocumentAvail.svelte";
 
   export let user: ResponseData = {};
-  export let userUpdatedImg: ResponseData = {};
   export let verified = false;
 
   let img: string | undefined;
 
   $: {
     img = user.userImg;
-    if (userUpdatedImg.userImg?.length) {
-      img = userUpdatedImg.userImg;
-    }
   }
 
   const tooltipContent = "Go Back to Overview";
@@ -66,9 +65,9 @@
   }
 </script>
 
-<header class="header" class:dark={$dark}>
+<header class="header" class:dark={$dark} class:outside={$location === "/"}>
   <div class="header-container">
-    {#if $location === "/auth/login" || $location === "/auth/signup" || $location === "/auth/reset"}
+    {#if $location === "/auth/login" || $location === "/auth/signup" || $location === "/auth/reset" || $location === "/admin/login"}
       <div
         class="arrow-container"
         use:tooltip={{
@@ -85,7 +84,18 @@
         <span class="terms-link">Terms</span>
       </Link>
     {:else if $location === "/"}
-      This is Overview
+      <div class="logo">
+        <img src={LogoSimple} alt="Docutracker's Logo" />
+        <h1 class:dark={$dark}>DOCUTRACKER</h1>
+      </div>
+      <Mode />
+    {:else if $location === "/admin"}
+      <div class="logo">
+        <h1 class:dark={$dark}>
+          Hello, Admin {$adminUser.length ? $adminUser : "Anonymous"}
+        </h1>
+      </div>
+      <Mode />
     {:else if $location === "/dashboard" || $location === "/history" || $location === "/notifications" || $location === "/analytics" || $location === "/document/overview"}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -93,9 +103,7 @@
         {#if matches}
           <BurgerIcon></BurgerIcon>
         {:else}
-          <h1 on:click={() => ($navExpand = !$navExpand)}>
-            Hello, {user.user_name ? user.user_name : "Anonymous"}
-          </h1>
+          <DocumentAvail document={user.documents}></DocumentAvail>
         {/if}
       </MediaQuery>
       <div class="utils-wrapper">
@@ -107,7 +115,6 @@
           </MediaQuery>
           <Mode />
         </div>
-
         {#if img && img.length !== 0}
           <!-- svelte-ignore a11y-img-redundant-alt -->
           <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -210,6 +217,27 @@
         text-decoration: underline;
       }
 
+      & div.logo {
+        display: flex;
+        align-items: center;
+        column-gap: 0.5rem;
+
+        & img {
+          max-width: 2rem;
+        }
+
+        & h1 {
+          transition: all ease-in-out 300ms;
+          color: var(--scroll-color);
+          font-size: 1rem;
+          font-weight: bold;
+        }
+
+        & h1.dark {
+          color: var(--background);
+        }
+      }
+
       & div.utils-wrapper {
         display: flex;
         align-items: center;
@@ -234,6 +262,10 @@
 
   header.dark {
     background-color: var(--dark-main-col-6);
+  }
+
+  header.outside {
+    background-color: transparent;
   }
 
   div.profiles {

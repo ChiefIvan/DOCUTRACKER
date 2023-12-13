@@ -7,6 +7,7 @@
     routeExpand,
     type ResponseData,
     type RequestAPI,
+    type Document,
   } from "../../store";
   import { v4 as uuidv4 } from "uuid";
   import { fade } from "svelte/transition";
@@ -20,7 +21,9 @@
   let placeholderHovered = false;
   let qrCodeElement: any;
 
+  export let routes: Document;
   export let authToken = "";
+
   export let fullname: {
     firstName: string;
     middleName: string;
@@ -38,21 +41,21 @@
 
   const handleGenerate = () => {
     if (value.length) {
-      return
+      return;
     }
 
     if (!documentName.length) {
-      $showMessage = { error: "Please fill all entries first" };
+      $showMessage = { error: "Please Enter a Document Name!" };
       return;
     }
 
     if (!documentDescription.length) {
-      $showMessage = { error: "Please fill all entries first" };
+      $showMessage = { error: "Please Select a Document Route!" };
       return;
     }
 
     if (!documentPath.length) {
-      $showMessage = { error: "Please fill all entries first" };
+      $showMessage = { error: "Please Provide a Document Desciption!" };
       return;
     }
 
@@ -73,6 +76,8 @@
   let documentPath = "";
   let documentName = "";
   let documentDescription = "";
+  let inputBind = false;
+  let formBind: HTMLFormElement;
 
   const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -83,11 +88,6 @@
     const target = event.target as HTMLInputElement;
     documentDescription = target.value;
   };
-
-  let routes = [
-    { id: 1, name: "Love", route: "I / Love / You" },
-    { id: 2, name: "Hate", route: "I / Hate / You" },
-  ];
 
   const handleRouteExpand = () => {
     $routeExpand = !$routeExpand;
@@ -102,14 +102,13 @@
       codeData: "",
       documentName: "",
       documentDescription: "",
-      documentPath: "",
+      documentPath: {},
     },
   };
 
   const handleSubmit = async () => {
     registrationRequest.credentials!.codeData = value;
     registrationRequest.credentials!.documentName = documentName;
-    registrationRequest.credentials!.documentPath = documentPath;
     registrationRequest.credentials!.documentDescription = documentDescription;
 
     if (!documentName.length) {
@@ -136,17 +135,22 @@
       registrationRequest,
       authToken
     );
-
     if (request.error) {
       $showMessage = request;
+      console.log(request);
     } else {
-      console.log(request)
+      routeName = "";
+      formBind.reset();
+      (document.activeElement as HTMLElement).blur();
+      inputBind = false;
+      console.log(request);
     }
   };
 </script>
 
 <div class="register-document-wrapper">
   <form
+    bind:this={formBind}
     class="register-document-form"
     on:submit|preventDefault={handleSubmit}
     autocomplete="off"
@@ -161,6 +165,7 @@
         inputName="Document Name"
         inputType="Text"
         overlap={true}
+        bind:focusedInput={inputBind}
         on:input={handleInput}
         dark={$dark}
       ></Input>
@@ -172,10 +177,11 @@
         on:click|stopPropagation={handleRouteExpand}
       >
         {#if routeName.length}
-          {#each routes as route (route.id)}
-            {#if routeName === route.name}
+          {#each routes as route (route)}
+            {#if routeName === route.documentName}
               <span class="route-name" class:dark={$dark}>
-                {route.name}: {route.route}
+                {route.documentName}:
+                {documentPath}
               </span>
             {/if}
           {/each}
@@ -190,26 +196,35 @@
         class:wrapper-expand={$routeExpand}
       >
         <ul class="route-wrapper">
-          {#each routes as route (route.id)}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-            <!-- svelte-ignore missing-declaration -->
-            <li
-              class:dark={$dark}
-              on:click={() => {
-                routeName = route.name;
-                documentPath = route.route;
-                $routeExpand = false;
-              }}
-            >
-              <span
-                class="route-name-choices"
+          {#if routes.length}
+            {#each routes as route}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+              <!-- svelte-ignore missing-declaration -->
+              <li
                 class:dark={$dark}
-                class:active={route.name === routeName && true}
-                >{route.name}: {route.route}
+                on:click={() => {
+                  routeName = route.documentName;
+                  documentPath = route.documentPath
+                    .map((element) => element.name)
+                    .join("/");
+                  $routeExpand = false;
+                }}
+              >
+                <span class="route-name-choices" class:dark={$dark}
+                  >{route.documentName}: {route.documentPath
+                    .map((element) => element.name)
+                    .join("/")}
+                </span>
+              </li>
+            {/each}
+          {:else}
+            <li class:dark={$dark}>
+              <span class="route-name-choices" class:dark={$dark}
+                >You don't have any routes defined yet!
               </span>
             </li>
-          {/each}
+          {/if}
         </ul>
       </div>
       <textarea
@@ -455,6 +470,7 @@
         }
 
         & div.code-wrapper {
+          margin-top: 1rem;
           display: flex;
           flex-direction: column;
           align-items: center;

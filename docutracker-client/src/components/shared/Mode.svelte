@@ -4,6 +4,7 @@
     modeExpand,
     dark,
     profileExpand,
+    location,
     notificationExpand,
   } from "../../store";
   import { tooltip } from "./Tooltip";
@@ -81,7 +82,12 @@
   {/if}
 {/each}
 
-<div class="comp-wrapper" class:wrapper-expand={$modeExpand} class:dark={$dark}>
+<div
+  class="comp-wrapper"
+  class:wrapper-expand={$modeExpand}
+  class:dark={$dark}
+  class:outside={$location === "/" || $location === "/admin"}
+>
   <ul class="mode-wrapper">
     {#each modes as value (value.id)}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -148,6 +154,10 @@
         background-color: var(--main-col-2);
       }
     }
+  }
+
+  div.outside {
+    right: 0.5rem;
   }
 
   div.wrapper-expand {

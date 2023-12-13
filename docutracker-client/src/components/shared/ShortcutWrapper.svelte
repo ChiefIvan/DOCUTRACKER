@@ -1,11 +1,27 @@
 <script lang="ts">
   import { dark } from "../../store";
   import { fly } from "svelte/transition";
+  import {
+    type ResponseData,
+    type Document,
+  } from "../../store";
 
   import ScanDocument from "../lib/ScanDocument.svelte";
   import RegisterDocument from "../lib/RegisterDocument.svelte";
+  import RegisterRoute from "../lib/RegisterRoute.svelte";
+  import UnverifiedComp from "./UnverifiedComp.svelte";
 
   export let shortcutData = "Hello from Shortcut Wrapper";
+  export let fullVerified: boolean | undefined = false;
+  export let routes: Document = {
+    codeData: "",
+    documentName: "",
+    documentDescription: "",
+    documentRegDate: "",
+    documentPath: [{ approved: false, name: "" }],
+  };
+
+
   export let fullname: {
     firstName: string;
     middleName: string;
@@ -21,11 +37,26 @@
   out:fly={{ x: 1000, duration: 800, delay: 100 }}
 >
   {#if shortcutData === "Scan Document"}
-    <ScanDocument {authToken} on:closeShortCut on:documentData></ScanDocument>
+    {#if fullVerified}
+      <ScanDocument {authToken} on:closeShortCut on:documentData></ScanDocument>
+    {:else}
+      <UnverifiedComp></UnverifiedComp>
+    {/if}
   {:else if shortcutData === "Register Document"}
-    <RegisterDocument {fullname} {authToken}></RegisterDocument>
-  {:else}
-    {shortcutData}
+    {#if fullVerified}
+      <RegisterDocument {fullname} {routes} {authToken}
+      ></RegisterDocument>
+    {:else}
+      <UnverifiedComp></UnverifiedComp>
+    {/if}
+  {:else if shortcutData === "Register Route"}
+    {#if fullVerified}
+      <RegisterRoute {authToken} on:route></RegisterRoute>
+    {:else}
+      <UnverifiedComp></UnverifiedComp>
+    {/if}
+    <!-- {:else}
+    {shortcutData} -->
   {/if}
 </div>
 

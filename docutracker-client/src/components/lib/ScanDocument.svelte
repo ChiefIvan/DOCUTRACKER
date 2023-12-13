@@ -11,6 +11,7 @@
   import { onMount } from "svelte";
   import { Html5Qrcode } from "html5-qrcode";
   import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
 
   import WebcamIcon from "../icons/WebcamIcon.svelte";
   import FileSystemIcon from "../icons/FileSystemIcon.svelte";
@@ -209,6 +210,7 @@
           );
           if (request.error) {
             base64String = null;
+            fileData;
             $showMessage = request;
           } else {
             dispatch("documentData", request);
@@ -217,6 +219,7 @@
           }
         } else {
           base64String = null;
+          fileData;
           $showMessage = { error: "No Qr Code Found" };
         }
       };
@@ -270,7 +273,7 @@
           on:cropcomplete={(e) => (pixelCrop = e.detail.pixels)}
         />
       {:else}
-        <label class="scan-trigger" for="scan-input">
+        <label transition:fade class="scan-trigger" for="scan-input">
           <span class="scan-body"> Select an Image! </span>
         </label>
       {/if}

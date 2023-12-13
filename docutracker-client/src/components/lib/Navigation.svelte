@@ -165,12 +165,12 @@
       comp: RouteIcon,
       bind: registerRoute,
     },
-    {
-      id: 4,
-      shortcutName: "Update Route",
-      comp: UpdateRouteIcon,
-      bind: updateRoute,
-    },
+    // {
+    //   id: 4,
+    //   shortcutName: "Update Route",
+    //   comp: UpdateRouteIcon,
+    //   bind: updateRoute,
+    // },
   ];
 </script>
 

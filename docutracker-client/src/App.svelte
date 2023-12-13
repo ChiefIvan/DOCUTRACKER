@@ -10,6 +10,7 @@
     dark,
     type ResponseData,
     type RequestAPI,
+    type DocumentPath,
   } from "./store";
   import { fly } from "svelte/transition";
   import { afterUpdate } from "svelte";
@@ -32,15 +33,20 @@
   import Analytics from "./components/routes/Analytics.svelte";
   import DocumentOverview from "./components/routes/DocumentOverview.svelte";
   import ShortcutWrapper from "./components/shared/ShortcutWrapper.svelte";
+  import AdminLogin from "./components/routes/AdminLogin.svelte";
+  import AdminInterface from "./components/routes/AdminInterface.svelte";
 
   let show: boolean = false;
-  let user: ResponseData;
-  let userImg: ResponseData;
+  let user: ResponseData = {};
+
+  $: fullVerified = user.full_ver_val;
+  $: allDocumentPath = user.documents;
+
   let id: string | number | NodeJS.Timeout | undefined;
 
   const authToken = sessionStorage.getItem("remember") || "";
   const indexMethod = "GET";
-  const streamAddress = `${address}/user_credentials_updates`;
+  const streamAddress = `${address}/index`;
 
   $: if (Object.keys($showMessage).length !== 0) {
     clearTimeout(id);
@@ -80,7 +86,7 @@
           authToken
         );
 
-        userImg = response;
+        user = response;
       }, 5000);
     }
   });
@@ -148,19 +154,21 @@
     documentName: string;
     documentDescription: string;
     codeData: string;
-    regAt: string;
+    documentRegDate: string;
   };
 
   let documentData: DocumentData = {
     documentName: "",
     documentDescription: "",
     codeData: "",
-    regAt: "",
+    documentRegDate: "",
   };
 
   const handleDocumentData = (event: { detail: DocumentData }) => {
     documentData = event.detail;
   };
+
+  $: console.log(user);
 </script>
 
 {#if show}
@@ -175,7 +183,7 @@
 
     <div class="main-wrapper">
       <DomEvents />
-      <Header {user} userUpdatedImg={userImg} />
+      <Header {user} />
 
       {#if $registrationExpand}
         <UserRegistration />
@@ -183,8 +191,11 @@
 
       <Route path="" component={_Error} />
       <Route path="/" component={Overview} />
+      <Route path="/admin">
+        <AdminInterface></AdminInterface>
+      </Route>
       <Route path="/dashboard">
-        <Dashboard on:user={handleUser} {authToken} />
+        <Dashboard on:user={handleUser} {authToken} routes={allDocumentPath} />
       </Route>
       <Route path="/history">
         <Updates on:user={handleUser} {authToken}></Updates>
@@ -196,8 +207,13 @@
         <Analytics on:user={handleUser} {authToken}></Analytics>
       </Route>
       <Route path="/document/overview">
-        <DocumentOverview on:user={handleUser} {authToken} {documentData}></DocumentOverview>
+        <DocumentOverview
+          on:user={handleUser}
+          {authToken}
+          documents={user.documents}
+        ></DocumentOverview>
       </Route>
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/auth/login/" component={Login} />
       <Route path="/auth/signup" component={Signup} />
       <Route path="/auth/reset" component={Reset} />
@@ -214,6 +230,7 @@
 
       {#if scan}
         <ShortcutWrapper
+          {fullVerified}
           {shortcutData}
           {authToken}
           on:documentData={handleDocumentData}
@@ -225,8 +242,10 @@
 
       {#if registerD}
         <ShortcutWrapper
+          {fullVerified}
           {shortcutData}
           {authToken}
+          routes={allDocumentPath}
           fullname={user.firstName && user.middleName && user.lastName
             ? {
                 firstName: user.firstName,
@@ -238,26 +257,27 @@
       {/if}
 
       {#if registerR}
-        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
+        <ShortcutWrapper {fullVerified} {shortcutData} {authToken}
+        ></ShortcutWrapper>
       {/if}
 
       {#if updateR}
-        <ShortcutWrapper {shortcutData} {authToken}></ShortcutWrapper>
+        <ShortcutWrapper
+          fullVerified={user.full_ver_val}
+          {shortcutData}
+          {authToken}
+        ></ShortcutWrapper>
       {/if}
       <NavigationLocation />
     </div>
   </div>
 </Router>
 
-{#if $location === "/auth/login" || $location === "/auth/signup" || $location === "/auth/reset"}
+{#if $location === "/auth/login" || $location === "/auth/signup" || $location === "/auth/reset" || $location === "/admin/login"}
   <Footer />
 {/if}
 
 <style>
-  :global(body) {
-    transition: all ease-in-out 100ms;
-  }
-
   div.side-main-wrapper {
     display: flex;
 

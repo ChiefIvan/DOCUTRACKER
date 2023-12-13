@@ -2,7 +2,6 @@
   import {
     handleFetch,
     address,
-    dark,
     type RequestAPI,
     type ResponseData,
   } from "../../store";
@@ -37,16 +36,16 @@
     }
   }
 
-  async function fetchEventSourceAndLog() {
-    if (!authToken.length) {
-      console.warn("Auth Token is empty");
-      navigate("/auth/login");
-      return;
-    }
-  }
+  // async function fetchEventSourceAndLog() {
+  //   if (!authToken.length) {
+  //     console.warn("Auth Token is empty");
+  //     navigate("/auth/login");
+  //     return;
+  //   }
+  // }
 
   onMount(async () => {
     await fetchDataAndDispatch();
-    await fetchEventSourceAndLog();
+    // await fetchEventSourceAndLog();
   });
 </script>

@@ -76,9 +76,12 @@ body.disable-scroll {
   overflow: hidden;
 }
 
+body {
+  transition: background-color ease-in-out 300ms;
+}
+
 body.light {
   background-color: var(--background);
-  transition: background-color ease-in-out 300ms;
 }
 
 body.dark {

@@ -63,7 +63,7 @@
     top: 4rem;
     right: 1rem;
     z-index: 3;
-    width: 30%;
+    width: 20rem;
     padding: 1rem;
 
     & p.message {
