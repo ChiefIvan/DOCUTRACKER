@@ -14,13 +14,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: List files in working directory
-        run: ls -la
-
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: 16
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
