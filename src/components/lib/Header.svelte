@@ -65,7 +65,7 @@
   }
 </script>
 
-<header class="header" class:dark={$dark} class:outside={$location === "/DOCUTRACKER"}>
+<header class="header" class:dark={$dark} class:outside={$location === "/DOCUTRACKER/"}>
   <div class="header-container">
     {#if $location === "/auth/login" || $location === "/auth/signup" || $location === "/auth/reset" || $location === "/admin/login"}
       <div
